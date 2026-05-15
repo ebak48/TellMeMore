@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TellMeMore</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#0a0a0b;--bg1:#111114;--bg2:#16161a;--bg3:#1c1c22;--bg4:#222229;
+  --wire:#2a2a35;--wire2:#383845;
+  --t0:#f0edf8;--t1:#c8c2d8;--t2:#8a8498;--t3:#555265;--t4:#333040;
+  --v:#8b5cf6;--v2:#7c3aed;--v3:#a78bfa;--v4:#ddd6fe;
+  --pos:#22c55e;--cau:#f59e0b;--neg:#ef4444;
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg0);color:var(--t1);font-family:'JetBrains Mono',monospace;min-height:100vh;min-height:100dvh}
+.screen{animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.wrap{max-width:480px;margin:0 auto;padding:0 20px}
+.bar{padding:18px 24px;border-bottom:1px solid var(--wire);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg0);z-index:50}
+.logo{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--t0)}
+.logo-dot{width:6px;height:6px;background:var(--v);border-radius:50%}
+.bar-right{font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase}
+h1{font-family:'Libre Baskerville',serif;font-size:clamp(36px,7vw,56px);line-height:.95;letter-spacing:-.02em;color:var(--t0);font-weight:700}
+h1 em{font-style:italic;font-weight:400;color:var(--v3)}
+h2{font-family:'Libre Baskerville',serif;font-size:clamp(22px,4vw,30px);line-height:1.1;letter-spacing:-.01em;color:var(--t0)}
+.label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3)}
+.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--v);margin-bottom:12px}
+.btn{display:block;width:100%;padding:14px 20px;background:var(--v);color:#fff;border:none;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--v2)}
+.btn-ghost{background:transparent;border:1px solid var(--wire2);color:var(--t1)}
+.btn-ghost:hover{border-color:var(--v);color:var(--t0);background:transparent}
+.input{display:block;width:100%;padding:13px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:6px;color:var(--t0);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;transition:border .15s}
+.input:focus{border-color:var(--v)}
+.input::placeholder{color:var(--t3)}
+.divider{height:1px;background:var(--wire);margin:24px 0}
+.progress-bar{height:2px;background:var(--wire);border-radius:1px;overflow:hidden}
+.progress-fill{height:100%;background:var(--v);border-radius:1px;transition:width .4s cubic-bezier(.16,1,.3,1)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border:1px solid var(--wire2);border-radius:20px;font-size:11px;color:var(--t2)}
+.chip.active{border-color:var(--v);color:var(--v3);background:rgba(139,92,246,.08)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--wire2);border-radius:8px;padding:10px 20px;font-size:12px;color:var(--t0);z-index:100;animation:fadeUp .25s both;pointer-events:none}
+
+/* Mode selector */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.mode-card{padding:20px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:10px;cursor:pointer;transition:all .15s;text-align:center}
+.mode-card:hover{border-color:var(--wire2)}
+.mode-card.selected{border-color:var(--v);background:rgba(139,92,246,.06)}
+.mode-card-icon{font-size:22px;margin-bottom:8px}
+.mode-card-label{font-size:13px;font-weight:500;color:var(--t0)}
+.mode-card-sub{font-size:11px;color:var(--t3);margin-top:3px}
+
+/* Question */
+.section-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--v3);background:rgba(139,92,246,.1);margin-bottom:16px}
+.question-text{font-family:'Libre Baskerville',serif;font-size:clamp(17px,3.5vw,22px);line-height:1.35;color:var(--t0);margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{padding:14px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
+.option:hover{border-color:var(--wire2);background:var(--bg3)}
+.option.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
+.option-key{width:22px;height:22px;border-radius:50%;border:1px solid var(--wire2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--t3);flex-shrink:0;transition:all .15s}
+.option.selected .option-key{background:var(--v);border-color:var(--v);color:#fff}
+.option-text{font-size:13px;color:var(--t1);line-height:1.4;flex:1}
+.option.selected .option-text{color:var(--t0)}
+.pair-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair-opt{padding:16px 14px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;text-align:left}
+.pair-opt:hover{border-color:var(--wire2);background:var(--bg3)}
+.pair-opt.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
+.pair-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.pair-text{font-size:12px;color:var(--t1);line-height:1.45}
+.pair-opt.selected .pair-text{color:var(--t0)}
+
+/* Results */
+.result-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px}
+.result-block-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.result-text{font-size:14px;color:var(--t0);line-height:1.65}
+.contradiction-block{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;padding:20px;margin-bottom:12px}
+.contradiction-text{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--v4);line-height:1.5;font-style:italic}
+.friction-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px;border-left:3px solid var(--cau);border-radius:0 10px 10px 0}
+.friction-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cau);margin-bottom:8px}
+.friction-text{font-size:13px;color:var(--t2);line-height:1.6}
+.pattern-msg{text-align:center;padding:12px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--v3);letter-spacing:.05em;margin-bottom:16px}
+
+/* Share card */
+.share-card{background:var(--bg1);border:1px solid var(--wire2);border-radius:12px;padding:28px 24px;text-align:center;margin:20px 0}
+.share-name{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.share-headline{font-family:'Libre Baskerville',serif;font-size:17px;color:var(--t0);line-height:1.4;margin-bottom:16px;font-style:italic}
+.share-count{font-size:11px;color:var(--t3)}
+.share-brand{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--v);margin-top:12px}
+
+/* Unlock */
+.unlock-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--wire2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
+.unlock-progress{position:absolute;inset:0;border-radius:50%}
+.unlock-count{font-size:24px;font-weight:500;color:var(--t0)}
+.unlock-bar-wrap{background:var(--wire);border-radius:3px;height:4px;overflow:hidden;margin:16px 0}
+.unlock-bar{height:100%;background:var(--v);border-radius:3px;transition:width .4s}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<script>
+const API = '';
+let state = {
+  screen: 'landing',
+  mode: null,
+  profileId: null,
+  profileSlug: null,
+  profileName: '',
+  respondSlug: null,
+  respondProfile: null,
+  answers: {},
+  currentQ: 0,
+  queuedQuestions: [],
+  path: null,
+  results: null,
+  responseCount: 0,
+  toast: null
+};
+
+// Check if responder link
+const urlParams = new URLSearchParams(location.search);
+const respondParam = urlParams.get('respond');
+if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+async function api(method, path, data) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (data) opts.body = JSON.stringify(data);
+    const r = await fetch(API + path, opts);
+    return r.json();
+  } catch(e) { console.error(e); return null; }
+}
+
+// ── Question data (embedded) ──────────────────────────────────────────────────
+const QUESTIONS = {
+  friends: {
+    section1: [
+      { id:'s1', format:'forced', section:1, text:'Yanında zaman geçirmek nasıl bir his?', options:[
+        {key:'A',text:'Rahatlatıcı — yanında olmak kolay'},
+        {key:'B',text:'Enerjik — her an bir şey oluyor'},
+        {key:'C',text:'Yoğun — güzel ama dozunu bilmek lazım'},
+        {key:'D',text:'Mesafeli — tam açılmıyor gibi hissettiriyor'}
+      ]},
+      { id:'s2', format:'forced', section:1, text:'Bir grupta bu kişi genellikle nerede durur?', options:[
+        {key:'A',text:'Ortanın tam merkezinde — herkes ona bakıyor'},
+        {key:'B',text:'Dengeyi kuran — sessiz ama belirleyici'},
+        {key:'C',text:'Gözlemleyen — konuşmak için doğru anı bekliyor'},
+        {key:'D',text:'Kenarda — gruba tam dahil olmuyor'}
+      ]},
+      { id:'s3', format:'forced', section:1, text:'Zor bir şey paylaşman gerekse ilk aklına gelir mi?', options:[
+        {key:'A',text:'Evet, hep ilk o aklıma gelir'},
+        {key:'B',text:'Bazen — bağlı olduğu konuya'},
+        {key:'C',text:'Pek değil — o tarz konular için değil'},
+        {key:'D',text:'Hayır — duygusal konularda kapalı'}
+      ]}
+    ],
+    section2_fixed: [
+      { id:'s4', format:'forced', section:2, text:'Bu kişiyle anlaşmazlık yaşarsan ne olur?', options:[
+        {key:'A',text:'Sakin kalır, çözüm arar'},
+        {key:'B',text:'Dürüstçe konuşur, sonra geçer'},
+        {key:'C',text:'Sessizleşir, içine atar'},
+        {key:'D',text:'Savunmaya geçer, haklılığını kanıtlamaya çalışır'}
+      ]},
+      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Fark ettiğinden daha çok güven veriyor'},
+        {key:'B',text:'Güvenilir görünüyor ama içine çok az alıyor'}
+      ]},
+      { id:'s6', format:'forced', section:2, text:'Bu kişinin odaya girişi nasıl hissettiriyor?', options:[
+        {key:'A',text:'Enerji değişiyor — fark ediliyor'},
+        {key:'B',text:'Sıcaklık getiriyor — ortam rahatıyor'},
+        {key:'C',text:'Sessizce giriyor — zamanla fark ediliyor'},
+        {key:'D',text:'Pek değişmiyor — arka planda kalıyor'}
+      ]}
+    ],
+    section2_pathA: [
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar sıcak ve açık biri — sınırlarını da koruyor mu?', options:[
+        {key:'A',text:'Evet — hem açık hem sınırları net'},
+        {key:'B',text:'Bazen çok veriyor, karşılık bulamıyor'}
+      ]},
+      { id:'s8a', format:'forced', section:2, text:'İnsanlar ona ne zaman daha çok ihtiyaç duyuyor?', options:[
+        {key:'A',text:'Zor anlarda — güvende hissettiriyor'},
+        {key:'B',text:'Eğlenceli anlarda — enerji katar'},
+        {key:'C',text:'Her iki durumda da'},
+        {key:'D',text:'Pek ihtiyaç duyulmuyor aslında'}
+      ]}
+    ],
+    section2_pathB: [
+      { id:'s7b', format:'forced', section:2, text:'Bu mesafe nereden geliyor sence?', options:[
+        {key:'A',text:'Kendi dünyasında — dışarıyı pek umursamıyor'},
+        {key:'B',text:'İlk önce test ediyor, sonra açılıyor'},
+        {key:'C',text:'Savunma mekanizması — bunu göstermiyor ama'},
+        {key:'D',text:'Umursamıyor sanki — ilgisiz'}
+      ]},
+      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Gizemli — merak uyandırıyor, daha fazlasını öğrenmek istiyorum'},
+        {key:'B',text:'Zor anlaşılıyor — yorucu hissettiriyor bazen'}
+      ]}
+    ],
+    section3: [
+      { id:'s9', format:'gut', section:3, text:'Bu kişi odadan çıkınca arkadaşlar ne der?', options:[
+        {key:'A',text:'"Ne kadar iyi biri — şanslıyız"'},
+        {key:'B',text:'"Çok eğlenceli, enerjisi bulaşıcı"'},
+        {key:'C',text:'"İyi biri ama tam anlayamadım"'},
+        {key:'D',text:'"Neden böyle davrandı acaba?"'}
+      ]}
+    ]
+  },
+  romance: {
+    section1: [
+      { id:'s1', format:'forced', section:1, text:'Bu kişiyi ilk gördüğünde ne hissettin?', options:[
+        {key:'A',text:'Hemen dikkat çekti — gözüm gitti'},
+        {key:'B',text:'Merak uyandırdı — daha fazlasını öğrenmek istedim'},
+        {key:'C',text:'Zaman aldı — sonradan fark ettim'},
+        {key:'D',text:'Pek fark etmedim açıkçası'}
+      ]},
+      { id:'s2', format:'forced', section:1, text:'Romantik olarak ne hissettiriyor?', options:[
+        {key:'A',text:'Heyecanlı ve güvende — ikisi bir arada'},
+        {key:'B',text:'Çekici ama gizemli — tam okuyamıyorum'},
+        {key:'C',text:'İlgi çekici ama sinyal vermiyor'},
+        {key:'D',text:'Belirsiz — ne düşündüğünü anlamak zor'}
+      ]},
+      { id:'s3', format:'forced', section:1, text:'Flört ettiğini anlayabilir misin?', options:[
+        {key:'A',text:'Evet, çok net ve doğal — kendiliğinden akıyor'},
+        {key:'B',text:'Bazen — ince ipuçları veriyor'},
+        {key:'C',text:'Zor — çok gizemli, sinyal belirsiz'},
+        {key:'D',text:'Hayır — hiç sinyal yok'}
+      ]}
+    ],
+    section2_fixed: [
+      { id:'s4', format:'forced', section:2, text:'Romantik olarak en güçlü yanı ne?', options:[
+        {key:'A',text:'Kendinden emin duruşu — çekim yaratıyor'},
+        {key:'B',text:'Gerçekten dinliyor — özel hissettiriyor'},
+        {key:'C',text:'Sıcaklığı ve samimiyeti'},
+        {key:'D',text:'Açıkçası henüz güçlü bir yanını fark etmedim'}
+      ]},
+      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Fark ettiğinden daha çekici — etkisinin farkında değil'},
+        {key:'B',text:'Çekici ama bu farkındalığı mesafe yaratıyor'}
+      ]},
+      { id:'s6', format:'forced', section:2, text:'Bu kişinin varlığı ortamda ne hissettiriyor?', options:[
+        {key:'A',text:'Manyetik — gözler ona gidiyor'},
+        {key:'B',text:'Sıcak — yanında olmak güvende hissettiriyor'},
+        {key:'C',text:'Merak uyandırıcı — ama ulaşmak zor'},
+        {key:'D',text:'Nötr — pek iz bırakmıyor'}
+      ]}
+    ],
+    section2_pathA: [
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar çekici biri — yaklaşmak kolay mı?', options:[
+        {key:'A',text:'Evet — çekici ve aynı zamanda ulaşılabilir'},
+        {key:'B',text:'Hayır — çekici ama yaklaşmak için cesaret lazım'}
+      ]},
+      { id:'s8a', format:'forced', section:2, text:'Romantik olarak en büyük etkisi ne?', options:[
+        {key:'A',text:'Kendine güven veriyor — yanında iyi hissediyorsun'},
+        {key:'B',text:'Merak ettiriyor — daha fazlasını öğrenmek istiyorsun'},
+        {key:'C',text:'Heyecanlandırıyor — her an beklenmedik bir şey olabilir'},
+        {key:'D',text:'Sakinleştiriyor — güvende hissettiriyor'}
+      ]}
+    ],
+    section2_pathB: [
+      { id:'s7b', format:'forced', section:2, text:'Romantik olarak bu mesafe nereden geliyor?', options:[
+        {key:'A',text:'Kolay güvenmiyor — zamanla açılıyor'},
+        {key:'B',text:'Duygusal olarak hazır değil — zamanı değil sanki'},
+        {key:'C',text:'Duygusal olarak kırılgan — korunuyor'},
+        {key:'D',text:'İlgisiz görünüyor — romantik sinyal vermiyor'}
+      ]},
+      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Gizemli — bu mesafe aslında çekici kılıyor'},
+        {key:'B',text:'Zor okunuyor — bu belirsizlik yorucu'}
+      ]}
+    ],
+    section3: [
+      { id:'s9', format:'gut', section:3, text:'Bu kişide seni en çok etkileyen ne?', options:[
+        {key:'A',text:'Varlığı — ortama girince bir şeyler değişiyor'},
+        {key:'B',text:'Bakışı — sanki gerçekten görüyor seni'},
+        {key:'C',text:'Gizemli tarafı — hiç tam anlayamadım'},
+        {key:'D',text:'Aslında pek etkilemedi'}
+      ]}
+    ]
+  }
+};
+
+function computePath(answers, mode) {
+  const pos = ['A','B'], neg = ['C','D'];
+  const q1 = QUESTIONS[mode].section1;
+  const s1sig = pos.includes(answers.s1) ? 'pos' : 'neg';
+  const s2sig = pos.includes(answers.s2) ? 'pos' : 'neg';
+  const s3sig = pos.includes(answers.s3) ? 'pos' : 'neg';
+  if (s1sig === 'neg') return 'B';
+  const posCount = [s1sig,s2sig,s3sig].filter(s=>s==='pos').length;
+  if (posCount >= 2) return 'A';
+  return 'B';
+}
+
+function buildQuestionQueue(mode, path) {
+  const q = QUESTIONS[mode];
+  return [
+    ...q.section1,
+    ...q.section2_fixed,
+    ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
+    ...q.section3
+  ];
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const s = state.screen;
+  if (s === 'landing')          app.appendChild(renderLanding());
+  else if (s === 'create')      app.appendChild(renderCreate());
+  else if (s === 'owner_wait')  app.appendChild(renderOwnerWait());
+  else if (s === 'respond_loading') loadResponderProfile();
+  else if (s === 'respond_mode')    app.appendChild(renderRespondMode());
+  else if (s === 'questions')       app.appendChild(renderQuestions());
+  else if (s === 'submitted')       app.appendChild(renderSubmitted());
+  else if (s === 'results')         app.appendChild(renderResults());
+  if (state.toast) {
+    const t = el('div','toast',state.toast);
+    app.appendChild(t);
+    setTimeout(()=>{state.toast=null;render();},2500);
+  }
+}
+
+function el(tag,cls,text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text) e.textContent = text;
+  return e;
+}
+
+function bar(right) {
+  const b = el('div','bar');
+  const logo = el('div','logo');
+  const dot = el('div','logo-dot'); logo.appendChild(dot);
+  const name = el('span',''); name.textContent = 'TellMeMore'; logo.appendChild(name);
+  b.appendChild(logo);
+  if (right) { const r = el('div','bar-right',right); b.appendChild(r); }
+  return b;
+}
+
+// ── Landing ───────────────────────────────────────────────────────────────────
+function renderLanding() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop = '48px';
+  const ey = el('div','eyebrow','Perception Intelligence');
+  const h = el('h1',''); h.innerHTML = 'How do people <em>actually</em> see you?';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;line-height:1.7;margin:16px 0 36px';
+  sub.textContent = 'Arkadaşlarının seni romantik veya sosyal olarak nasıl gördüğünü öğren. Anonim. Gerçek.';
+  const btn1 = el('button','btn','Profilini oluştur');
+  btn1.onclick = ()=>{state.screen='create';render();};
+  const div = el('div',''); div.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0';
+  const line1=el('div','');line1.style.cssText='flex:1;height:1px;background:var(--wire)';
+  const or=el('span','');or.style.cssText='font-size:11px;color:var(--t3)';or.textContent='veya';
+  const line2=el('div','');line2.style.cssText='flex:1;height:1px;background:var(--wire)';
+  div.append(line1,or,line2);
+  const btn2 = el('button','btn btn-ghost','Biri hakkında cevapla');
+  btn2.onclick = ()=>{ const s=prompt('Link kodu:'); if(s){state.respondSlug=s.trim();state.screen='respond_loading';render();}};
+  wrap.append(ey,h,sub,btn1,div,btn2);
+  d.appendChild(wrap);
+  return d;
+}
+
+// ── Create profile ────────────────────────────────────────────────────────────
+function renderCreate() {
+  const d = el('div','screen');
+  d.appendChild(bar('1 / 2'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop = '36px';
+  const ey = el('div','eyebrow','Profil oluştur');
+  const h = el('h2',''); h.textContent = 'İsmin ne?';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px';
+  sub.textContent = 'Arkadaşların bu ismi görecek.';
+  const inp = el('input','input'); inp.type='text'; inp.placeholder='Adın...'; inp.maxLength=30;
+  if (state.profileName) inp.value = state.profileName;
+
+  const modeLabel = el('p',''); modeLabel.style.cssText='font-size:12px;color:var(--t2);margin:24px 0 8px';
+  modeLabel.textContent = 'Ne öğrenmek istiyorsun?';
+  const cards = el('div','mode-cards');
+  const modes = [
+    { id:'friends', icon:'👥', label:'Friends', sub:'Sosyal algın' },
+    { id:'romance', icon:'✦',  label:'Romance', sub:'Romantik algın' }
+  ];
+  let selectedMode = state.mode || null;
+  modes.forEach(m => {
+    const c = el('div','mode-card' + (selectedMode===m.id?' selected':''));
+    const ic = el('div','mode-card-icon',m.icon);
+    const lb = el('div','mode-card-label',m.label);
+    const sb = el('div','mode-card-sub',m.sub);
+    c.append(ic,lb,sb);
+    c.onclick = ()=>{ selectedMode=m.id; cards.querySelectorAll('.mode-card').forEach(x=>x.classList.remove('selected')); c.classList.add('selected'); };
+    cards.appendChild(c);
+  });
+
+  const btn = el('button','btn','Devam et');
+  btn.style.marginTop='28px';
+  btn.onclick = async ()=>{
+    const name = inp.value.trim();
+    if (!name) { state.toast='İsim gir'; render(); return; }
+    if (!selectedMode) { state.toast='Bir mod seç'; render(); return; }
+    btn.textContent='Oluşturuluyor...'; btn.disabled=true;
+    const res = await api('POST','/api/profiles',{name,mode:selectedMode});
+    if (!res||res.error) { btn.textContent='Devam et'; btn.disabled=false; state.toast='Hata oluştu'; render(); return; }
+    state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
+    state.screen='owner_wait'; render();
+  };
+  wrap.append(ey,h,sub,inp,modeLabel,cards,btn);
+  d.appendChild(wrap);
+  return d;
+}
+
+// ── Owner wait ────────────────────────────────────────────────────────────────
+function renderOwnerWait() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='36px';
+  const ey = el('div','eyebrow','Hazır');
+  const h = el('h2',''); h.innerHTML = `${state.profileName}, <em>linkini paylaş</em>`;
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px;line-height:1.6';
+  sub.textContent = `Arkadaşların bu link üzerinden ${state.mode==='friends'?'seni sosyal olarak':'romantik açıdan seni'} değerlendirecek.`;
+
+  const linkBox = el('div','');
+  linkBox.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--v3);letter-spacing:.02em;word-break:break-all;margin-bottom:12px;cursor:pointer';
+  const link = `${location.origin}/r/${state.profileSlug}`;
+  linkBox.textContent = link;
+  linkBox.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
+
+  const btnCopy = el('button','btn','Linki kopyala');
+  btnCopy.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
+
+  const divider = el('div','divider');
+  const countWrap = el('div','');
+  countWrap.style.cssText='text-align:center;margin-bottom:20px';
+  const countLabel = el('div','label','Gelen cevaplar');
+  countLabel.style.marginBottom='8px';
+  const count = el('div',''); count.style.cssText='font-size:32px;font-weight:500;color:var(--t0)';
+  count.id='resp-count'; count.textContent='0';
+  const patternMsg = el('div',''); patternMsg.id='pattern-msg'; patternMsg.style.cssText='font-size:11px;color:var(--v3);margin-top:8px;min-height:16px';
+  countWrap.append(countLabel,count,patternMsg);
+
+  const btnResults = el('button','btn','Sonuçları gör');
+  btnResults.style.cssText='opacity:.4;cursor:not-allowed';
+  btnResults.id='btn-results';
+  btnResults.onclick = ()=>{ if(state.responseCount>=3){state.screen='results';render();}};
+
+  wrap.append(ey,h,sub,linkBox,btnCopy,divider,countWrap,btnResults);
+  d.appendChild(wrap);
+
+  // Poll
+  async function poll() {
+    if (!state.profileId) return;
+    const res = await api('GET',`/api/status/${state.profileId}`);
+    if (!res) return;
+    state.responseCount = res.responseCount||0;
+    const el_count = document.getElementById('resp-count');
+    const el_pattern = document.getElementById('pattern-msg');
+    const el_btn = document.getElementById('btn-results');
+    if (el_count) el_count.textContent = state.responseCount;
+    if (el_pattern && res.livePattern) el_pattern.textContent = res.livePattern;
+    if (el_btn) { if(state.responseCount>=3){el_btn.style.opacity='1';el_btn.style.cursor='pointer';}else{el_btn.style.opacity='.4';el_btn.style.cursor='not-allowed';} }
+  }
+  poll();
+  const pollInt = setInterval(()=>{ if(state.screen!=='owner_wait'){ clearInterval(pollInt); return; } poll(); },8000);
+  return d;
+}
+
+// ── Responder loading ─────────────────────────────────────────────────────────
+async function loadResponderProfile() {
+  const app = document.getElementById('app');
+  app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Yükleniyor...</div>';
+  const res = await api('GET',`/api/profiles/${state.respondSlug}`);
+  if (!res || res.error) {
+    app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--neg)">Profil bulunamadı.</div>';
+    return;
+  }
+  state.respondProfile = res;
+  state.mode = res.mode;
+  state.screen = 'respond_mode';
+  render();
+}
+
+// ── Respond mode intro ────────────────────────────────────────────────────────
+function renderRespondMode() {
+  const p = state.respondProfile;
+  const d = el('div','screen');
+  d.appendChild(bar('Anonim'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='40px';
+
+  const ey = el('div','eyebrow','Güvenli & Anonim');
+  const h = el('h2',''); h.innerHTML = `<em>${p.name}</em> seni bekliyor`;
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:10px 0 8px;line-height:1.6';
+  sub.textContent = state.mode==='friends' ? `${p.name}'ın seni sosyal olarak nasıl gördüğünü merak ediyor. Dürüst ol — kimse kim cevap verdiğini göremez.` : `${p.name}'ı romantik açıdan değerlendiriyorsun. Kimse kimin cevap verdiğini göremez.`;
+
+  const privacy = el('div','');
+  privacy.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;margin:20px 0;font-size:12px;color:var(--t2);line-height:1.6';
+  privacy.innerHTML = '🔒 Cevapların tamamen anonim. İsmin veya kimliğin asla görünmez.';
+
+  const btn = el('button','btn','Başla');
+  btn.onclick = ()=>{ state.answers={}; state.currentQ=0; state.path=null; state.queuedQuestions=buildInitialQueue(); state.screen='questions'; render(); };
+  wrap.append(ey,h,sub,privacy,btn);
+  d.appendChild(wrap);
+  return d;
+}
+
+function buildInitialQueue() {
+  return QUESTIONS[state.mode].section1;
+}
+
+// ── Questions ─────────────────────────────────────────────────────────────────
+function renderQuestions() {
+  const questions = state.queuedQuestions;
+  const idx = state.currentQ;
+  const q = questions[idx];
+  if (!q) { submitAnswers(); return el('div',''); }
+
+  const totalExpected = 9;
+  const progress = Math.round(((idx+1)/totalExpected)*100);
+
+  const d = el('div','screen');
+  d.appendChild(bar(`${idx+1} / ${totalExpected}`));
+
+  const progressBar = el('div','progress-bar');
+  const fill = el('div','progress-fill');
+  fill.style.width=progress+'%';
+  progressBar.appendChild(fill);
+  d.appendChild(progressBar);
+
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='28px';
+
+  const sectionNames = {1:'İlk İzlenim',2:'Karakter',3:'Son Söz'};
+  const sTag = el('div','section-tag', `Bölüm ${q.section} — ${sectionNames[q.section]||''}`);
+  wrap.appendChild(sTag);
+
+  const qtext = el('div','question-text', q.text);
+  wrap.appendChild(qtext);
+
+  const selected = state.answers[q.id] || null;
+
+  if (q.format === 'pair') {
+    const pairWrap = el('div','pair-options');
+    q.options.forEach(opt => {
+      const o = el('div','pair-opt'+(selected===opt.key?' selected':''));
+      const lb = el('div','pair-label','Seçenek '+opt.key);
+      const tx = el('div','pair-text',opt.text);
+      o.append(lb,tx);
+      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
+      pairWrap.appendChild(o);
+    });
+    wrap.appendChild(pairWrap);
+  } else {
+    const optWrap = el('div','options');
+    q.options.forEach(opt => {
+      const o = el('div','option'+(selected===opt.key?' selected':''));
+      const k = el('div','option-key',opt.key);
+      const t = el('div','option-text',opt.text);
+      o.append(k,t);
+      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
+      optWrap.appendChild(o);
+    });
+    wrap.appendChild(optWrap);
+  }
+
+  d.appendChild(wrap);
+  return d;
+}
+
+async function advance() {
+  const idx = state.currentQ;
+  const questions = state.queuedQuestions;
+
+  // After S3, compute path and inject adaptive questions
+  if (idx === 2 && questions.length === 3) {
+    const path = computePath(state.answers, state.mode);
+    state.path = path;
+    const q = QUESTIONS[state.mode];
+    state.queuedQuestions = [
+      ...q.section1,
+      ...q.section2_fixed,
+      ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
+      ...q.section3
+    ];
+  }
+
+  state.currentQ = idx + 1;
+  if (state.currentQ >= state.queuedQuestions.length) {
+    await submitAnswers();
+  } else {
+    render();
+  }
+}
+
+async function submitAnswers() {
+  const profileId = state.respondProfile?.id;
+  if (!profileId) { state.screen='submitted'; render(); return; }
+
+  const d = document.getElementById('app');
+  d.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Kaydediliyor...</div>';
+
+  const res = await api('POST','/api/responses',{ profileId, answers:state.answers });
+  state.responseCount = res?.responseCount || 0;
+  state.screen = 'submitted';
+  render();
+}
+
+// ── Submitted ─────────────────────────────────────────────────────────────────
+function renderSubmitted() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.cssText='padding-top:80px;text-align:center';
+  const icon = el('div',''); icon.style.cssText='font-size:32px;margin-bottom:16px'; icon.textContent='✦';
+  const h = el('h2',''); h.textContent='Cevabın alındı';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:12px auto;max-width:280px;line-height:1.6';
+  sub.textContent='Cevabın anonim olarak kaydedildi. Kimse kimin cevap verdiğini göremez.';
+  const btn = el('button','btn btn-ghost'); btn.textContent='Kendi profilini oluştur'; btn.style.marginTop='28px';
+  btn.onclick=()=>{state={screen:'create',mode:null,profileId:null,profileSlug:null,profileName:'',respondSlug:null,respondProfile:null,answers:{},currentQ:0,queuedQuestions:[],path:null,results:null,responseCount:0,toast:null};render();};
+  wrap.append(icon,h,sub,btn);
+  d.appendChild(wrap);
+  return d;
+}
+
+// ── Results ───────────────────────────────────────────────────────────────────
+function renderResults() {
+  const d = el('div','screen');
+  d.appendChild(bar('Sonuçlar'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='28px';
+
+  if (!state.results) {
+    const loading = el('div','');
+    loading.style.cssText='text-align:center;padding:60px 0;font-size:12px;color:var(--t3)';
+    loading.textContent='Analiz yapılıyor...';
+    wrap.appendChild(loading);
+    d.appendChild(wrap);
+    loadResults();
+    return d;
+  }
+
+  const r = state.results;
+  const ins = r.insight;
+
+  const ey = el('div','eyebrow',`${r.profile.name} — ${r.profile.mode==='friends'?'Friends':'Romance'} modu`);
+  const h = el('h2',''); h.innerHTML=`${r.responseCount} kişi <em>cevapladı</em>`;
+  wrap.append(ey,h);
+
+  if (ins.livePattern) {
+    const pm = el('div','pattern-msg',ins.livePattern);
+    wrap.appendChild(pm);
+  }
+
+  // Contradiction (most important)
+  const cont = el('div','contradiction-block');
+  const contLabel = el('div','result-block-label','Algı çelişkisi');
+  const contText = el('div','contradiction-text', ins.contradiction || ins.contradictionText);
+  cont.append(contLabel,contText);
+  wrap.appendChild(cont);
+
+  // Main blocks
+  const blocks = [
+    { label:'İnsanlar seni nasıl görüyor', text:ins.howPeopleSeeYou },
+    { label:'Fark etmediğin şey', text:ins.whatYouDontRealize || ins.magneticText },
+    { label:'Sosyal enerjin', text:ins.yourSocialEnergy },
+    { label:'Tekrar eden pattern', text:ins.whatKeepsShowing }
+  ];
+  blocks.forEach(b => {
+    if (!b.text) return;
+    const blk = el('div','result-block');
+    const lbl = el('div','result-block-label',b.label);
+    const txt = el('div','result-text',b.text);
+    blk.append(lbl,txt);
+    wrap.appendChild(blk);
+  });
+
+  // Friction (private)
+  if (ins.frictionText) {
+    const fr = el('div','friction-block');
+    const frLabel = el('div','friction-label','Sadece sana');
+    const frText = el('div','friction-text',ins.frictionText);
+    fr.append(frLabel,frText);
+    wrap.appendChild(fr);
+  }
+
+  // Share card
+  const card = el('div','share-card');
+  const sName = el('div','share-name',r.profile.name);
+  const sHead = el('div','share-headline', ins.shareHeadline || ins.contradictionText?.split('.')[0]);
+  const sCount = el('div','share-count',`${r.responseCount} kişi böyle gördü`);
+  const sBrand = el('div','share-brand','TellMeMore');
+  card.append(sName,sHead,sCount,sBrand);
+  wrap.appendChild(card);
+
+  const btnShare = el('button','btn','Share card\'ı kopyala');
+  btnShare.onclick=()=>{ navigator.clipboard?.writeText(`${ins.shareHeadline||ins.contradictionText?.split('.')[0]}\n\n${r.responseCount} kişi böyle gördü — TellMeMore`); state.toast='Kopyalandı'; render(); };
+  wrap.appendChild(btnShare);
+  d.appendChild(wrap);
+  return d;
+}
+
+async function loadResults() {
+  if (!state.profileId) return;
+  const res = await api('GET',`/api/results/${state.profileId}`);
+  if (!res || res.error) {
+    state.toast = res?.error || 'Sonuç yüklenemedi';
+    state.screen = 'owner_wait';
+    render();
+    return;
+  }
+  state.results = res;
+  render();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
