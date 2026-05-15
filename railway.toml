@@ -1,9 +1,9 @@
-[build]
+﻿[build]
 builder = "nixpacks"
 
 [deploy]
-startCommand = "node server.js"
-healthcheckPath = "/api/admin/dashboard"
+startCommand = "node tellmemore-server-final.js"
+healthcheckPath = "/admin"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
