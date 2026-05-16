@@ -1,1480 +1,721 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="tm-api" content="http://localhost:3000/api"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>TellMeMore</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg0:#0B0A0A;--bg1:#121110;--bg2:#191816;--bg3:#201E1C;--bg4:#282624;
-  --wire:#302E2C;--wire2:#403E3C;
-  --t0:#F3F3F2;--t1:#D8D2CB;--t2:#AAA49C;--t3:#807870;--t4:#585250;
-  --pos:#2D8055;--pos2:#58D898;
-  --cau:#A07020;--cau2:#D4A030;
-  --neg:#902828;--neg2:#E05858;
-  --brand:#8B5CF6;--brand2:#A78BFA;--brand3:#C4B5FD;
-  --warm:#CC9060;--warm2:#DFA870;
-  --serif:'Libre Baskerville',Georgia,serif;
-  --ui:'Inter',system-ui,-apple-system,sans-serif;
-  --mono:'JetBrains Mono','Courier New',monospace;
+  --bg0:#0a0a0b;--bg1:#111114;--bg2:#16161a;--bg3:#1c1c22;--bg4:#222229;
+  --wire:#2a2a35;--wire2:#383845;
+  --t0:#f0edf8;--t1:#c8c2d8;--t2:#8a8498;--t3:#555265;--t4:#333040;
+  --v:#8b5cf6;--v2:#7c3aed;--v3:#a78bfa;--v4:#ddd6fe;
+  --pos:#22c55e;--cau:#f59e0b;--neg:#ef4444;
 }
-html{font-size:16px;-webkit-text-size-adjust:100%}
-body{background:var(--bg0);color:var(--t1);font-family:var(--ui);min-height:100vh;min-height:100dvh;overflow-x:hidden}
-body::before{content:'';position:fixed;top:0;left:0;right:0;height:1px;background:var(--wire);z-index:100}
-body::after{content:'';position:fixed;top:-30%;left:-15%;width:80vw;height:80vw;background:radial-gradient(circle,rgba(139,92,246,.05) 0%,transparent 65%);pointer-events:none;z-index:-1}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg0);color:var(--t1);font-family:'JetBrains Mono',monospace;min-height:100vh;min-height:100dvh}
+.screen{animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.wrap{max-width:480px;margin:0 auto;padding:0 20px}
+.bar{padding:18px 24px;border-bottom:1px solid var(--wire);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg0);z-index:50}
+.logo{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--t0)}
+.logo-dot{width:6px;height:6px;background:var(--v);border-radius:50%}
+.bar-right{font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase}
+h1{font-family:'Libre Baskerville',serif;font-size:clamp(36px,7vw,56px);line-height:.95;letter-spacing:-.02em;color:var(--t0);font-weight:700}
+h1 em{font-style:italic;font-weight:400;color:var(--v3)}
+h2{font-family:'Libre Baskerville',serif;font-size:clamp(22px,4vw,30px);line-height:1.1;letter-spacing:-.01em;color:var(--t0)}
+.label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3)}
+.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--v);margin-bottom:12px}
+.btn{display:block;width:100%;padding:14px 20px;background:var(--v);color:#fff;border:none;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--v2)}
+.btn-ghost{background:transparent;border:1px solid var(--wire2);color:var(--t1)}
+.btn-ghost:hover{border-color:var(--v);color:var(--t0);background:transparent}
+.input{display:block;width:100%;padding:13px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:6px;color:var(--t0);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;transition:border .15s}
+.input:focus{border-color:var(--v)}
+.input::placeholder{color:var(--t3)}
+.divider{height:1px;background:var(--wire);margin:24px 0}
+.progress-bar{height:2px;background:var(--wire);border-radius:1px;overflow:hidden}
+.progress-fill{height:100%;background:var(--v);border-radius:1px;transition:width .4s cubic-bezier(.16,1,.3,1)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border:1px solid var(--wire2);border-radius:20px;font-size:11px;color:var(--t2)}
+.chip.active{border-color:var(--v);color:var(--v3);background:rgba(139,92,246,.08)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--wire2);border-radius:8px;padding:10px 20px;font-size:12px;color:var(--t0);z-index:100;animation:fadeUp .25s both;pointer-events:none}
 
-/* ANIMATIONS */
-.screen{animation:screenUp .3s cubic-bezier(.16,1,.3,1) both}
-@keyframes screenUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes revealUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 20px rgba(139,92,246,.25)}50%{box-shadow:0 0 35px rgba(139,92,246,.45)}}
-@keyframes counterTick{0%{transform:translateY(4px);opacity:0}100%{transform:translateY(0);opacity:1}}
+/* Mode selector */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.mode-card{padding:20px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:10px;cursor:pointer;transition:all .15s;text-align:center}
+.mode-card:hover{border-color:var(--wire2)}
+.mode-card.selected{border-color:var(--v);background:rgba(139,92,246,.06)}
+.mode-card-icon{font-size:22px;margin-bottom:8px}
+.mode-card-label{font-size:13px;font-weight:500;color:var(--t0)}
+.mode-card-sub{font-size:11px;color:var(--t3);margin-top:3px}
 
-.reveal-block{animation:revealUp .55s cubic-bezier(.16,1,.3,1) both}
-.reveal-1{animation-delay:.08s}.reveal-2{animation-delay:.2s}.reveal-3{animation-delay:.34s}
-.reveal-4{animation-delay:.48s}.reveal-5{animation-delay:.62s}.reveal-6{animation-delay:.76s}
+/* Question */
+.section-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--v3);background:rgba(139,92,246,.1);margin-bottom:16px}
+.question-text{font-family:'Libre Baskerville',serif;font-size:clamp(17px,3.5vw,22px);line-height:1.35;color:var(--t0);margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:8px}
+.option{padding:14px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
+.option:hover{border-color:var(--wire2);background:var(--bg3)}
+.option.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
+.option-key{width:22px;height:22px;border-radius:50%;border:1px solid var(--wire2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--t3);flex-shrink:0;transition:all .15s}
+.option.selected .option-key{background:var(--v);border-color:var(--v);color:#fff}
+.option-text{font-size:13px;color:var(--t1);line-height:1.4;flex:1}
+.option.selected .option-text{color:var(--t0)}
+.pair-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pair-opt{padding:16px 14px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;text-align:left}
+.pair-opt:hover{border-color:var(--wire2);background:var(--bg3)}
+.pair-opt.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
+.pair-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.pair-text{font-size:12px;color:var(--t1);line-height:1.45}
+.pair-opt.selected .pair-text{color:var(--t0)}
 
-/* LAYOUT */
-.wrap{max-width:720px;margin:0 auto;padding:0 20px}
-.wrap-w{max-width:960px;margin:0 auto;padding:0 20px}
+/* Results */
+.result-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px}
+.result-block-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.result-text{font-size:14px;color:var(--t0);line-height:1.65}
+.contradiction-block{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;padding:20px;margin-bottom:12px}
+.contradiction-text{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--v4);line-height:1.5;font-style:italic}
+.friction-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px;border-left:3px solid var(--cau);border-radius:0 10px 10px 0}
+.friction-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cau);margin-bottom:8px}
+.friction-text{font-size:13px;color:var(--t2);line-height:1.6}
+.pattern-msg{text-align:center;padding:12px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--v3);letter-spacing:.05em;margin-bottom:16px}
 
-/* BAR */
-.bar{padding:18px 24px;border-bottom:1px solid var(--wire);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:rgba(11,10,10,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:50}
-.logo{display:flex;align-items:center;gap:9px;font-size:10px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--t0);font-family:var(--mono)}
-.logo-dot{width:6px;height:6px;background:var(--brand);border-radius:1px;box-shadow:0 0 8px rgba(139,92,246,.6)}
-.bar-r{font-size:9px;color:var(--t3);letter-spacing:.22em;text-transform:uppercase;font-family:var(--mono)}
+/* Share card */
+.share-card{background:var(--bg1);border:1px solid var(--wire2);border-radius:12px;padding:28px 24px;text-align:center;margin:20px 0}
+.share-name{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.share-headline{font-family:'Libre Baskerville',serif;font-size:17px;color:var(--t0);line-height:1.4;margin-bottom:16px;font-style:italic}
+.share-count{font-size:11px;color:var(--t3)}
+.share-brand{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--v);margin-top:12px}
 
-/* TYPE */
-.d1{font-family:var(--serif);font-size:clamp(36px,6vw,68px);line-height:.95;letter-spacing:-.02em;color:var(--t0);font-weight:700}
-.d1 em{font-style:italic;font-weight:400;color:var(--brand2)}
-.d2{font-family:var(--serif);font-size:clamp(22px,4vw,38px);line-height:1.05;color:var(--t0);font-weight:700;letter-spacing:-.01em}
-.d2 em{font-style:italic;font-weight:400}
-.d3{font-family:var(--serif);font-size:clamp(18px,2.5vw,22px);font-weight:400;color:var(--t0);line-height:1.3}
-.eyebrow{font-size:9px;font-weight:600;letter-spacing:.4em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;font-family:var(--mono)}
-.body{font-size:14px;color:var(--t2);line-height:1.8}
-.body-b{color:var(--t1);font-weight:500}
-
-/* CARDS */
-.card{background:var(--bg2);border:1px solid var(--wire);padding:22px;margin-bottom:12px;position:relative}
-.card-v{border-color:rgba(139,92,246,.25);background:linear-gradient(135deg,rgba(139,92,246,.04) 0%,var(--bg2) 100%)}
-.c-lbl{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;font-family:var(--mono)}
-
-/* INPUTS */
-.inp{width:100%;background:var(--bg1);border:1px solid var(--wire);color:var(--t0);padding:14px 16px;font-family:var(--ui);font-size:15px;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none;border-radius:0}
-.inp:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
-.inp::placeholder{color:var(--t4)}
-.lbl{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3);display:block;margin-bottom:8px;font-family:var(--mono)}
-.f{margin-bottom:20px}
-
-/* BUTTONS */
-.btn{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:16px 28px;cursor:pointer;border:none;transition:all .18s;min-height:52px;-webkit-appearance:none;border-radius:0}
-.btn-p{background:var(--brand);color:#F3F3F2;box-shadow:0 0 20px rgba(139,92,246,.3),0 2px 8px rgba(0,0,0,.5)}
-.btn-p:hover{background:var(--brand2);box-shadow:0 0 32px rgba(139,92,246,.45),0 4px 12px rgba(0,0,0,.5);transform:translateY(-1px)}
-.btn-p:active{transform:translateY(0)}
-.btn-p:disabled{opacity:.22;cursor:not-allowed;box-shadow:none;transform:none}
-.btn-g{background:transparent;color:var(--t2);border:1px solid var(--wire2)}
-.btn-g:hover{border-color:var(--brand);color:var(--brand3);box-shadow:0 0 12px rgba(139,92,246,.15)}
-.btn-full{width:100%;display:block}
-
-/* CTX TABS */
-.ctx-row{display:flex;border:1px solid var(--wire);overflow:hidden}
-.ctx-b{flex:1;padding:13px 0;text-align:center;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);cursor:pointer;background:var(--bg1);border:none;border-right:1px solid var(--wire);transition:all .15s;font-family:var(--mono);min-height:46px}
-.ctx-b:last-child{border-right:none}
-.ctx-b.on{background:rgba(139,92,246,.15);color:var(--brand3);font-weight:600;border-bottom:2px solid var(--brand)}
-.ctx-b:not(.on):hover{color:var(--t1);background:var(--bg3)}
-
-/* PROGRESS */
-.prog-wrap{margin-bottom:36px}
-.prog-meta{display:flex;justify-content:space-between;margin-bottom:8px}
-.prog-track{height:2px;background:var(--wire);border-radius:2px;overflow:hidden}
-.prog-fill{height:2px;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 6px rgba(139,92,246,.5);border-radius:2px}
-
-/* SCALE */
-.q-block{margin-bottom:28px}
-.q-text-main{font-size:15px;color:var(--t0);margin-bottom:14px;line-height:1.6;font-family:var(--ui)}
-.sc-row{display:flex;gap:4px}
-.sc-b{flex:1;padding:15px 0;text-align:center;background:var(--bg2);border:1px solid var(--wire);color:var(--t3);font-family:var(--mono);font-size:14px;cursor:pointer;transition:all .12s;min-height:52px}
-.sc-b:hover{border-color:var(--wire2);color:var(--t1);background:var(--bg3)}
-.sc-b.on{background:rgba(139,92,246,.15);border-color:var(--brand);color:var(--brand3);font-weight:600;box-shadow:inset 0 0 0 1px rgba(139,92,246,.3)}
-.sc-ends{display:flex;justify-content:space-between;margin-top:7px}
-.sc-end{font-size:9px;color:var(--t4);letter-spacing:.08em;font-family:var(--mono)}
-
-/* YES/NO */
-.yn-row{display:flex;gap:8px}
-.yn-b{flex:1;padding:16px 0;background:var(--bg2);border:1px solid var(--wire);color:var(--t3);font-family:var(--ui);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .12s;min-height:52px}
-.yn-b:hover{border-color:var(--wire2);color:var(--t1)}
-.yn-b.y{background:rgba(61,153,112,.1);border-color:var(--pos2);color:var(--pos2)}
-.yn-b.n{background:rgba(224,88,88,.1);border-color:var(--neg2);color:var(--neg2)}
-
-/* CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
-.chip{padding:10px 16px;background:var(--bg2);border:1px solid var(--wire);color:var(--t2);font-family:var(--mono);font-size:11px;letter-spacing:.06em;cursor:pointer;transition:all .12s;user-select:none;min-height:42px;display:flex;align-items:center}
-.chip:hover{border-color:var(--wire2);color:var(--t1)}
-.chip.on{background:rgba(139,92,246,.12);border-color:var(--brand);color:var(--brand3)}
-
-/* TEXTAREA */
-.ta{width:100%;background:var(--bg1);border:1px solid var(--wire);color:var(--t0);padding:14px 16px;font-family:var(--ui);font-size:14px;outline:none;resize:none;height:80px;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none;border-radius:0}
-.ta:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
-
-/* SECTION DIVIDER */
-.sec{display:flex;align-items:center;gap:14px;margin:32px 0 24px}
-.sec-line{flex:1;height:1px;background:var(--wire)}
-.sec-lbl{font-size:9px;letter-spacing:.35em;color:var(--t3);text-transform:uppercase;font-family:var(--mono);white-space:nowrap}
-
-/* BADGES */
-.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-right:6px;margin-bottom:6px;font-family:var(--mono)}
-.b-pos{background:rgba(88,216,152,.08);border:1px solid rgba(88,216,152,.3);color:var(--pos2);font-weight:500}
-.b-cau{background:rgba(212,160,48,.07);border:1px solid rgba(212,160,48,.28);color:var(--cau2)}
-.b-neg{background:rgba(224,88,88,.07);border:1px solid rgba(224,88,88,.28);color:var(--neg2)}
-.b-neu{background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.22);color:var(--brand2)}
-
-/* SAFETY */
-.safety{padding:12px 16px;border:1px solid var(--wire);background:var(--bg3);margin-bottom:22px;display:flex;gap:10px;align-items:flex-start}
-.safety-t{font-size:11px;color:var(--t2);line-height:1.75}
-
-/* SIGNAL BLOCKS */
-.sig{padding:12px 16px;border-left:2px solid;margin-bottom:8px}
-.sig-pos{border-left-color:var(--pos2);background:rgba(88,216,152,.04)}
-.sig-cau{border-left-color:var(--cau2);background:rgba(212,160,48,.04)}
-.sig-neg{border-left-color:var(--neg2);background:rgba(224,88,88,.04)}
-
-/* RESULT PANELS */
-.results{padding:40px 0 80px}
-.pt-panel{padding:28px;margin-bottom:2px;overflow:hidden;position:relative}
-.pt-name{font-family:var(--serif);font-size:clamp(24px,4vw,38px);font-weight:700;line-height:1;margin-bottom:10px;color:var(--t0)}
-.pt-line{font-size:13px;opacity:.75;line-height:1.65;max-width:520px;font-family:var(--ui)}
-.pt-bullets{list-style:none;margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(0,0,0,.3)}
-.pt-bullet{background:rgba(0,0,0,.25);padding:14px 16px}
-.pt-bullet-k{font-size:8px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:5px;opacity:.55;font-family:var(--mono)}
-.pt-bullet-v{font-size:11px;line-height:1.55;font-family:var(--ui)}
-
-/* TRAIT BARS */
-.trow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--wire)}
-.trow:last-child{border-bottom:none}
-.t-name{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--t1);width:120px;flex-shrink:0;font-family:var(--mono)}
-.t-track{flex:1;height:4px;background:var(--wire);position:relative;overflow:hidden}
-.t-self{position:absolute;top:0;height:4px;background:var(--wire2);transition:width 1s ease}
-.t-other{position:absolute;top:0;height:4px;background:var(--t0);transition:width 1s ease .1s}
-.t-pct{font-size:11px;color:var(--t2);width:32px;text-align:right;flex-shrink:0;font-family:var(--mono)}
-.t-delta{font-size:10px;width:38px;text-align:right;flex-shrink:0;font-weight:600;font-family:var(--mono)}
-
-/* ACTION PLAN */
-.action-item{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid var(--wire)}
-.action-item:last-child{border-bottom:none}
-.action-type{font-size:8px;letter-spacing:.28em;text-transform:uppercase;width:80px;flex-shrink:0;padding-top:2px;font-family:var(--mono)}
-.action-text{font-size:13px;color:var(--t1);line-height:1.65;flex:1;font-family:var(--ui)}
-
-/* TRUST / HESITATION */
-.th-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--wire);align-items:flex-start}
-.th-item:last-child{border-bottom:none}
-.th-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:7px}
-.th-text{font-size:13px;color:var(--t1);line-height:1.5;font-family:var(--ui)}
-
-/* SCORE GRID */
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--wire);border:1px solid var(--wire);margin-bottom:8px}
-.sc-cell{background:var(--bg2);padding:18px}
-.sc-lbl{font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;font-family:var(--mono)}
-.sc-tag{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:3px;font-family:var(--mono)}
-.sc-val{font-family:var(--serif);font-size:30px;line-height:1}
-.sc-self{color:var(--t2)}.sc-other{color:var(--t0)}
-.sc-pos{color:var(--pos2)}.sc-neg{color:var(--neg2)}.sc-neu{color:var(--cau2)}
-.sc-track{height:2px;background:var(--wire);margin-top:5px}
-.sc-fill{height:2px;transition:width 1.2s ease}
-
-/* PLY ROWS */
-.ply-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--wire)}
-.ply-row:last-child{border-bottom:none}
-.ply-m{font-size:9px;letter-spacing:.18em;text-transform:uppercase;flex-shrink:0;padding-top:1px;width:72px;font-family:var(--mono)}
-.ply-t{font-size:12px;color:var(--t1);line-height:1.6;flex:1;font-family:var(--ui)}
-
-/* MOBILE */
-@media(max-width:660px){
-  .bar{padding:16px 18px}
-  .wrap,.wrap-w{padding:0 16px}
-  .sgrid{grid-template-columns:1fr}
-  .pt-bullets{grid-template-columns:1fr}
-  .landing-grid{grid-template-columns:1fr !important}
-  .landing-l,.landing-r{padding:40px 20px !important}
-  .landing-l{border-right:none !important;border-bottom:1px solid var(--wire)}
-  .d1{font-size:clamp(34px,8vw,52px)}
-}
-@media(max-width:768px){
-  .landing-grid{grid-template-columns:1fr}
-  .landing-l{border-right:none;border-bottom:1px solid var(--wire)}
-}
+/* Unlock */
+.unlock-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--wire2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
+.unlock-progress{position:absolute;inset:0;border-radius:50%}
+.unlock-count{font-size:24px;font-weight:500;color:var(--t0)}
+.unlock-bar-wrap{background:var(--wire);border-radius:3px;height:4px;overflow:hidden;margin:16px 0}
+.unlock-bar{height:100%;background:var(--v);border-radius:3px;transition:width .4s}
 </style>
 </head>
 <body>
+
 <div id="app"></div>
 <script>
-// ═══════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════
-
-const CONTEXTS = ["Friends","Dating / Relationship"];
-
-const QUESTION_BANK = {
-"Friends-Balanced":{
-  baseline:[
-    {id:"b1",text:"When you talk to them, do you feel they are actually listening — or just waiting to respond?",lo:"Just waiting",hi:"Actually listening"},
-    {id:"b2",text:"After spending time with them, do you leave feeling better or drained?",lo:"Drained",hi:"Energised"},
-    {id:"b3",text:"Do they show up the same way with different people, or does the version change?",lo:"Different versions",hi:"Consistently themselves"},
-    {id:"b4",text:"When something good happens to you, are they genuinely happy — or do they shift it back to themselves?",lo:"Shifts it back",hi:"Genuinely happy for you"},
-    {id:"b5",text:"When things go wrong, do they own their part — or find a way to explain it away?",lo:"Always explains",hi:"Owns it"},
-  ],
-  high_signal:[
-    {id:"h1",text:"Would you trust them at the worst possible moment in your life?"},
-    {id:"h2",text:"Do you trust who they are, not just what they say?"},
-  ],
-  forced_choice:[
-    {id:"f1",optionA:"Reliable but emotionally cold",optionB:"Warm but unreliable"},
-    {id:"f2",optionA:"Direct but harsh",optionB:"Polite but never clear"},
-  ],
-  traits:["Trustworthy","Loyal","Honest","Direct","Reliable","Empathetic","Consistent","Genuine","Controlling","Intimidating","Inconsistent","Emotionally distant"],
-  blind_spot:"What do they do repeatedly that creates friction — even if they don't seem to notice?",
-},
-"Dating / Relationship-Balanced":{
-  baseline:[
-    {id:"b1",text:"When you share something difficult, do you feel held — or analyzed?",lo:"Analyzed",hi:"Genuinely held"},
-    {id:"b2",text:"When they say they'll be there, does the doubt disappear — or stay?",lo:"Doubt stays",hi:"Doubt gone"},
-    {id:"b3",text:"After a conflict, do you end up closer or more guarded?",lo:"More guarded",hi:"Closer"},
-    {id:"b4",text:"When you're vulnerable, do they meet you there — or step back?",lo:"Step back",hi:"Always meet me there"},
-    {id:"b5",text:"In conflict, do they own their part — or position you as the problem?",lo:"Always my fault",hi:"Always owns theirs"},
-  ],
-  high_signal:[
-    {id:"h1",text:"If a real crisis hit, would you trust them to stay — not just show up initially?"},
-    {id:"h2",text:"Would you choose them again knowing everything you know now?"},
-  ],
-  forced_choice:[
-    {id:"f1",optionA:"Consistent but emotionally cold",optionB:"Warm but unpredictable"},
-    {id:"f2",optionA:"Devoted but controlling",optionB:"Free but unavailable"},
-  ],
-  traits:["Trustworthy","Present","Honest","Loyal","Emotionally available","Consistent","Vulnerable","Warm","Controlling","Intimidating","Inconsistent","Emotionally distant"],
-  blind_spot:"What do they do in the relationship that creates distance — even without meaning to?",
-},
+const API = '';
+let state = {
+  screen: 'landing',
+  mode: null,
+  profileId: null,
+  profileSlug: null,
+  profileName: '',
+  respondSlug: null,
+  respondProfile: null,
+  answers: {},
+  currentQ: 0,
+  queuedQuestions: [],
+  path: null,
+  results: null,
+  responseCount: 0,
+  toast: null
 };
 
-function getQ(){
-  const key = state.context + "-Balanced";
-  return QUESTION_BANK[key] || QUESTION_BANK["Friends-Balanced"];
+// Check if responder link
+const urlParams = new URLSearchParams(location.search);
+const respondParam = urlParams.get('respond');
+if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+async function api(method, path, data) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (data) opts.body = JSON.stringify(data);
+    const r = await fetch(API + path, opts);
+    return r.json();
+  } catch(e) { console.error(e); return null; }
 }
 
-// Profile types — full data
-const PROFILE_TYPES = {
-  TRUSTED_HARD:{
-    name:"Trusted but Hard to Read",
-    line:"People trust your judgment and presence, but may not always feel emotionally close to you.",
-    insightA:"People trust you under pressure.",
-    insightB:"They don't always feel emotionally close to you.",
-    bg:"#0f1210",border:"rgba(88,216,152,.22)",
-    strength:"High trust under pressure. People rely on you.",
-    risk:"Emotional distance that others feel but never say.",
-    blindspot:"Your care is real. It doesn't always land.",
-    correction:"Say the thing you think people already know.",
-    trustFor:["Showing up under pressure","Saying what you mean","Protecting people you care about"],
-    hesitateAbout:["Opening up emotionally","Depending on small follow-throughs","Challenging you directly"],
-    ply:{succeed:"building genuine trust through consistent, quiet delivery",fail:"claiming the room they have already earned",misunderstand:"that others are ready to follow them before they feel ready to lead"},
+// ── Question data (embedded) ──────────────────────────────────────────────────
+const QUESTIONS = {
+  friends: {
+    section1: [
+      { id:'s1', format:'forced', section:1, text:'Yanında zaman geçirmek nasıl bir his?', options:[
+        {key:'A',text:'Rahatlatıcı — yanında olmak kolay'},
+        {key:'B',text:'Enerjik — her an bir şey oluyor'},
+        {key:'C',text:'Yoğun — güzel ama dozunu bilmek lazım'},
+        {key:'D',text:'Mesafeli — tam açılmıyor gibi hissettiriyor'}
+      ]},
+      { id:'s2', format:'forced', section:1, text:'Bir grupta bu kişi genellikle nerede durur?', options:[
+        {key:'A',text:'Ortanın tam merkezinde — herkes ona bakıyor'},
+        {key:'B',text:'Dengeyi kuran — sessiz ama belirleyici'},
+        {key:'C',text:'Gözlemleyen — konuşmak için doğru anı bekliyor'},
+        {key:'D',text:'Kenarda — gruba tam dahil olmuyor'}
+      ]},
+      { id:'s3', format:'forced', section:1, text:'Zor bir şey paylaşman gerekse ilk aklına gelir mi?', options:[
+        {key:'A',text:'Evet, hep ilk o aklıma gelir'},
+        {key:'B',text:'Bazen — bağlı olduğu konuya'},
+        {key:'C',text:'Pek değil — o tarz konular için değil'},
+        {key:'D',text:'Hayır — duygusal konularda kapalı'}
+      ]}
+    ],
+    section2_fixed: [
+      { id:'s4', format:'forced', section:2, text:'Bu kişiyle anlaşmazlık yaşarsan ne olur?', options:[
+        {key:'A',text:'Sakin kalır, çözüm arar'},
+        {key:'B',text:'Dürüstçe konuşur, sonra geçer'},
+        {key:'C',text:'Sessizleşir, içine atar'},
+        {key:'D',text:'Savunmaya geçer, haklılığını kanıtlamaya çalışır'}
+      ]},
+      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Fark ettiğinden daha çok güven veriyor'},
+        {key:'B',text:'Güvenilir görünüyor ama içine çok az alıyor'}
+      ]},
+      { id:'s6', format:'forced', section:2, text:'Bu kişinin odaya girişi nasıl hissettiriyor?', options:[
+        {key:'A',text:'Enerji değişiyor — fark ediliyor'},
+        {key:'B',text:'Sıcaklık getiriyor — ortam rahatıyor'},
+        {key:'C',text:'Sessizce giriyor — zamanla fark ediliyor'},
+        {key:'D',text:'Pek değişmiyor — arka planda kalıyor'}
+      ]}
+    ],
+    section2_pathA: [
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar sıcak ve açık biri — sınırlarını da koruyor mu?', options:[
+        {key:'A',text:'Evet — hem açık hem sınırları net'},
+        {key:'B',text:'Bazen çok veriyor, karşılık bulamıyor'}
+      ]},
+      { id:'s8a', format:'forced', section:2, text:'İnsanlar ona ne zaman daha çok ihtiyaç duyuyor?', options:[
+        {key:'A',text:'Zor anlarda — güvende hissettiriyor'},
+        {key:'B',text:'Eğlenceli anlarda — enerji katar'},
+        {key:'C',text:'Her iki durumda da'},
+        {key:'D',text:'Pek ihtiyaç duyulmuyor aslında'}
+      ]}
+    ],
+    section2_pathB: [
+      { id:'s7b', format:'forced', section:2, text:'Bu mesafe nereden geliyor sence?', options:[
+        {key:'A',text:'Kendi dünyasında — dışarıyı pek umursamıyor'},
+        {key:'B',text:'İlk önce test ediyor, sonra açılıyor'},
+        {key:'C',text:'Savunma mekanizması — bunu göstermiyor ama'},
+        {key:'D',text:'Umursamıyor sanki — ilgisiz'}
+      ]},
+      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Gizemli — merak uyandırıyor, daha fazlasını öğrenmek istiyorum'},
+        {key:'B',text:'Zor anlaşılıyor — yorucu hissettiriyor bazen'}
+      ]}
+    ],
+    section3: [
+      { id:'s9', format:'gut', section:3, text:'Bu kişi odadan çıkınca arkadaşlar ne der?', options:[
+        {key:'A',text:'"Ne kadar iyi biri — şanslıyız"'},
+        {key:'B',text:'"Çok eğlenceli, enerjisi bulaşıcı"'},
+        {key:'C',text:'"İyi biri ama tam anlayamadım"'},
+        {key:'D',text:'"Neden böyle davrandı acaba?"'}
+      ]}
+    ]
   },
-  QUIETLY_RESPECTED:{
-    name:"Quietly Respected",
-    line:"Others rate you higher than you rate yourself. You may be under-claiming your actual impact.",
-    insightA:"People already give you more credibility than you give yourself.",
-    insightB:"You may be waiting for permission you already have.",
-    bg:"#0f1210",border:"rgba(88,216,152,.22)",
-    strength:"Credibility others already give you — often unused.",
-    risk:"Self-doubt keeps you operating below your actual trust level.",
-    blindspot:"Internal narrative is below external perception.",
-    correction:"Stop self-qualifying. Operate at the level others already see.",
-    trustFor:["Consistent delivery","Quiet reliability","Thoughtful judgment"],
-    hesitateAbout:["Voicing your perspective","Claiming credit","Leading without invitation"],
-    ply:{succeed:"building trust through consistency",fail:"claiming the room they have earned",misunderstand:"that others follow before they feel ready to lead"},
-  },
-};
-
-// Share styles
-const SHARE_STYLES = {
-  clean:{
-    label:"Clean",
-    cardLine1:"People trust me under pressure.",
-    cardLine2:"They don't always feel emotionally close to me.",
-    caption:"Asked 8 people how they experience me.\nThis was the pattern.\nWhat would yours say?\ntellmemore.app",
-  },
-  brutal:{
-    label:"Brutal",
-    cardLine1:"Reliable, apparently.",
-    cardLine2:"Emotionally readable, not so much.",
-    caption:"8 people answered anonymously.\nApparently I'm trusted but hard to read.\nRude. Useful. Probably true.\ntellmemore.app",
-  },
-  funny:{
-    label:"Funny",
-    cardLine1:"People trust me.",
-    cardLine2:"They just need a manual to reach me emotionally.",
-    caption:"I asked 8 people how they experience me.\nThe results were organized disrespect.\nWhat would yours say?\ntellmemore.app",
-  },
-  mysterious:{
-    label:"Mysterious",
-    cardLine1:"8 people answered.",
-    cardLine2:"My profile unlocked: Trusted but Hard to Read",
-    caption:"8 people answered.\nI needed a minute.\nAsk 8 people. Meet yourself.\ntellmemore.app",
-  },
-};
-
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
-
-const state = {
-  screen:"landing",
-  name:"",
-  context:"Friends",
-  selfTraits:[],
-  selfBeh:{},
-  selfDec:{},
-  mode:null,
-  respBeh:{},
-  respDec:{},
-  respTraits:[],
-  respFC:{},
-  respBlind1:"",
-  responseCount:3,
-  resultsRevealed:false,
-  shareStyle:"clean",
-  liveTimer:null,
-};
-
-function resetResponderState(){
-  state.respBeh={};state.respDec={};state.respTraits=[];state.respFC={};state.respBlind1="";
-}
-function resetAll(){
-  if(state.liveTimer){clearInterval(state.liveTimer);state.liveTimer=null;}
-  Object.assign(state,{
-    screen:"landing",name:"",context:"Friends",
-    selfTraits:[],selfBeh:{},selfDec:{},mode:null,
-    respBeh:{},respDec:{},respTraits:[],respFC:{},respBlind1:"",
-    responseCount:3,resultsRevealed:false,shareStyle:"clean",liveTimer:null,
-  });
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER ENGINE
-// ═══════════════════════════════════════════════════════
-
-function render(keepScroll){
-  const root = document.getElementById('app');
-  root.innerHTML = "";
-  let node;
-  switch(state.screen){
-    case "landing":    node=Landing(); break;
-    case "self-t":     node=SelfTraits(); break;
-    case "self-b":     node=SelfBehavioral(); break;
-    case "self-d":     node=SelfDecisions(); break;
-    case "owner":      node=OwnerWait(); break;
-    case "form-b":     node=FormBehavioral(); break;
-    case "form-d":     node=FormDecisions(); break;
-    case "form-fc":    node=FormForcedChoice(); break;
-    case "form-t":     node=FormTraits(); break;
-    case "form-blind": node=FormBlindSpot(); break;
-    case "submitted":  node=Submitted(); break;
-    case "results":    node=Results(); break;
-    case "sample":     node=SampleResult(); break;
-    default:           node=Landing();
+  romance: {
+    section1: [
+      { id:'s1', format:'forced', section:1, text:'Bu kişiyi ilk gördüğünde ne hissettin?', options:[
+        {key:'A',text:'Hemen dikkat çekti — gözüm gitti'},
+        {key:'B',text:'Merak uyandırdı — daha fazlasını öğrenmek istedim'},
+        {key:'C',text:'Zaman aldı — sonradan fark ettim'},
+        {key:'D',text:'Pek fark etmedim açıkçası'}
+      ]},
+      { id:'s2', format:'forced', section:1, text:'Romantik olarak ne hissettiriyor?', options:[
+        {key:'A',text:'Heyecanlı ve güvende — ikisi bir arada'},
+        {key:'B',text:'Çekici ama gizemli — tam okuyamıyorum'},
+        {key:'C',text:'İlgi çekici ama sinyal vermiyor'},
+        {key:'D',text:'Belirsiz — ne düşündüğünü anlamak zor'}
+      ]},
+      { id:'s3', format:'forced', section:1, text:'Flört ettiğini anlayabilir misin?', options:[
+        {key:'A',text:'Evet, çok net ve doğal — kendiliğinden akıyor'},
+        {key:'B',text:'Bazen — ince ipuçları veriyor'},
+        {key:'C',text:'Zor — çok gizemli, sinyal belirsiz'},
+        {key:'D',text:'Hayır — hiç sinyal yok'}
+      ]}
+    ],
+    section2_fixed: [
+      { id:'s4', format:'forced', section:2, text:'Romantik olarak en güçlü yanı ne?', options:[
+        {key:'A',text:'Kendinden emin duruşu — çekim yaratıyor'},
+        {key:'B',text:'Gerçekten dinliyor — özel hissettiriyor'},
+        {key:'C',text:'Sıcaklığı ve samimiyeti'},
+        {key:'D',text:'Açıkçası henüz güçlü bir yanını fark etmedim'}
+      ]},
+      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Fark ettiğinden daha çekici — etkisinin farkında değil'},
+        {key:'B',text:'Çekici ama bu farkındalığı mesafe yaratıyor'}
+      ]},
+      { id:'s6', format:'forced', section:2, text:'Bu kişinin varlığı ortamda ne hissettiriyor?', options:[
+        {key:'A',text:'Manyetik — gözler ona gidiyor'},
+        {key:'B',text:'Sıcak — yanında olmak güvende hissettiriyor'},
+        {key:'C',text:'Merak uyandırıcı — ama ulaşmak zor'},
+        {key:'D',text:'Nötr — pek iz bırakmıyor'}
+      ]}
+    ],
+    section2_pathA: [
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar çekici biri — yaklaşmak kolay mı?', options:[
+        {key:'A',text:'Evet — çekici ve aynı zamanda ulaşılabilir'},
+        {key:'B',text:'Hayır — çekici ama yaklaşmak için cesaret lazım'}
+      ]},
+      { id:'s8a', format:'forced', section:2, text:'Romantik olarak en büyük etkisi ne?', options:[
+        {key:'A',text:'Kendine güven veriyor — yanında iyi hissediyorsun'},
+        {key:'B',text:'Merak ettiriyor — daha fazlasını öğrenmek istiyorsun'},
+        {key:'C',text:'Heyecanlandırıyor — her an beklenmedik bir şey olabilir'},
+        {key:'D',text:'Sakinleştiriyor — güvende hissettiriyor'}
+      ]}
+    ],
+    section2_pathB: [
+      { id:'s7b', format:'forced', section:2, text:'Romantik olarak bu mesafe nereden geliyor?', options:[
+        {key:'A',text:'Kolay güvenmiyor — zamanla açılıyor'},
+        {key:'B',text:'Duygusal olarak hazır değil — zamanı değil sanki'},
+        {key:'C',text:'Duygusal olarak kırılgan — korunuyor'},
+        {key:'D',text:'İlgisiz görünüyor — romantik sinyal vermiyor'}
+      ]},
+      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
+        {key:'A',text:'Gizemli — bu mesafe aslında çekici kılıyor'},
+        {key:'B',text:'Zor okunuyor — bu belirsizlik yorucu'}
+      ]}
+    ],
+    section3: [
+      { id:'s9', format:'gut', section:3, text:'Bu kişide seni en çok etkileyen ne?', options:[
+        {key:'A',text:'Varlığı — ortama girince bir şeyler değişiyor'},
+        {key:'B',text:'Bakışı — sanki gerçekten görüyor seni'},
+        {key:'C',text:'Gizemli tarafı — hiç tam anlayamadım'},
+        {key:'D',text:'Aslında pek etkilemedi'}
+      ]}
+    ]
   }
-  root.appendChild(node);
-  if(!keepScroll) window.scrollTo({top:0,behavior:'instant'});
+};
+
+function computePath(answers, mode) {
+  const pos = ['A','B'], neg = ['C','D'];
+  const q1 = QUESTIONS[mode].section1;
+  const s1sig = pos.includes(answers.s1) ? 'pos' : 'neg';
+  const s2sig = pos.includes(answers.s2) ? 'pos' : 'neg';
+  const s3sig = pos.includes(answers.s3) ? 'pos' : 'neg';
+  if (s1sig === 'neg') return 'B';
+  const posCount = [s1sig,s2sig,s3sig].filter(s=>s==='pos').length;
+  if (posCount >= 2) return 'A';
+  return 'B';
 }
 
-// ═══════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════
+function buildQuestionQueue(mode, path) {
+  const q = QUESTIONS[mode];
+  return [
+    ...q.section1,
+    ...q.section2_fixed,
+    ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
+    ...q.section3
+  ];
+}
 
-function el(tag, props, ...children){
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  const s = state.screen;
+  if (s === 'landing')          app.appendChild(renderLanding());
+  else if (s === 'create')      app.appendChild(renderCreate());
+  else if (s === 'owner_wait')  app.appendChild(renderOwnerWait());
+  else if (s === 'respond_loading') loadResponderProfile();
+  else if (s === 'respond_mode')    app.appendChild(renderRespondMode());
+  else if (s === 'questions')       app.appendChild(renderQuestions());
+  else if (s === 'submitted')       app.appendChild(renderSubmitted());
+  else if (s === 'results')         app.appendChild(renderResults());
+  if (state.toast) {
+    const t = el('div','toast',state.toast);
+    app.appendChild(t);
+    setTimeout(()=>{state.toast=null;render();},2500);
+  }
+}
+
+function el(tag,cls,text) {
   const e = document.createElement(tag);
-  if(props){
-    for(const k in props){
-      if(k==='style') Object.assign(e.style,props[k]);
-      else if(k==='class') e.className=props[k];
-      else if(k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(),props[k]);
-      else if(k==='html') e.innerHTML=props[k];
-      else e.setAttribute(k,props[k]);
-    }
-  }
-  for(const c of children){
-    if(c==null) continue;
-    if(typeof c==='string') e.appendChild(document.createTextNode(c));
-    else e.appendChild(c);
-  }
+  if (cls) e.className = cls;
+  if (text) e.textContent = text;
   return e;
 }
 
-function mkBar(right){
-  return el('div',{class:'bar'},
-    el('div',{class:'logo'},el('div',{class:'logo-dot'}),'TellMeMore'),
-    right?el('div',{class:'bar-r'},right):null
-  );
-}
-
-function backBtn(toScreen){
-  const b=el('button',{class:'btn btn-g',style:{marginBottom:'28px',fontSize:'9px',padding:'10px 18px',display:'inline-flex',alignItems:'center',gap:'6px',minHeight:'38px'}},'← Back');
-  b.onclick=()=>{state.screen=toScreen;render()};
+function bar(right) {
+  const b = el('div','bar');
+  const logo = el('div','logo');
+  const dot = el('div','logo-dot'); logo.appendChild(dot);
+  const name = el('span',''); name.textContent = 'TellMeMore'; logo.appendChild(name);
+  b.appendChild(logo);
+  if (right) { const r = el('div','bar-right',right); b.appendChild(r); }
   return b;
 }
 
-function progressBar(step,total){
-  return el('div',{class:'prog-wrap'},
-    el('div',{class:'prog-meta'},
-      el('span',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.3em',textTransform:'uppercase',fontFamily:'var(--mono)'}},step.label),
-      el('span',{style:{fontSize:'9px',color:'var(--t2)',letterSpacing:'.2em',fontFamily:'var(--mono)'}},step.n+'/'+total)
-    ),
-    el('div',{class:'prog-track'},el('div',{class:'prog-fill',style:{width:(step.n/total*100)+'%'}}))
-  );
+// ── Landing ───────────────────────────────────────────────────────────────────
+function renderLanding() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop = '48px';
+  const ey = el('div','eyebrow','Perception Intelligence');
+  const h = el('h1',''); h.innerHTML = 'How do people <em>actually</em> see you?';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;line-height:1.7;margin:16px 0 36px';
+  sub.textContent = 'Arkadaşlarının seni romantik veya sosyal olarak nasıl gördüğünü öğren. Anonim. Gerçek.';
+  const btn1 = el('button','btn','Profilini oluştur');
+  btn1.onclick = ()=>{state.screen='create';render();};
+  const div = el('div',''); div.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0';
+  const line1=el('div','');line1.style.cssText='flex:1;height:1px;background:var(--wire)';
+  const or=el('span','');or.style.cssText='font-size:11px;color:var(--t3)';or.textContent='veya';
+  const line2=el('div','');line2.style.cssText='flex:1;height:1px;background:var(--wire)';
+  div.append(line1,or,line2);
+  const btn2 = el('button','btn btn-ghost','Biri hakkında cevapla');
+  btn2.onclick = ()=>{ const s=prompt('Link kodu:'); if(s){state.respondSlug=s.trim();state.screen='respond_loading';render();}};
+  wrap.append(ey,h,sub,btn1,div,btn2);
+  d.appendChild(wrap);
+  return d;
 }
 
-function ScaleQ(q,value,onChange){
-  const block=el('div',{class:'q-block'});
-  block.appendChild(el('p',{class:'q-text-main'},q.text));
-  const row=el('div',{class:'sc-row'});
-  for(let n=1;n<=5;n++){
-    const b=el('button',{class:'sc-b'+(value===n?' on':'')},String(n));
-    b.onclick=()=>onChange(n);
-    row.appendChild(b);
-  }
-  block.appendChild(row);
-  block.appendChild(el('div',{class:'sc-ends'},
-    el('span',{class:'sc-end'},q.lo),
-    el('span',{class:'sc-end'},q.hi)
-  ));
-  return block;
-}
+// ── Create profile ────────────────────────────────────────────────────────────
+function renderCreate() {
+  const d = el('div','screen');
+  d.appendChild(bar('1 / 2'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop = '36px';
+  const ey = el('div','eyebrow','Profil oluştur');
+  const h = el('h2',''); h.textContent = 'İsmin ne?';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px';
+  sub.textContent = 'Arkadaşların bu ismi görecek.';
+  const inp = el('input','input'); inp.type='text'; inp.placeholder='Adın...'; inp.maxLength=30;
+  if (state.profileName) inp.value = state.profileName;
 
-function clipCopy(text){
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    return navigator.clipboard.writeText(text);
-  }
-  return new Promise((res)=>{
-    const ta=document.createElement('textarea');
-    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    document.execCommand('copy');document.body.removeChild(ta);res();
+  const modeLabel = el('p',''); modeLabel.style.cssText='font-size:12px;color:var(--t2);margin:24px 0 8px';
+  modeLabel.textContent = 'Ne öğrenmek istiyorsun?';
+  const cards = el('div','mode-cards');
+  const modes = [
+    { id:'friends', icon:'👥', label:'Friends', sub:'Sosyal algın' },
+    { id:'romance', icon:'✦',  label:'Romance', sub:'Romantik algın' }
+  ];
+  let selectedMode = state.mode || null;
+  modes.forEach(m => {
+    const c = el('div','mode-card' + (selectedMode===m.id?' selected':''));
+    const ic = el('div','mode-card-icon',m.icon);
+    const lb = el('div','mode-card-label',m.label);
+    const sb = el('div','mode-card-sub',m.sub);
+    c.append(ic,lb,sb);
+    c.onclick = ()=>{ selectedMode=m.id; cards.querySelectorAll('.mode-card').forEach(x=>x.classList.remove('selected')); c.classList.add('selected'); };
+    cards.appendChild(c);
   });
-}
 
-// ═══════════════════════════════════════════════════════
-// LANDING
-// ═══════════════════════════════════════════════════════
-
-function Landing(){
-  const root=el('div',{class:'screen',style:{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:'100vh',minHeight:'100dvh'}});
-  root.classList.add('landing-grid');
-
-  // ── LEFT
-  const left=el('div',{class:'landing-l',style:{padding:'64px 48px',borderRight:'1px solid var(--wire)',display:'flex',flexDirection:'column',justifyContent:'space-between'}});
-
-  const top=el('div',{});
-  top.appendChild(el('div',{class:'logo',style:{marginBottom:'56px',fontSize:'10px'}},el('div',{class:'logo-dot'}),'TellMeMore'));
-  top.appendChild(el('div',{class:'eyebrow',style:{marginBottom:'16px'}},'Perception Intelligence'));
-  top.appendChild(el('h1',{class:'d1',html:'Where are you<br><em>wrong</em> about<br>yourself?'}));
-  top.appendChild(el('div',{style:{height:'1px',background:'linear-gradient(90deg,var(--brand) 0%,transparent 70%)',margin:'28px 0',maxWidth:'160px'}}));
-  top.appendChild(el('p',{class:'body',style:{maxWidth:'340px',marginBottom:'8px',fontWeight:'500',color:'var(--t1)'}},'Ask 8 people who know you. Compare how you see yourself with how they actually experience you.'));
-  top.appendChild(el('p',{class:'body',style:{maxWidth:'340px',marginBottom:'28px'}},'No names.  No raw comments.  Only patterns.'));
-
-  // Motto
-  top.appendChild(el('div',{style:{padding:'14px 18px',borderLeft:'2px solid var(--brand)',marginBottom:'28px',background:'rgba(139,92,246,.05)'}},
-    el('span',{style:{fontFamily:'var(--serif)',fontSize:'15px',fontStyle:'italic',color:'var(--brand2)',letterSpacing:'.01em'}},'Ask 8 people. Meet yourself.')
-  ));
-
-  // Trust badges
-  const badges=el('div',{style:{display:'flex',gap:'7px',flexWrap:'wrap'}});
-  ['✓ 18+ only','✓ No fake responses','✓ Delete anytime','✓ Directional, not diagnosis'].forEach(t=>{
-    badges.appendChild(el('span',{class:'badge b-neu'},t));
-  });
-  top.appendChild(badges);
-  left.appendChild(top);
-
-  left.appendChild(el('div',{style:{fontSize:'8px',color:'var(--t4)',letterSpacing:'.15em',marginTop:'36px',fontFamily:'var(--mono)'}},'TELLMEMORE © 2025 · PERCEPTION INTELLIGENCE'));
-
-  // ── RIGHT
-  const right=el('div',{class:'landing-r',style:{padding:'64px 48px',background:'var(--bg1)',display:'flex',flexDirection:'column',gap:'12px',justifyContent:'center'}});
-
-  // Create card
-  const createCard=el('div',{class:'card card-v'});
-  createCard.appendChild(el('div',{class:'c-lbl'},'Create your perception link'));
-
-  const nameF=el('div',{class:'f'});
-  nameF.appendChild(el('label',{class:'lbl'},'Your first name'));
-  const nameInp=el('input',{class:'inp',placeholder:'e.g. Eren',type:'text',autocomplete:'given-name'});
-  nameInp.value=state.name;
-  nameF.appendChild(nameInp);
-  createCard.appendChild(nameF);
-
-  const ctxF=el('div',{class:'f'});
-  ctxF.appendChild(el('label',{class:'lbl'},'Context — locked after creation'));
-  const ctxRow=el('div',{class:'ctx-row'});
-  CONTEXTS.forEach(c=>{
-    const b=el('button',{class:'ctx-b'+(state.context===c?' on':'')},c);
-    b.onclick=()=>{state.context=c;render(true)};
-    ctxRow.appendChild(b);
-  });
-  ctxF.appendChild(ctxRow);
-  ctxF.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginTop:'5px',letterSpacing:'.08em',lineHeight:'1.65',fontFamily:'var(--mono)'}},'Locked after creation. Responses must match this context.'));
-  createCard.appendChild(ctxF);
-
-  createCard.appendChild(el('div',{style:{padding:'10px 14px',border:'1px solid var(--wire)',background:'var(--bg3)',marginBottom:'16px'}},
-    el('span',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.06em',lineHeight:'1.7',fontFamily:'var(--mono)'}},'Responder phone numbers are one-way hashed. You never see who responded. Only aggregated patterns.')
-  ));
-
-  const goBtn=el('button',{class:'btn btn-p btn-full',style:{fontSize:'12px'}},'Create my perception link →');
-  goBtn.disabled=!state.name.trim();
-  nameInp.oninput=(e)=>{state.name=e.target.value;goBtn.disabled=!state.name.trim()};
-  goBtn.onclick=()=>{
-    if(!state.name.trim())return;
-    state.mode='owner';state.screen='self-t';render();
+  const btn = el('button','btn','Devam et');
+  btn.style.marginTop='28px';
+  btn.onclick = async ()=>{
+    const name = inp.value.trim();
+    if (!name) { state.toast='İsim gir'; render(); return; }
+    if (!selectedMode) { state.toast='Bir mod seç'; render(); return; }
+    btn.textContent='Oluşturuluyor...'; btn.disabled=true;
+    const res = await api('POST','/api/profiles',{name,mode:selectedMode});
+    if (!res||res.error) { btn.textContent='Devam et'; btn.disabled=false; state.toast='Hata oluştu'; render(); return; }
+    state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
+    state.screen='owner_wait'; render();
   };
-  createCard.appendChild(goBtn);
-  right.appendChild(createCard);
-
-  // Got a link
-  const linkCard=el('div',{class:'card'});
-  linkCard.appendChild(el('div',{class:'c-lbl'},"Got someone's link?"));
-  linkCard.appendChild(el('p',{class:'body',style:{marginBottom:'10px'}},'Answer anonymously about them.'));
-  const linkInp=el('input',{class:'inp',placeholder:'tellmemore.app/username-xxxxxxxx',style:{marginBottom:'10px'},type:'url'});
-  linkCard.appendChild(linkInp);
-  const ansBtn=el('button',{class:'btn btn-g btn-full'},'Answer their questions →');
-  ansBtn.onclick=()=>{
-    state.name=state.name||'Someone';
-    resetResponderState();
-    state.mode='responder';state.screen='form-b';render();
-  };
-  linkCard.appendChild(ansBtn);
-  right.appendChild(linkCard);
-
-  const sampleBtn=el('button',{class:'btn btn-g btn-full'},'See a sample result →');
-  sampleBtn.onclick=()=>{state.screen='sample';render()};
-  right.appendChild(sampleBtn);
-  right.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t4)',textAlign:'center',letterSpacing:'.08em',fontFamily:'var(--mono)'}},'Preview what a full perception profile looks like.'));
-
-  root.appendChild(left);root.appendChild(right);
-  return root;
+  wrap.append(ey,h,sub,inp,modeLabel,cards,btn);
+  d.appendChild(wrap);
+  return d;
 }
 
-// ═══════════════════════════════════════════════════════
-// SELF ASSESSMENT
-// ═══════════════════════════════════════════════════════
+// ── Owner wait ────────────────────────────────────────────────────────────────
+function renderOwnerWait() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='36px';
+  const ey = el('div','eyebrow','Hazır');
+  const h = el('h2',''); h.innerHTML = `${state.profileName}, <em>linkini paylaş</em>`;
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px;line-height:1.6';
+  sub.textContent = `Arkadaşların bu link üzerinden ${state.mode==='friends'?'seni sosyal olarak':'romantik açıdan seni'} değerlendirecek.`;
 
-function SelfTraits(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar('Self-assessment · '+state.context));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('landing'));
-  wrap.appendChild(progressBar({label:'Step 1 of 3',n:1},3));
-  wrap.appendChild(el('div',{style:{padding:'12px 16px',background:'var(--bg3)',borderLeft:'2px solid var(--wire2)',marginBottom:'28px'}},
-    el('p',{style:{fontSize:'11px',color:'var(--t2)',lineHeight:'1.8'}},
-      'Before you ask others, choose how you see yourself. The gap between this and what others experience — that is the product.')
-  ));
-  wrap.appendChild(el('h2',{class:'d2',style:{marginBottom:'6px'},html:'How do you see <em>yourself?</em>'}));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'22px'}},'Select up to 3. Be honest, not aspirational.'));
+  const linkBox = el('div','');
+  linkBox.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--v3);letter-spacing:.02em;word-break:break-all;margin-bottom:12px;cursor:pointer';
+  const link = `${location.origin}/r/${state.profileSlug}`;
+  linkBox.textContent = link;
+  linkBox.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
 
-  const chips=el('div',{class:'chips'});
-  getQ().traits.forEach(t=>{
-    const isOn=state.selfTraits.includes(t);
-    const locked=!isOn&&state.selfTraits.length>=3;
-    const c=el('div',{class:'chip'+(isOn?' on':''),style:{opacity:locked?'0.3':'1',cursor:locked?'not-allowed':'pointer'}},t);
-    c.onclick=()=>{
-      if(state.selfTraits.includes(t)) state.selfTraits=state.selfTraits.filter(x=>x!==t);
-      else if(state.selfTraits.length<3) state.selfTraits.push(t);
-      render(true);
-    };
-    chips.appendChild(c);
+  const btnCopy = el('button','btn','Linki kopyala');
+  btnCopy.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
+
+  const divider = el('div','divider');
+  const countWrap = el('div','');
+  countWrap.style.cssText='text-align:center;margin-bottom:20px';
+  const countLabel = el('div','label','Gelen cevaplar');
+  countLabel.style.marginBottom='8px';
+  const count = el('div',''); count.style.cssText='font-size:32px;font-weight:500;color:var(--t0)';
+  count.id='resp-count'; count.textContent='0';
+  const patternMsg = el('div',''); patternMsg.id='pattern-msg'; patternMsg.style.cssText='font-size:11px;color:var(--v3);margin-top:8px;min-height:16px';
+  countWrap.append(countLabel,count,patternMsg);
+
+  const btnResults = el('button','btn','Sonuçları gör');
+  btnResults.style.cssText='opacity:.4;cursor:not-allowed';
+  btnResults.id='btn-results';
+  btnResults.onclick = ()=>{ if(state.responseCount>=3){state.screen='results';render();}};
+
+  wrap.append(ey,h,sub,linkBox,btnCopy,divider,countWrap,btnResults);
+  d.appendChild(wrap);
+
+  // Poll
+  async function poll() {
+    if (!state.profileId) return;
+    const res = await api('GET',`/api/status/${state.profileId}`);
+    if (!res) return;
+    state.responseCount = res.responseCount||0;
+    const el_count = document.getElementById('resp-count');
+    const el_pattern = document.getElementById('pattern-msg');
+    const el_btn = document.getElementById('btn-results');
+    if (el_count) el_count.textContent = state.responseCount;
+    if (el_pattern && res.livePattern) el_pattern.textContent = res.livePattern;
+    if (el_btn) { if(state.responseCount>=3){el_btn.style.opacity='1';el_btn.style.cursor='pointer';}else{el_btn.style.opacity='.4';el_btn.style.cursor='not-allowed';} }
+  }
+  poll();
+  const pollInt = setInterval(()=>{ if(state.screen!=='owner_wait'){ clearInterval(pollInt); return; } poll(); },8000);
+  return d;
+}
+
+// ── Responder loading ─────────────────────────────────────────────────────────
+async function loadResponderProfile() {
+  const app = document.getElementById('app');
+  app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Yükleniyor...</div>';
+  const res = await api('GET',`/api/profiles/${state.respondSlug}`);
+  if (!res || res.error) {
+    app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--neg)">Profil bulunamadı.</div>';
+    return;
+  }
+  state.respondProfile = res;
+  state.mode = res.mode;
+  state.screen = 'respond_mode';
+  render();
+}
+
+// ── Respond mode intro ────────────────────────────────────────────────────────
+function renderRespondMode() {
+  const p = state.respondProfile;
+  const d = el('div','screen');
+  d.appendChild(bar('Anonim'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='40px';
+
+  const ey = el('div','eyebrow','Güvenli & Anonim');
+  const h = el('h2',''); h.innerHTML = `<em>${p.name}</em> seni bekliyor`;
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:10px 0 8px;line-height:1.6';
+  sub.textContent = state.mode==='friends' ? `${p.name}'ın seni sosyal olarak nasıl gördüğünü merak ediyor. Dürüst ol — kimse kim cevap verdiğini göremez.` : `${p.name}'ı romantik açıdan değerlendiriyorsun. Kimse kimin cevap verdiğini göremez.`;
+
+  const privacy = el('div','');
+  privacy.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;margin:20px 0;font-size:12px;color:var(--t2);line-height:1.6';
+  privacy.innerHTML = '🔒 Cevapların tamamen anonim. İsmin veya kimliğin asla görünmez.';
+
+  const btn = el('button','btn','Başla');
+  btn.onclick = ()=>{ state.answers={}; state.currentQ=0; state.path=null; state.queuedQuestions=buildInitialQueue(); state.screen='questions'; render(); };
+  wrap.append(ey,h,sub,privacy,btn);
+  d.appendChild(wrap);
+  return d;
+}
+
+function buildInitialQueue() {
+  return QUESTIONS[state.mode].section1;
+}
+
+// ── Questions ─────────────────────────────────────────────────────────────────
+function renderQuestions() {
+  const questions = state.queuedQuestions;
+  const idx = state.currentQ;
+  const q = questions[idx];
+  if (!q) { submitAnswers(); return el('div',''); }
+
+  const totalExpected = 9;
+  const progress = Math.round(((idx+1)/totalExpected)*100);
+
+  const d = el('div','screen');
+  d.appendChild(bar(`${idx+1} / ${totalExpected}`));
+
+  const progressBar = el('div','progress-bar');
+  const fill = el('div','progress-fill');
+  fill.style.width=progress+'%';
+  progressBar.appendChild(fill);
+  d.appendChild(progressBar);
+
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='28px';
+
+  const sectionNames = {1:'İlk İzlenim',2:'Karakter',3:'Son Söz'};
+  const sTag = el('div','section-tag', `Bölüm ${q.section} — ${sectionNames[q.section]||''}`);
+  wrap.appendChild(sTag);
+
+  const qtext = el('div','question-text', q.text);
+  wrap.appendChild(qtext);
+
+  const selected = state.answers[q.id] || null;
+
+  if (q.format === 'pair') {
+    const pairWrap = el('div','pair-options');
+    q.options.forEach(opt => {
+      const o = el('div','pair-opt'+(selected===opt.key?' selected':''));
+      const lb = el('div','pair-label','Seçenek '+opt.key);
+      const tx = el('div','pair-text',opt.text);
+      o.append(lb,tx);
+      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
+      pairWrap.appendChild(o);
+    });
+    wrap.appendChild(pairWrap);
+  } else {
+    const optWrap = el('div','options');
+    q.options.forEach(opt => {
+      const o = el('div','option'+(selected===opt.key?' selected':''));
+      const k = el('div','option-key',opt.key);
+      const t = el('div','option-text',opt.text);
+      o.append(k,t);
+      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
+      optWrap.appendChild(o);
+    });
+    wrap.appendChild(optWrap);
+  }
+
+  d.appendChild(wrap);
+  return d;
+}
+
+async function advance() {
+  const idx = state.currentQ;
+  const questions = state.queuedQuestions;
+
+  // After S3, compute path and inject adaptive questions
+  if (idx === 2 && questions.length === 3) {
+    const path = computePath(state.answers, state.mode);
+    state.path = path;
+    const q = QUESTIONS[state.mode];
+    state.queuedQuestions = [
+      ...q.section1,
+      ...q.section2_fixed,
+      ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
+      ...q.section3
+    ];
+  }
+
+  state.currentQ = idx + 1;
+  if (state.currentQ >= state.queuedQuestions.length) {
+    await submitAnswers();
+  } else {
+    render();
+  }
+}
+
+async function submitAnswers() {
+  const profileId = state.respondProfile?.id;
+  if (!profileId) { state.screen='submitted'; render(); return; }
+
+  const d = document.getElementById('app');
+  d.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Kaydediliyor...</div>';
+
+  const res = await api('POST','/api/responses',{ profileId, answers:state.answers });
+  state.responseCount = res?.responseCount || 0;
+  state.screen = 'submitted';
+  render();
+}
+
+// ── Submitted ─────────────────────────────────────────────────────────────────
+function renderSubmitted() {
+  const d = el('div','screen');
+  d.appendChild(bar());
+  const wrap = el('div','wrap');
+  wrap.style.cssText='padding-top:80px;text-align:center';
+  const icon = el('div',''); icon.style.cssText='font-size:32px;margin-bottom:16px'; icon.textContent='✦';
+  const h = el('h2',''); h.textContent='Cevabın alındı';
+  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:12px auto;max-width:280px;line-height:1.6';
+  sub.textContent='Cevabın anonim olarak kaydedildi. Kimse kimin cevap verdiğini göremez.';
+  const btn = el('button','btn btn-ghost'); btn.textContent='Kendi profilini oluştur'; btn.style.marginTop='28px';
+  btn.onclick=()=>{state={screen:'create',mode:null,profileId:null,profileSlug:null,profileName:'',respondSlug:null,respondProfile:null,answers:{},currentQ:0,queuedQuestions:[],path:null,results:null,responseCount:0,toast:null};render();};
+  wrap.append(icon,h,sub,btn);
+  d.appendChild(wrap);
+  return d;
+}
+
+// ── Results ───────────────────────────────────────────────────────────────────
+function renderResults() {
+  const d = el('div','screen');
+  d.appendChild(bar('Sonuçlar'));
+  const wrap = el('div','wrap');
+  wrap.style.paddingTop='28px';
+
+  if (!state.results) {
+    const loading = el('div','');
+    loading.style.cssText='text-align:center;padding:60px 0;font-size:12px;color:var(--t3)';
+    loading.textContent='Analiz yapılıyor...';
+    wrap.appendChild(loading);
+    d.appendChild(wrap);
+    loadResults();
+    return d;
+  }
+
+  const r = state.results;
+  const ins = r.insight;
+
+  const ey = el('div','eyebrow',`${r.profile.name} — ${r.profile.mode==='friends'?'Friends':'Romance'} modu`);
+  const h = el('h2',''); h.innerHTML=`${r.responseCount} kişi <em>cevapladı</em>`;
+  wrap.append(ey,h);
+
+  if (ins.livePattern) {
+    const pm = el('div','pattern-msg',ins.livePattern);
+    wrap.appendChild(pm);
+  }
+
+  // Contradiction (most important)
+  const cont = el('div','contradiction-block');
+  const contLabel = el('div','result-block-label','Algı çelişkisi');
+  const contText = el('div','contradiction-text', ins.contradiction || ins.contradictionText);
+  cont.append(contLabel,contText);
+  wrap.appendChild(cont);
+
+  // Main blocks
+  const blocks = [
+    { label:'İnsanlar seni nasıl görüyor', text:ins.howPeopleSeeYou },
+    { label:'Fark etmediğin şey', text:ins.whatYouDontRealize || ins.magneticText },
+    { label:'Sosyal enerjin', text:ins.yourSocialEnergy },
+    { label:'Tekrar eden pattern', text:ins.whatKeepsShowing }
+  ];
+  blocks.forEach(b => {
+    if (!b.text) return;
+    const blk = el('div','result-block');
+    const lbl = el('div','result-block-label',b.label);
+    const txt = el('div','result-text',b.text);
+    blk.append(lbl,txt);
+    wrap.appendChild(blk);
   });
-  wrap.appendChild(chips);
-  wrap.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginTop:'5px',marginBottom:'28px',letterSpacing:'.08em',fontFamily:'var(--mono)'}},state.selfTraits.length+'/3'+(state.selfTraits.length>=3?' — max reached':'')));
-  const next=el('button',{class:'btn btn-p btn-full'},'Continue →');
-  next.disabled=state.selfTraits.length<1;
-  next.onclick=()=>{state.screen='self-b';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
 
-function SelfBehavioral(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar('Self-assessment · '+state.context));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('self-t'));
-  wrap.appendChild(progressBar({label:'Step 2 of 3',n:2},3));
-  wrap.appendChild(el('h2',{class:'d2',style:{marginBottom:'6px'},html:'Rate how you actually <em>show up.</em>'}));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'28px'}},'Not how you intend to. How you actually do.'));
-
-  getQ().baseline.forEach(q=>{
-    wrap.appendChild(ScaleQ(q,state.selfBeh[q.id],(v)=>{state.selfBeh[q.id]=v;render(true)}));
-  });
-
-  const allDone=getQ().baseline.every(q=>state.selfBeh[q.id]);
-  const next=el('button',{class:'btn btn-p btn-full'},'Continue →');
-  next.disabled=!allDone;
-  next.onclick=()=>{state.screen='self-d';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
-
-function SelfDecisions(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar('Self-assessment · '+state.context));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('self-b'));
-  wrap.appendChild(progressBar({label:'Step 3 of 3',n:3},3));
-  wrap.appendChild(el('h2',{class:'d2',style:{marginBottom:'6px'},html:'Two uncomfortable <em>questions.</em>'}));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'12px'}},'Answer as if judging someone with your exact track record.'));
-  wrap.appendChild(el('div',{style:{padding:'9px 13px',background:'rgba(212,160,48,.06)',border:'1px solid rgba(212,160,48,.22)',marginBottom:'22px'}},
-    el('span',{style:{fontSize:'9px',color:'var(--cau2)',letterSpacing:'.18em',textTransform:'uppercase',fontFamily:'var(--mono)'}},'These carry 2× weight in the final score.')
-  ));
-  const card=el('div',{class:'card',style:{marginBottom:'22px'}});
-  getQ().high_signal.forEach(q=>{
-    const row=el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 0',borderBottom:'1px solid var(--wire)',gap:'14px'}});
-    row.appendChild(el('div',{style:{fontSize:'13px',color:'var(--t1)',lineHeight:'1.55',flex:'1'}},q.text));
-    const btns=el('div',{style:{display:'flex',gap:'6px',flexShrink:'0'}});
-    const yes=el('button',{class:'yn-b'+(state.selfDec[q.id]==='yes'?' y':''),style:{padding:'10px 18px',fontSize:'10px',minHeight:'44px'}},q.text.startsWith('Would')?'Yes':'Yes');
-    yes.onclick=()=>{state.selfDec[q.id]='yes';render(true)};
-    const no=el('button',{class:'yn-b'+(state.selfDec[q.id]==='no'?' n':''),style:{padding:'10px 18px',fontSize:'10px',minHeight:'44px'}},'No');
-    no.onclick=()=>{state.selfDec[q.id]='no';render(true)};
-    btns.appendChild(yes);btns.appendChild(no);row.appendChild(btns);
-    card.appendChild(row);
-  });
-  wrap.appendChild(card);
-  const allDone=getQ().high_signal.every(q=>state.selfDec[q.id]);
-  const next=el('button',{class:'btn btn-p btn-full'},'Generate my link →');
-  next.disabled=!allDone;
-  next.onclick=()=>{state.screen='owner';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
-
-// ═══════════════════════════════════════════════════════
-// OWNER WAIT — PROGRESSIVE UNLOCK
-// ═══════════════════════════════════════════════════════
-
-function OwnerWait(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar(state.context+' · locked'));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-
-  const slug=state.name.toLowerCase().replace(/\s+/g,'-')+'-'+Math.random().toString(36).slice(2,10);
-  const link='tellmemore.app/'+slug;
-  const n=state.responseCount;
-
-  wrap.appendChild(el('div',{style:{marginBottom:'36px'}},
-    el('div',{class:'eyebrow',style:{marginBottom:'14px'}},'Now the hard part'),
-    el('h2',{class:'d2',html:"Send this to people who<br>actually <em>know you.</em>"}),
-    el('p',{class:'body',style:{marginTop:'12px',maxWidth:'440px'}},"Not people who will be nice. People whose answer you're slightly afraid of.")
-  ));
+  // Friction (private)
+  if (ins.frictionText) {
+    const fr = el('div','friction-block');
+    const frLabel = el('div','friction-label','Sadece sana');
+    const frText = el('div','friction-text',ins.frictionText);
+    fr.append(frLabel,frText);
+    wrap.appendChild(fr);
+  }
 
   // Share card
-  const shareCard=el('div',{class:'card',style:{marginBottom:'12px',borderColor:'rgba(139,92,246,.35)',padding:'24px'}});
-  shareCard.appendChild(el('div',{class:'c-lbl'},'Your link'));
-  const shareRow=el('div',{style:{display:'flex',marginBottom:'10px'}});
-  shareRow.appendChild(el('div',{style:{flex:'1',background:'var(--bg1)',border:'1px solid var(--wire)',borderRight:'none',color:'var(--t2)',padding:'13px 16px',fontSize:'12px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontFamily:'var(--mono)'}},link));
-  const copyBtn=el('button',{style:{padding:'13px 18px',background:'var(--brand)',border:'none',color:'#F3F3F2',cursor:'pointer',fontFamily:'var(--mono)',fontSize:'9px',letterSpacing:'.18em',textTransform:'uppercase',whiteSpace:'nowrap',transition:'all .15s',boxShadow:'0 0 16px rgba(139,92,246,.3)'}},'Copy link');
-  copyBtn.onclick=()=>{
-    clipCopy('https://'+link).then(()=>{
-      copyBtn.textContent='✓ Copied';
-      setTimeout(()=>{copyBtn.textContent='Copy link'},2000);
-    }).catch(()=>{
-      copyBtn.textContent='✓ Copied';
-      setTimeout(()=>{copyBtn.textContent='Copy link'},2000);
-    });
-  };
-  shareRow.appendChild(copyBtn);
-  shareCard.appendChild(shareRow);
-  shareCard.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.06em',lineHeight:'1.85',fontFamily:'var(--mono)'}},'Anonymous. Phone-verified. Responders cannot see each other. You cannot see who answered — only patterns.'));
-  wrap.appendChild(shareCard);
-
-  // Live response counter
-  const respCard=el('div',{class:'card',style:{marginBottom:'12px',padding:'24px'}});
-  const counterWrap=el('div',{style:{display:'flex',alignItems:'flex-end',gap:'14px',marginBottom:'18px'}});
-  const bigNum=el('span',{style:{fontFamily:'var(--serif)',fontSize:'72px',color:'var(--t0)',lineHeight:'1',animation:'counterTick .3s ease both'}},String(n));
-  counterWrap.appendChild(bigNum);
-  const metaDiv=el('div',{style:{paddingBottom:'12px'}});
-  metaDiv.appendChild(el('div',{style:{fontSize:'11px',color:'var(--t2)',marginBottom:'6px',fontFamily:'var(--ui)'}},'verified responses'));
-  const dotRow=el('div',{style:{display:'flex',alignItems:'center',gap:'7px'}});
-  dotRow.appendChild(el('div',{style:{width:'6px',height:'6px',borderRadius:'50%',background:'var(--pos2)',animation:'pulse 2s infinite'}}));
-  dotRow.appendChild(el('span',{style:{fontSize:'9px',color:'var(--pos2)',letterSpacing:'.14em',textTransform:'uppercase',fontFamily:'var(--mono)'}},'Live · updating'));
-  metaDiv.appendChild(dotRow);
-  counterWrap.appendChild(metaDiv);
-  respCard.appendChild(counterWrap);
-
-  // Progress to next threshold
-  const thresholds=[3,5,8,12];
-  const nextT=thresholds.find(t=>t>n)||12;
-  const prevT=thresholds.filter(t=>t<=n).slice(-1)[0]||0;
-  const pct=Math.min(100,((n-prevT)/(nextT-prevT))*100);
-  respCard.appendChild(el('div',{style:{height:'2px',background:'var(--wire)',marginBottom:'7px',overflow:'hidden',borderRadius:'2px'}},
-    el('div',{style:{height:'2px',width:pct+'%',background:'linear-gradient(90deg,var(--brand),var(--brand2))',transition:'width 1s ease',boxShadow:'0 0 6px rgba(139,92,246,.5)',borderRadius:'2px'}})
-  ));
-  respCard.appendChild(el('div',{style:{display:'flex',justifyContent:'space-between'}},
-    el('span',{style:{fontSize:'9px',color:n>=8?'var(--pos2)':'var(--t3)',letterSpacing:'.08em',fontFamily:'var(--mono)'}},'Full profile unlocks at 8'),
-    el('span',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.08em',fontFamily:'var(--mono)'}},n+' of 8+')
-  ));
-  wrap.appendChild(respCard);
-
-  // Progressive teaser
-  const teaserCard=el('div',{class:'card',style:{marginBottom:'14px',padding:'20px 22px',borderColor:n>=8?'rgba(88,216,152,.35)':n>=5?'rgba(212,160,48,.3)':'var(--wire)'}});
-  if(n<=2){
-    teaserCard.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'18px',color:'var(--t0)',marginBottom:'7px'}},state.name+"'s profile is forming."));
-    teaserCard.appendChild(el('div',{style:{fontSize:'12px',color:'var(--t2)',lineHeight:'1.8',fontFamily:'var(--ui)'}},'Send the link to people who actually know you. '+(8-n)+' more responses needed.'));
-  } else if(n>=3&&n<=4){
-    teaserCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--cau2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'8px',fontFamily:'var(--mono)'}},'Early signal detected'));
-    teaserCard.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'17px',color:'var(--t0)',marginBottom:'7px',fontStyle:'italic'}},'"People may experience your directness more strongly than you think."'));
-    teaserCard.appendChild(el('div',{style:{fontSize:'11px',color:'var(--t3)',fontFamily:'var(--mono)'}},'Full profile unlocks at 8.'));
-  } else if(n>=5&&n<=7){
-    teaserCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--cau2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'8px',fontFamily:'var(--mono)'}},'Profile leaning toward'));
-    teaserCard.appendChild(el('div',{style:{filter:'blur(4px)',fontFamily:'var(--serif)',fontSize:'26px',color:'var(--t0)',userSelect:'none',marginBottom:'5px',pointerEvents:'none'}},'Trusted but Hard to Read'));
-    teaserCard.appendChild(el('div',{style:{fontSize:'11px',color:'var(--t3)',fontFamily:'var(--mono)'}},'Full profile unlocks at 8.'));
-  } else if(n>=8&&n<=11){
-    teaserCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--pos2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'8px',fontFamily:'var(--mono)'}},'Full profile unlocked'));
-    const blurWrap=el('div',{style:{position:'relative',overflow:'hidden',cursor:'pointer'}});
-    blurWrap.appendChild(el('div',{style:{filter:'blur(5px)',opacity:'.35',userSelect:'none',pointerEvents:'none'}},
-      el('div',{style:{fontFamily:'var(--serif)',fontSize:'26px',color:'var(--t0)',marginBottom:'5px'}},'Trusted but Hard to Read'),
-      el('div',{style:{fontSize:'12px',color:'var(--t2)',fontFamily:'var(--mono)'}},'Trust 3.7 · Empathy 32% · Direct 85%')
-    ));
-    blurWrap.appendChild(el('div',{style:{position:'absolute',inset:'0',display:'flex',alignItems:'center',justifyContent:'center'}},
-      el('span',{style:{fontSize:'10px',color:'var(--brand2)',letterSpacing:'.22em',textTransform:'uppercase',background:'var(--bg2)',padding:'7px 14px',border:'1px solid var(--brand)',fontFamily:'var(--mono)'}},'Unlock my profile →')
-    ));
-    blurWrap.onclick=()=>{state.resultsRevealed=false;state.screen='results';render()};
-    teaserCard.appendChild(blurWrap);
-  } else if(n>=12){
-    teaserCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--pos2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'6px',fontFamily:'var(--mono)'}},'High confidence profile · 12+ responses'));
-    teaserCard.appendChild(el('div',{style:{fontFamily:'var(--ui)',fontSize:'13px',color:'var(--t1)',lineHeight:'1.7'}},'More responses make the pattern sharper. You can unlock now or wait for more signal.'));
-  }
-  wrap.appendChild(teaserCard);
-
-  const viewBtn=el('button',{class:'btn btn-p btn-full',style:{fontSize:'12px',padding:'18px'}},
-    n>=8?'Unlock my profile →':'Waiting for '+(8-n)+' more responses');
-  viewBtn.disabled=n<8;
-  viewBtn.onclick=()=>{state.resultsRevealed=false;state.screen='results';render()};
-  wrap.appendChild(viewBtn);
-
-  if(n>=8){
-    wrap.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',textAlign:'center',marginTop:'11px',letterSpacing:'.07em',fontFamily:'var(--mono)'}},'Once you open them, you have seen them.'));
-  }
-
-  // Live counter simulation
-  if(state.liveTimer) clearInterval(state.liveTimer);
-  if(n<12){
-    let ticked=false;
-    state.liveTimer=setInterval(()=>{
-      if(!ticked && Math.random()<0.3){
-        ticked=true;
-        state.responseCount=Math.min(12,state.responseCount+1);
-        clearInterval(state.liveTimer);state.liveTimer=null;
-        render(true);
-      }
-    },4000);
-  }
-
-  wrap.appendChild(el('div',{style:{marginTop:'28px',paddingTop:'22px',borderTop:'1px solid var(--wire)'}},
-    el('p',{style:{fontSize:'10px',color:'var(--t3)',marginBottom:'11px',fontFamily:'var(--mono)'}},'Want to see what the form feels like?'),
-    (()=>{
-      const b=el('button',{class:'btn btn-g',style:{fontSize:'9px',padding:'10px 16px',minHeight:'38px'}},'Try responder form →');
-      b.onclick=()=>{resetResponderState();state.mode='responder';state.screen='form-b';render()};
-      return b;
-    })()
-  ));
-
-  root.appendChild(wrap);return root;
-}
-
-// ═══════════════════════════════════════════════════════
-// RESPONDER FLOW
-// ═══════════════════════════════════════════════════════
-
-function FormBehavioral(){
-  const root=el('div',{class:'screen'});
-  const name=state.name||'this person';
-  root.appendChild(mkBar(state.context+' · about '+name));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('owner'));
-  wrap.appendChild(progressBar({label:'1 of 4',n:1},4));
-  wrap.appendChild(el('div',{class:'eyebrow'},'You are answering about'));
-  wrap.appendChild(el('h2',{class:'d2',style:{marginBottom:'5px'}},name));
-  wrap.appendChild(el('div',{style:{padding:'11px 14px',background:'var(--bg3)',border:'1px solid var(--wire)',marginBottom:'28px'}},
-    el('span',{style:{fontSize:'10px',color:'var(--t2)',lineHeight:'1.8',fontFamily:'var(--ui)'}},'They will never see that it came from you. Only patterns are shown. Be honest.')
-  ));
-  getQ().baseline.forEach(q=>{
-    wrap.appendChild(ScaleQ(q,state.respBeh[q.id],(v)=>{state.respBeh[q.id]=v;render(true)}));
-  });
-  const allDone=getQ().baseline.every(q=>state.respBeh[q.id]);
-  const next=el('button',{class:'btn btn-p btn-full'},'Continue →');
-  next.disabled=!allDone;
-  next.onclick=()=>{state.screen='form-d';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
-
-function FormDecisions(){
-  const root=el('div',{class:'screen'});
-  const name=state.name||'this person';
-  root.appendChild(mkBar(state.context+' · about '+name));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('form-b'));
-  wrap.appendChild(progressBar({label:'2 of 4',n:2},4));
-  wrap.appendChild(el('h2',{class:'d3',style:{marginBottom:'8px'}},'Would you actually?'));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'12px'}},'Yes or No. These carry 2× weight.'));
-  wrap.appendChild(el('div',{style:{padding:'9px 13px',background:'rgba(212,160,48,.06)',border:'1px solid rgba(212,160,48,.22)',marginBottom:'22px'}},
-    el('span',{style:{fontSize:'9px',color:'var(--cau2)',letterSpacing:'.18em',textTransform:'uppercase',fontFamily:'var(--mono)'}},'2× weight in the final score.')
-  ));
-  const card=el('div',{class:'card',style:{marginBottom:'22px'}});
-  getQ().high_signal.forEach(q=>{
-    const block=el('div',{style:{padding:'14px 0',borderBottom:'1px solid var(--wire)'}});
-    block.appendChild(el('div',{style:{fontSize:'13px',color:'var(--t1)',marginBottom:'11px',lineHeight:'1.55',fontFamily:'var(--ui)'}},q.text));
-    const ynRow=el('div',{class:'yn-row'});
-    const yesB=el('button',{class:'yn-b'+(state.respDec[q.id]==='yes'?' y':'')},'Yes');
-    yesB.onclick=()=>{state.respDec[q.id]='yes';render(true)};
-    const noB=el('button',{class:'yn-b'+(state.respDec[q.id]==='no'?' n':'')},'No');
-    noB.onclick=()=>{state.respDec[q.id]='no';render(true)};
-    ynRow.appendChild(yesB);ynRow.appendChild(noB);
-    block.appendChild(ynRow);card.appendChild(block);
-  });
+  const card = el('div','share-card');
+  const sName = el('div','share-name',r.profile.name);
+  const sHead = el('div','share-headline', ins.shareHeadline || ins.contradictionText?.split('.')[0]);
+  const sCount = el('div','share-count',`${r.responseCount} kişi böyle gördü`);
+  const sBrand = el('div','share-brand','TellMeMore');
+  card.append(sName,sHead,sCount,sBrand);
   wrap.appendChild(card);
-  const allDone=getQ().high_signal.every(q=>state.respDec[q.id]);
-  const next=el('button',{class:'btn btn-p btn-full'},'Continue →');
-  next.disabled=!allDone;
-  next.onclick=()=>{state.screen='form-fc';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
+
+  const btnShare = el('button','btn','Share card\'ı kopyala');
+  btnShare.onclick=()=>{ navigator.clipboard?.writeText(`${ins.shareHeadline||ins.contradictionText?.split('.')[0]}\n\n${r.responseCount} kişi böyle gördü — TellMeMore`); state.toast='Kopyalandı'; render(); };
+  wrap.appendChild(btnShare);
+  d.appendChild(wrap);
+  return d;
 }
 
-function FormForcedChoice(){
-  const root=el('div',{class:'screen'});
-  const name=state.name||'this person';
-  root.appendChild(mkBar(state.context+' · about '+name));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('form-d'));
-  wrap.appendChild(progressBar({label:'3 of 4',n:3},4));
-  wrap.appendChild(el('h2',{class:'d3',style:{marginBottom:'8px'}},'No correct answer.'));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'26px'}},'Both options have a downside. Pick the one that fits more.'));
-
-  getQ().forced_choice.forEach((pair,i)=>{
-    const block=el('div',{style:{marginBottom:'14px'}});
-    block.appendChild(el('div',{style:{fontSize:'8px',color:'var(--t4)',letterSpacing:'.14em',textTransform:'uppercase',marginBottom:'5px',paddingLeft:'3px',fontFamily:'var(--mono)'}},String(i+1).padStart(2,'0')));
-    const row=el('div',{style:{display:'flex',flexDirection:'column',border:'1px solid var(--wire)',overflow:'hidden'}});
-    const selA=state.respFC[pair.id]==='A';
-    const selB=state.respFC[pair.id]==='B';
-    const optA=el('button',{style:{padding:'16px 18px',background:selA?'rgba(139,92,246,.1)':'var(--bg2)',border:'none',borderBottom:'1px solid var(--wire)',color:selA?'var(--brand3)':'var(--t2)',fontSize:'13px',textAlign:'left',cursor:'pointer',fontFamily:'var(--ui)',lineHeight:'1.5',outline:selA?'2px solid var(--brand)':'none',outlineOffset:'-2px',transition:'all .15s',minHeight:'52px'}},pair.optionA);
-    optA.onclick=()=>{state.respFC[pair.id]='A';render(true)};
-    const sep=el('div',{style:{padding:'5px 0',textAlign:'center',fontSize:'8px',color:'var(--t4)',letterSpacing:'.28em',textTransform:'uppercase',background:'var(--bg3)',borderBottom:'1px solid var(--wire)',fontFamily:'var(--mono)'}},'or');
-    const optB=el('button',{style:{padding:'16px 18px',background:selB?'rgba(139,92,246,.1)':'var(--bg2)',border:'none',color:selB?'var(--brand3)':'var(--t2)',fontSize:'13px',textAlign:'left',cursor:'pointer',fontFamily:'var(--ui)',lineHeight:'1.5',outline:selB?'2px solid var(--brand)':'none',outlineOffset:'-2px',transition:'all .15s',minHeight:'52px'}},pair.optionB);
-    optB.onclick=()=>{state.respFC[pair.id]='B';render(true)};
-    row.appendChild(optA);row.appendChild(sep);row.appendChild(optB);
-    block.appendChild(row);wrap.appendChild(block);
-  });
-
-  const allDone=getQ().forced_choice.every(p=>state.respFC[p.id]);
-  const next=el('button',{class:'btn btn-p btn-full',style:{marginTop:'8px'}},'Continue →');
-  next.disabled=!allDone;
-  next.onclick=()=>{state.screen='form-t';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
-
-function FormTraits(){
-  const root=el('div',{class:'screen'});
-  const name=state.name||'this person';
-  root.appendChild(mkBar(state.context+' · about '+name));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('form-fc'));
-  wrap.appendChild(progressBar({label:'4 of 4',n:4},4));
-  wrap.appendChild(el('h2',{class:'d3',style:{marginBottom:'8px'}},'Which traits describe '+name+'?'));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'22px'}},'Select up to 3. Including the hard ones.'));
-  const chips=el('div',{class:'chips'});
-  getQ().traits.forEach(t=>{
-    const isOn=state.respTraits.includes(t);
-    const locked=!isOn&&state.respTraits.length>=3;
-    const c=el('div',{class:'chip'+(isOn?' on':''),style:{opacity:locked?'0.3':'1',cursor:locked?'not-allowed':'pointer'}},t);
-    c.onclick=()=>{
-      if(state.respTraits.includes(t)) state.respTraits=state.respTraits.filter(x=>x!==t);
-      else if(state.respTraits.length<3) state.respTraits.push(t);
-      render(true);
-    };
-    chips.appendChild(c);
-  });
-  wrap.appendChild(chips);
-  wrap.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginTop:'5px',marginBottom:'24px',letterSpacing:'.07em',fontFamily:'var(--mono)'}},state.respTraits.length+'/3'+(state.respTraits.length>=3?' — max reached':'')));
-  const next=el('button',{class:'btn btn-p btn-full'},'Continue →');
-  next.disabled=state.respTraits.length<1;
-  next.onclick=()=>{state.screen='form-blind';render()};
-  wrap.appendChild(next);
-  root.appendChild(wrap);return root;
-}
-
-function FormBlindSpot(){
-  const root=el('div',{class:'screen'});
-  const name=state.name||'this person';
-  root.appendChild(mkBar(state.context+' · about '+name));
-  const wrap=el('div',{class:'wrap',style:{padding:'48px 20px'}});
-  wrap.appendChild(backBtn('form-t'));
-  wrap.appendChild(el('div',{class:'eyebrow',style:{marginBottom:'14px'}},'Almost done'));
-  wrap.appendChild(el('h2',{class:'d3',style:{marginBottom:'8px'}},'One thing they might not see.'));
-  wrap.appendChild(el('p',{class:'body',style:{marginBottom:'6px'}},'Optional. One thing that keeps coming up — that they probably do not notice.'));
-  wrap.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginBottom:'22px',letterSpacing:'.07em',fontFamily:'var(--mono)'}},'Max 120 chars. Clustered with similar responses. Never shown individually.'));
-
-  wrap.appendChild(el('p',{style:{fontSize:'14px',color:'var(--t1)',marginBottom:'9px',fontFamily:'var(--ui)',lineHeight:'1.5'}},getQ().blind_spot));
-  const ta=el('textarea',{class:'ta',maxlength:'120',placeholder:'Be direct. One specific thing.'});
-  ta.value=state.respBlind1;
-  const counter=el('div',{style:{textAlign:'right',fontSize:'9px',color:'var(--t3)',marginTop:'4px',marginBottom:'22px',fontFamily:'var(--mono)'}},state.respBlind1.length+'/120');
-  ta.oninput=(e)=>{state.respBlind1=e.target.value;counter.textContent=e.target.value.length+'/120'};
-  wrap.appendChild(ta);wrap.appendChild(counter);
-
-  const submit=el('button',{class:'btn btn-p btn-full'},'Submit anonymously →');
-  submit.onclick=()=>{state.screen='submitted';render()};
-  wrap.appendChild(submit);
-  wrap.appendChild(el('p',{style:{fontSize:'8px',color:'var(--t4)',marginTop:'9px',letterSpacing:'.09em',textAlign:'center',fontFamily:'var(--mono)'}},'IN PRODUCTION: PHONE-VERIFIED HASH · NEVER LINKED TO YOUR IDENTITY'));
-  root.appendChild(wrap);return root;
-}
-
-// ═══════════════════════════════════════════════════════
-// SUBMITTED — VIRAL CONVERSION SCREEN
-// ═══════════════════════════════════════════════════════
-
-function Submitted(){
-  const name=state.name||'this person';
-  const root=el('div',{class:'screen',style:{minHeight:'100vh',minHeight:'100dvh',background:'var(--bg0)'}});
-  root.appendChild(mkBar(''));
-  const wrap=el('div',{class:'wrap',style:{padding:'52px 20px 80px',maxWidth:'540px',margin:'0 auto'}});
-
-  // Check icon
-  const iconWrap=el('div',{style:{display:'flex',justifyContent:'center',marginBottom:'24px'}});
-  iconWrap.appendChild(el('div',{style:{width:'60px',height:'60px',borderRadius:'50%',border:'1.5px solid var(--brand)',background:'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'22px',color:'var(--brand2)',boxShadow:'0 0 28px rgba(139,92,246,.2)'}},'✓'));
-  wrap.appendChild(iconWrap);
-
-  wrap.appendChild(el('h1',{style:{fontFamily:'var(--serif)',fontSize:'clamp(36px,8vw,52px)',fontWeight:'700',color:'var(--t0)',textAlign:'center',marginBottom:'12px'}},'Submitted.'));
-  wrap.appendChild(el('p',{style:{fontSize:'13px',color:'var(--t2)',textAlign:'center',lineHeight:'1.8',marginBottom:'4px',fontFamily:'var(--ui)'}},'Your answer was recorded anonymously.'));
-  wrap.appendChild(el('p',{style:{fontSize:'13px',color:'var(--t2)',textAlign:'center',lineHeight:'1.8',marginBottom:'28px',fontFamily:'var(--ui)'}},'They will never see that it came from you.'));
-
-  // Divider
-  wrap.appendChild(el('div',{style:{display:'flex',alignItems:'center',gap:'12px',marginBottom:'24px'}},
-    el('div',{style:{flex:'1',height:'1px',background:'var(--wire)'}}),
-    el('div',{style:{width:'4px',height:'4px',borderRadius:'50%',background:'var(--brand)',boxShadow:'0 0 8px rgba(139,92,246,.6)'}}),
-    el('div',{style:{flex:'1',height:'1px',background:'var(--wire)'}})
-  ));
-
-  // Shape copy
-  const shapeLine=el('div',{style:{display:'flex',alignItems:'center',gap:'11px',padding:'12px 16px',border:'1px solid var(--wire)',background:'var(--bg2)',marginBottom:'18px'}});
-  shapeLine.appendChild(el('div',{style:{fontSize:'16px',color:'var(--brand)',flexShrink:'0'}},'○'));
-  shapeLine.appendChild(el('div',{style:{fontSize:'12px',color:'var(--t1)',lineHeight:'1.6',fontFamily:'var(--ui)'}},'You just helped shape '+name+"'s perception profile."));
-  wrap.appendChild(shapeLine);
-
-  // Mirror copy
-  const ctxLine=state.context==='Dating / Relationship'
-    ?'Now see how people experience you when they get close.'
-    :state.context==='Friends'
-    ?'Now see what kind of friend people experience you as.'
-    :'Now see how people experience you.';
-
-  wrap.appendChild(el('div',{style:{fontSize:'9px',color:'var(--brand2)',letterSpacing:'.35em',textTransform:'uppercase',textAlign:'center',marginBottom:'10px',fontFamily:'var(--mono)'}},'NOW REVERSE THE MIRROR.'));
-  wrap.appendChild(el('h2',{style:{fontFamily:'var(--serif)',fontSize:'clamp(24px,5vw,36px)',fontWeight:'700',color:'var(--t0)',textAlign:'center',lineHeight:'1.1',marginBottom:'9px'},html:'What would 8 people<br>say about <em style="color:var(--brand2)">you?</em>'}));
-  wrap.appendChild(el('p',{style:{fontSize:'13px',color:'var(--t2)',textAlign:'center',marginBottom:'24px',lineHeight:'1.7',fontFamily:'var(--ui)'}}),ctxLine);
-
-  // Profile type teaser
-  const teaserCard=el('div',{style:{border:'1px solid var(--wire)',background:'var(--bg2)',padding:'18px 20px',marginBottom:'9px'}});
-  teaserCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'12px',textAlign:'center',fontFamily:'var(--mono)'}},'Most people discover one of these:'));
-  [
-    'Trusted but Hard to Read',
-    'Quietly Respected',
-    'Intense but Loyal',
-    'Loved but Unreliable',
-    'Direct but Expensive',
-  ].forEach(label=>{
-    const row=el('div',{style:{display:'flex',alignItems:'center',gap:'11px',padding:'10px 13px',marginBottom:'5px',border:'1px solid var(--wire)',background:'var(--bg3)',cursor:'pointer',transition:'all .15s'}});
-    row.onmouseover=()=>{row.style.borderColor='var(--brand)';row.style.background='rgba(139,92,246,.07)'};
-    row.onmouseout=()=>{row.style.borderColor='var(--wire)';row.style.background='var(--bg3)'};
-    row.appendChild(el('div',{style:{width:'6px',height:'6px',borderRadius:'50%',background:'var(--brand)',flexShrink:'0',boxShadow:'0 0 6px rgba(139,92,246,.5)'}}));
-    row.appendChild(el('div',{style:{fontSize:'13px',color:'var(--t1)',fontFamily:'var(--ui)'}},label));
-    teaserCard.appendChild(row);
-  });
-  wrap.appendChild(teaserCard);
-
-  wrap.appendChild(el('p',{style:{fontSize:'12px',color:'var(--brand2)',fontStyle:'italic',fontFamily:'var(--serif)',textAlign:'center',marginBottom:'22px',letterSpacing:'.01em'}},'Which one would you be?'));
-
-  // Primary CTA
-  const createBtn=el('button',{style:{width:'100%',padding:'18px 24px',background:'var(--brand)',border:'none',color:'#F3F3F2',cursor:'pointer',fontFamily:'var(--ui)',fontSize:'16px',fontWeight:'600',letterSpacing:'.02em',marginBottom:'9px',transition:'all .2s',boxShadow:'0 0 24px rgba(139,92,246,.35)',minHeight:'56px',borderRadius:'0'}},'Create my perception link →');
-  createBtn.onmouseover=()=>{createBtn.style.transform='translateY(-1px)';createBtn.style.boxShadow='0 4px 32px rgba(139,92,246,.5)'};
-  createBtn.onmouseout=()=>{createBtn.style.transform='';createBtn.style.boxShadow='0 0 24px rgba(139,92,246,.35)'};
-  createBtn.onclick=()=>{
-    if(state.liveTimer){clearInterval(state.liveTimer);state.liveTimer=null;}
-    resetAll();render();
-  };
-  wrap.appendChild(createBtn);
-
-  const sampleBtn=el('button',{class:'btn btn-g btn-full',style:{fontSize:'13px',fontWeight:'500',marginBottom:'18px'}},'See a sample result →');
-  sampleBtn.onclick=()=>{state.screen='sample';render()};
-  wrap.appendChild(sampleBtn);
-
-  wrap.appendChild(el('div',{style:{display:'flex',alignItems:'center',gap:'7px',justifyContent:'center',padding:'10px 0'}},
-    el('div',{style:{fontSize:'10px',color:'var(--brand)',fontFamily:'var(--mono)'}},'✓'),
-    el('div',{style:{fontSize:'9px',color:'var(--t4)',letterSpacing:'.1em',fontFamily:'var(--mono)'}},'No names. No raw comments. Only patterns.')
-  ));
-
-  root.appendChild(wrap);return root;
-}
-
-// ═══════════════════════════════════════════════════════
-// RESULTS — BUILD CONTENT
-// ═══════════════════════════════════════════════════════
-
-function buildResultContent(wrap,data,ptype){
-  // Safety
-  wrap.appendChild(el('div',{class:'reveal-block reveal-1 safety'},
-    el('span',{style:{color:'var(--t3)',fontSize:'12px',flexShrink:'0'}},'◈'),
-    el('div',{class:'safety-t'},'Patterns, not absolute truth. Directional feedback — not diagnosis. No single response defines this result.')
-  ));
-
-  // Profile type panel
-  const ptPanel=el('div',{class:'reveal-block reveal-2 pt-panel',style:{background:ptype.bg,border:'1px solid '+ptype.border,marginBottom:'2px'}});
-  ptPanel.appendChild(el('div',{style:{fontSize:'8px',color:'rgba(200,196,188,.45)',letterSpacing:'.34em',textTransform:'uppercase',marginBottom:'10px',fontFamily:'var(--mono)'}},'Perception Profile'));
-  ptPanel.appendChild(el('div',{class:'pt-name'},ptype.name));
-  ptPanel.appendChild(el('div',{class:'pt-line'},ptype.line));
-  const bullets=el('ul',{class:'pt-bullets'});
-  [{k:'Biggest strength',v:ptype.strength,c:'var(--pos2)'},{k:'Biggest risk',v:ptype.risk,c:'var(--neg2)'},{k:'Likely blind spot',v:ptype.blindspot,c:'var(--cau2)'},{k:'Main correction',v:ptype.correction,c:'var(--t1)'}].forEach(b=>{
-    const li=el('li',{class:'pt-bullet'});
-    li.appendChild(el('div',{class:'pt-bullet-k'},b.k));
-    li.appendChild(el('div',{class:'pt-bullet-v',style:{color:b.c}},b.v));
-    bullets.appendChild(li);
-  });
-  ptPanel.appendChild(bullets);
-  wrap.appendChild(ptPanel);
-
-  // PLY
-  const ply=el('div',{class:'reveal-block reveal-2',style:{background:'var(--bg2)',border:'1px solid var(--wire)',padding:'18px',marginBottom:'24px',marginTop:'2px'}});
-  ply.appendChild(el('div',{style:{fontSize:'8px',color:'var(--t3)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'12px',fontFamily:'var(--mono)'}},'People like you'));
-  [{marker:'Often succeed',mc:'var(--pos2)',text:ptype.ply.succeed},{marker:'Often fail',mc:'var(--neg2)',text:ptype.ply.fail},{marker:'Often misunderstand',mc:'var(--cau2)',text:ptype.ply.misunderstand}].forEach(r=>{
-    const row=el('div',{class:'ply-row'});
-    row.appendChild(el('div',{class:'ply-m',style:{color:r.mc}},r.marker));
-    row.appendChild(el('div',{class:'ply-t'},'…'+r.text+'.'));
-    ply.appendChild(row);
-  });
-  wrap.appendChild(ply);
-
-  // Core insight
-  const insight=el('div',{class:'reveal-block reveal-3',style:{borderLeft:'2px solid var(--brand)',padding:'22px 26px',background:'var(--bg2)',marginBottom:'24px',position:'relative',overflow:'hidden'}});
-  insight.appendChild(el('div',{style:{position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,var(--brand),transparent)'}}));
-  insight.appendChild(el('div',{style:{fontSize:'9px',letterSpacing:'.22em',textTransform:'uppercase',color:'var(--t3)',marginBottom:'11px',fontFamily:'var(--mono)'}},'Core insight'));
-  insight.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'clamp(16px,2.4vw,21px)',color:'var(--t0)',lineHeight:'1.45',marginBottom:'8px'}},ptype.insightA));
-  insight.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'clamp(14px,2vw,17px)',color:'var(--t2)',lineHeight:'1.45',fontStyle:'italic',marginBottom:'14px'}},ptype.insightB));
-  insight.appendChild(el('div',{style:{padding:'9px 13px',border:'1px solid var(--wire)',background:'var(--bg3)'}},
-    el('span',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.09em',fontFamily:'var(--mono)'}},'◈ Directional finding — not a verdict. Sit with it before acting on it.')
-  ));
-  wrap.appendChild(insight);
-
-  // Top 3 gaps
-  wrap.appendChild(el('div',{class:'eyebrow reveal-block reveal-3',style:{marginBottom:'8px'}},'Top 3 perception gaps'));
-  wrap.appendChild(el('div',{class:'reveal-block reveal-3',style:{padding:'9px 13px',border:'1px solid var(--wire)',background:'var(--bg3)',marginBottom:'12px'}},
-    el('span',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.08em',fontFamily:'var(--mono)'}},'Negative = you rate yourself higher. Positive = others rate you higher.')
-  ));
-  const traitCard=el('div',{class:'reveal-block reveal-3 card',style:{padding:'16px 20px',marginBottom:'24px'}});
-  data.gapData.forEach(t=>{
-    const row=el('div',{class:'trow'});
-    row.appendChild(el('div',{class:'t-name'},t.name));
-    const track=el('div',{class:'t-track'});
-    track.appendChild(el('div',{class:'t-self',style:{width:t.self+'%'}}));
-    track.appendChild(el('div',{class:'t-other',style:{width:t.other+'%'}}));
-    row.appendChild(track);
-    row.appendChild(el('div',{class:'t-pct'},t.other+'%'));
-    row.appendChild(el('div',{class:'t-delta',style:{color:t.gap<-14?'var(--neg2)':t.gap>4?'var(--pos2)':'var(--t2)'}},(t.gap>0?'+':'')+t.gap));
-    traitCard.appendChild(row);
-  });
-  wrap.appendChild(traitCard);
-
-  // Trust / Hesitation
-  const thGrid=el('div',{class:'reveal-block reveal-4',style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1px',background:'var(--wire)',border:'1px solid var(--wire)',marginBottom:'24px'}});
-  const trustCell=el('div',{style:{background:'var(--bg2)',padding:'18px'}});
-  trustCell.appendChild(el('div',{style:{fontSize:'8px',color:'var(--pos2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'12px',fontFamily:'var(--mono)'}},'What people trust you for'));
-  ptype.trustFor.forEach(t=>{
-    const row=el('div',{class:'th-item'});
-    row.appendChild(el('div',{class:'th-dot',style:{background:'var(--pos2)'}}));
-    row.appendChild(el('div',{class:'th-text'},t));
-    trustCell.appendChild(row);
-  });
-  thGrid.appendChild(trustCell);
-  const hesCell=el('div',{style:{background:'var(--bg2)',padding:'18px'}});
-  hesCell.appendChild(el('div',{style:{fontSize:'8px',color:'var(--neg2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'12px',fontFamily:'var(--mono)'}},'What people hesitate about'));
-  ptype.hesitateAbout.forEach(t=>{
-    const row=el('div',{class:'th-item'});
-    row.appendChild(el('div',{class:'th-dot',style:{background:'var(--neg2)'}}));
-    row.appendChild(el('div',{class:'th-text'},t));
-    hesCell.appendChild(row);
-  });
-  thGrid.appendChild(hesCell);
-  wrap.appendChild(thGrid);
-
-  // Blind spots
-  wrap.appendChild(el('div',{class:'eyebrow reveal-block reveal-5',style:{marginBottom:'8px'}},'Blind spot clusters'));
-  const bsCard=el('div',{class:'reveal-block reveal-5 card',style:{padding:'14px 20px',marginBottom:'8px'}});
-  bsCard.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginBottom:'12px',letterSpacing:'.07em',fontFamily:'var(--mono)'}},'Similar responses are grouped into themes. Individual text is never shown.'));
-  data.blindSpotClusters.forEach(c=>{
-    const row=el('div',{style:{display:'flex',alignItems:'center',gap:'12px',padding:'12px 0',borderBottom:'1px solid var(--wire)'}});
-    row.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'17px',color:'var(--t0)',flex:'1'}},c.theme));
-    const track=el('div',{style:{width:'52px',flexShrink:'0',height:'2px',background:'var(--wire)',borderRadius:'2px'}});
-    track.appendChild(el('div',{style:{height:'2px',width:c.pct+'%',background:c.pct>=40?'var(--neg2)':c.pct>=25?'var(--cau2)':'var(--t2)',borderRadius:'2px'}}));
-    row.appendChild(track);
-    row.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'26px',lineHeight:'1',color:c.pct>=40?'var(--neg2)':c.pct>=25?'var(--cau2)':'var(--t1)'}},c.pct+'%'));
-    bsCard.appendChild(row);
-  });
-  wrap.appendChild(bsCard);
-  wrap.appendChild(el('p',{class:'reveal-block reveal-5',style:{fontSize:'8px',color:'var(--t4)',letterSpacing:'.09em',marginBottom:'24px',fontFamily:'var(--mono)'}},'NO RAW TEXT · SEMANTICALLY CLUSTERED'));
-
-  // Action plan
-  wrap.appendChild(el('div',{class:'eyebrow reveal-block reveal-5',style:{marginBottom:'8px'}},'Action plan'));
-  const apCard=el('div',{class:'reveal-block reveal-5 card card-v',style:{padding:'18px 22px',marginBottom:'24px'}});
-  apCard.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t3)',marginBottom:'10px',letterSpacing:'.08em',fontFamily:'var(--mono)'}},'From your 3 highest-signal data points.'));
-  data.actionPlan.forEach(a=>{
-    const item=el('div',{class:'action-item'});
-    item.appendChild(el('div',{class:'action-type',style:{color:a.color}},a.type));
-    item.appendChild(el('div',{class:'action-text'},a.text));
-    apCard.appendChild(item);
-  });
-  wrap.appendChild(apCard);
-
-  // Want sharper
-  wrap.appendChild(el('div',{class:'reveal-block reveal-5',style:{padding:'18px 22px',border:'1px solid rgba(139,92,246,.25)',background:'rgba(139,92,246,.04)',marginBottom:'24px'}},
-    el('div',{style:{fontSize:'14px',color:'var(--t0)',marginBottom:'6px',fontFamily:'var(--ui)',fontWeight:'500'}},'Want a sharper profile?'),
-    el('div',{style:{fontSize:'12px',color:'var(--t2)',marginBottom:'13px',fontFamily:'var(--ui)'}},'Send to 4 more people. More signal, clearer pattern.'),
-    (()=>{const b=el('button',{class:'btn btn-g',style:{fontSize:'10px',padding:'10px 18px',minHeight:'40px'}},'Send to more people →');b.onclick=()=>{state.screen='owner';render()};return b;})()
-  ));
-
-  // Safety footer
-  wrap.appendChild(el('div',{class:'reveal-block reveal-6',style:{padding:'14px 18px',border:'1px solid var(--wire)',background:'var(--bg2)',marginBottom:'36px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'10px'}},
-    el('span',{style:{fontSize:'11px',color:'var(--t2)',fontFamily:'var(--ui)'}},'Found this difficult to read?'),
-    el('span',{style:{fontSize:'10px',color:'var(--t3)',lineHeight:'1.7',fontFamily:'var(--ui)'}},'These are patterns, not facts. Share with someone you trust before acting.')
-  ));
-}
-
-// ═══════════════════════════════════════════════════════
-// RESULTS
-// ═══════════════════════════════════════════════════════
-
-function Results(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar(state.responseCount+' responses · '+state.context));
-  const wrap=el('div',{class:'wrap-w results'});
-
-  const ptype=PROFILE_TYPES.TRUSTED_HARD;
-  const data={
-    responses:state.responseCount,
-    gapData:[
-      {name:"Emotional warmth",self:78,other:49,gap:-29},
-      {name:"Reliability",     self:86,other:68,gap:-18},
-      {name:"Directness",      self:64,other:82,gap:+18},
-    ],
-    blindSpotClusters:[
-      {theme:"Hard to read",       pct:41},
-      {theme:"Impatient",          pct:36},
-      {theme:"Sets high pressure", pct:28},
-    ],
-    actionPlan:[
-      {type:'Stop',   color:'var(--neg2)', text:"Assuming your care is obvious. The 29-point empathy gap is behaviour, not intention."},
-      {type:'Start',  color:'var(--cau2)', text:"Saying the thing you think people already know. Once per day."},
-      {type:'30 days',color:'var(--pos2)', text:"One clarifying question before reacting in any conversation where impatience could land."},
-    ],
-  };
-
-  // Context label
-  const ctxLabel=state.context==='Friends'?'My Friendship Profile':state.context==='Dating / Relationship'?'My Dating / Relationship Profile':'My Perception Profile';
-
-  // ── SHARE CARD SECTION
-  const styleWrap=el('div',{class:'reveal-block reveal-1',style:{marginBottom:'24px'}});
-  styleWrap.appendChild(el('div',{style:{fontSize:'9px',color:'var(--t3)',letterSpacing:'.34em',textTransform:'uppercase',marginBottom:'6px',fontFamily:'var(--mono)'}},'Share your result'));
-  styleWrap.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'clamp(18px,3vw,24px)',color:'var(--t0)',marginBottom:'5px'}},'Choose your share style'));
-  styleWrap.appendChild(el('div',{style:{fontSize:'12px',color:'var(--t2)',marginBottom:'16px',fontFamily:'var(--ui)'}},'Each version tells the story differently.'));
-
-  // Style tabs
-  const tabRow=el('div',{style:{display:'flex',gap:'5px',flexWrap:'wrap',marginBottom:'18px'}});
-  ['clean','brutal','funny','mysterious'].forEach(key=>{
-    const isOn=(state.shareStyle||'clean')===key;
-    const tab=el('button',{style:{padding:'9px 16px',background:isOn?'var(--brand)':'transparent',border:isOn?'1px solid var(--brand)':'1px solid var(--wire2)',color:isOn?'#F3F3F2':'var(--t2)',fontFamily:'var(--mono)',fontSize:'9px',letterSpacing:'.18em',textTransform:'uppercase',cursor:'pointer',transition:'all .15s',minHeight:'38px',boxShadow:isOn?'0 0 14px rgba(139,92,246,.3)':'none'}},SHARE_STYLES[key].label);
-    tab.onclick=()=>{state.shareStyle=key;render()};
-    tabRow.appendChild(tab);
-  });
-  styleWrap.appendChild(tabRow);
-
-  // Preview card
-  const ss=SHARE_STYLES[state.shareStyle||'clean'];
-  const previewCard=el('div',{style:{border:'1px solid rgba(139,92,246,.35)',background:'linear-gradient(135deg,#140F1E 0%,#0B0A0A 60%)',padding:'26px 22px',marginBottom:'14px',position:'relative',overflow:'hidden'}});
-  previewCard.appendChild(el('div',{style:{position:'absolute',top:0,left:0,right:0,height:'2px',background:'linear-gradient(90deg,var(--brand),var(--brand2))'}}));
-  previewCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--brand)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'9px',marginTop:'3px',fontFamily:'var(--mono)'}},ctxLabel));
-  previewCard.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'clamp(19px,3vw,26px)',fontWeight:'700',color:'var(--t0)',lineHeight:'1.05',marginBottom:'13px'}},ptype.name));
-  previewCard.appendChild(el('div',{style:{height:'1px',background:'rgba(139,92,246,.3)',marginBottom:'11px',width:'56px'}}));
-  previewCard.appendChild(el('p',{style:{fontFamily:'var(--ui)',fontSize:'13px',color:'var(--t1)',lineHeight:'1.7',marginBottom:'3px'}},ss.cardLine1));
-  previewCard.appendChild(el('p',{style:{fontFamily:'var(--ui)',fontSize:'13px',color:'var(--t1)',lineHeight:'1.7',marginBottom:'16px'}},ss.cardLine2));
-  previewCard.appendChild(el('div',{style:{height:'1px',background:'rgba(139,92,246,.3)',marginBottom:'11px',width:'90px'}}));
-  previewCard.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontStyle:'italic',fontSize:'14px',color:'var(--brand2)',marginBottom:'5px'}},'What would yours say?'));
-  previewCard.appendChild(el('div',{style:{fontSize:'9px',color:'var(--t4)',letterSpacing:'.14em',fontFamily:'var(--mono)'}},'tellmemore.app'));
-  styleWrap.appendChild(previewCard);
-
-  // Share + Copy buttons
-  const shareBtnRow=el('div',{style:{display:'flex',gap:'7px',marginBottom:'7px',flexWrap:'wrap'}});
-  const mainShareBtn=el('button',{style:{flex:'1',padding:'14px 18px',background:'var(--brand)',border:'none',color:'#F3F3F2',cursor:'pointer',fontFamily:'var(--ui)',fontSize:'11px',fontWeight:'600',letterSpacing:'.04em',textTransform:'uppercase',transition:'all .2s',whiteSpace:'nowrap',boxShadow:'0 0 18px rgba(139,92,246,.3)',minHeight:'50px',borderRadius:'0'}},'Share this card →');
-
-  mainShareBtn.onclick=async()=>{
-    mainShareBtn.textContent='Preparing...';mainShareBtn.disabled=true;
-    try{
-      const cvs=document.createElement('canvas');cvs.width=1080;cvs.height=1080;
-      const c=cvs.getContext('2d');
-      // BG
-      c.fillStyle='#0B0A0A';c.fillRect(0,0,1080,1080);
-      const gr=c.createRadialGradient(0,0,0,0,0,900);
-      gr.addColorStop(0,'rgba(139,92,246,.12)');gr.addColorStop(1,'transparent');
-      c.fillStyle=gr;c.fillRect(0,0,1080,1080);
-      // Top bar
-      const tg=c.createLinearGradient(0,0,1080,0);
-      tg.addColorStop(0,'#8B5CF6');tg.addColorStop(1,'#A78BFA');
-      c.fillStyle=tg;c.fillRect(0,0,1080,6);c.fillRect(0,1074,1080,6);
-      // Logo
-      c.fillStyle='#8B5CF6';c.fillRect(80,78,10,10);
-      c.fillStyle='#4a4540';c.font='500 19px monospace';c.fillText('TELLMEMORE',102,88);
-      // Context
-      c.fillStyle='#5a3f9a';c.font='400 15px monospace';c.fillText(ctxLabel.toUpperCase(),80,138);
-      // Profile name
-      const words=ptype.name.split(' ');const half=Math.ceil(words.length/2);
-      c.fillStyle='#F3F3F2';c.font='bold 78px serif';c.fillText(words.slice(0,half).join(' '),80,285);
-      c.fillStyle='#C4B5FD';c.font='italic 68px serif';c.fillText(words.slice(half).join(' '),80,368);
-      // Divider
-      c.fillStyle='rgba(139,92,246,.4)';c.fillRect(80,408,200,2);
-      // Lines
-      c.fillStyle='#AAA49C';c.font='400 25px monospace';
-      c.fillText(ss.cardLine1,80,460);
-      const l2=ss.cardLine2;
-      let yOff=460;
-      if(l2.length>40){
-        const mid=l2.lastIndexOf(' ',40);
-        c.fillText(l2.slice(0,mid),80,498);c.fillText(l2.slice(mid+1),80,536);yOff=536;
-      } else {
-        c.fillText(l2,80,498);yOff=498;
-      }
-      c.fillStyle='rgba(139,92,246,.4)';c.fillRect(80,yOff+36,150,2);
-      c.fillStyle='#A78BFA';c.font='italic 27px serif';c.fillText('What would yours say?',80,yOff+80);
-      c.fillStyle='#3a3040';c.font='400 17px monospace';c.fillText('tellmemore.app',80,yOff+114);
-      // Bottom CTA
-      c.fillStyle='#100D18';c.fillRect(0,740,1080,280);
-      c.fillStyle='rgba(139,92,246,.2)';c.fillRect(0,740,1080,2);
-      c.fillStyle='#F3F3F2';c.font='bold 29px serif';c.fillText('What would yours say?',80,808);
-      c.fillStyle='#807870';c.font='400 19px monospace';c.fillText('Ask 8 people who know you. Anonymous. Verified.',80,845);
-      const bg2=c.createLinearGradient(80,876,420,876);
-      bg2.addColorStop(0,'#8B5CF6');bg2.addColorStop(1,'#A78BFA');
-      c.fillStyle=bg2;c.fillRect(80,876,340,48);
-      c.fillStyle='#F3F3F2';c.font='500 16px monospace';c.fillText('  tellmemore.app  →',88,906);
-      cvs.toBlob(async(blob)=>{
-        const shareText=ctxLabel+'\n'+ptype.name+'\n\n'+ss.cardLine1+'\n'+ss.cardLine2+'\n\nWhat would yours say?\ntellmemore.app';
-        try{
-          const file=new File([blob],'tellmemore-result.png',{type:'image/png'});
-          if(navigator.canShare&&navigator.canShare({files:[file]})){
-            await navigator.share({title:ptype.name,text:shareText,files:[file]});
-          } else if(navigator.share){
-            await navigator.share({title:ptype.name,text:shareText,url:'https://tellmemore.app'});
-          } else {
-            const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tellmemore-result.png';a.click();
-          }
-        } catch(e){
-          if(e.name!=='AbortError'){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tellmemore-result.png';a.click();}
-        }
-        mainShareBtn.textContent='Share this card →';mainShareBtn.disabled=false;
-      },'image/png');
-    } catch(e){mainShareBtn.textContent='Share this card →';mainShareBtn.disabled=false;}
-  };
-  shareBtnRow.appendChild(mainShareBtn);
-
-  const copyCapBtn=el('button',{style:{padding:'14px 18px',background:'transparent',border:'1px solid var(--wire2)',color:'var(--t2)',cursor:'pointer',fontFamily:'var(--ui)',fontSize:'11px',fontWeight:'500',letterSpacing:'.04em',textTransform:'uppercase',transition:'all .15s',whiteSpace:'nowrap',minHeight:'50px',borderRadius:'0'}},'Copy caption');
-  copyCapBtn.onclick=async()=>{
-    await clipCopy(SHARE_STYLES[state.shareStyle||'clean'].caption);
-    copyCapBtn.textContent='✓ Copied';
-    setTimeout(()=>{copyCapBtn.textContent='Copy caption'},2200);
-  };
-  shareBtnRow.appendChild(copyCapBtn);
-  styleWrap.appendChild(shareBtnRow);
-  wrap.appendChild(styleWrap);
-
-  // ── REVEAL GATE
-  if(!state.resultsRevealed){
-    const gate=el('div',{style:{textAlign:'center',padding:'56px 0 72px'}});
-    gate.appendChild(el('div',{style:{fontFamily:'var(--serif)',fontSize:'clamp(32px,5vw,56px)',color:'var(--t0)',lineHeight:'.95',marginBottom:'18px',filter:'blur(8px)',userSelect:'none',transition:'all .6s'},html:'Trusted but<br>Hard to Read'}));
-    gate.appendChild(el('div',{style:{fontSize:'13px',color:'var(--t2)',marginBottom:'36px',lineHeight:'1.8',fontFamily:'var(--ui)'}},''+data.responses+' people who know you responded.\nWhat they said is waiting.'));
-    const revBtn=el('button',{style:{padding:'20px 48px',background:'var(--brand)',border:'none',color:'#F3F3F2',cursor:'pointer',fontFamily:'var(--serif)',fontSize:'18px',letterSpacing:'.03em',transition:'all .22s',boxShadow:'0 0 28px rgba(139,92,246,.4)',borderRadius:'0'}},'See what they said');
-    revBtn.onmouseover=()=>{revBtn.style.background='var(--brand2)';revBtn.style.transform='scale(1.02)';revBtn.style.boxShadow='0 0 40px rgba(139,92,246,.55)'};
-    revBtn.onmouseout=()=>{revBtn.style.background='var(--brand)';revBtn.style.transform='scale(1)';revBtn.style.boxShadow='0 0 28px rgba(139,92,246,.4)'};
-    revBtn.onclick=()=>{state.resultsRevealed=true;render()};
-    gate.appendChild(revBtn);
-    gate.appendChild(el('p',{style:{fontSize:'9px',color:'var(--t4)',marginTop:'18px',letterSpacing:'.07em',fontFamily:'var(--mono)'}},'Anonymous responses. Aggregated patterns. No individual comments.'));
-    wrap.appendChild(gate);
-    root.appendChild(wrap);return root;
+async function loadResults() {
+  if (!state.profileId) return;
+  const res = await api('GET',`/api/results/${state.profileId}`);
+  if (!res || res.error) {
+    state.toast = res?.error || 'Sonuç yüklenemedi';
+    state.screen = 'owner_wait';
+    render();
+    return;
   }
-
-  buildResultContent(wrap,data,ptype);
-
-  // Footer
-  wrap.appendChild(el('div',{style:{borderTop:'1px solid var(--wire)',paddingTop:'24px',marginTop:'8px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'12px'}},
-    el('span',{style:{fontSize:'8px',color:'var(--t4)',letterSpacing:'.1em',maxWidth:'380px',lineHeight:'1.7',fontFamily:'var(--mono)'}},'TellMeMore shows aggregated perception patterns from people you invite. It does not diagnose you, rank your worth, or reveal individual responders.'),
-    (()=>{const b=el('button',{class:'btn btn-g',style:{minHeight:'40px',fontSize:'10px'}},'← Start over');b.onclick=()=>{if(state.liveTimer){clearInterval(state.liveTimer);state.liveTimer=null;}resetAll();render()};return b;})()
-  ));
-  root.appendChild(wrap);return root;
+  state.results = res;
+  render();
 }
 
-// ═══════════════════════════════════════════════════════
-// SAMPLE RESULT
-// ═══════════════════════════════════════════════════════
-
-function SampleResult(){
-  const root=el('div',{class:'screen'});
-  root.appendChild(mkBar('Sample result · preview'));
-  const wrap=el('div',{class:'wrap-w results'});
-  wrap.appendChild(backBtn('landing'));
-
-  wrap.appendChild(el('div',{style:{padding:'14px 18px',border:'1px solid rgba(139,92,246,.3)',background:'rgba(139,92,246,.05)',marginBottom:'24px',display:'flex',gap:'11px',alignItems:'center'}},
-    el('span',{style:{color:'var(--brand2)',fontSize:'14px'}},'◈'),
-    el('div',{},
-      el('div',{style:{fontSize:'9px',color:'var(--brand2)',letterSpacing:'.28em',textTransform:'uppercase',marginBottom:'3px',fontFamily:'var(--mono)'}},'Sample profile'),
-      el('div',{style:{fontSize:'11px',color:'var(--t2)',lineHeight:'1.6',fontFamily:'var(--ui)'}},'This is what a full perception profile looks like. Data is illustrative.')
-    )
-  ));
-
-  const ptype=PROFILE_TYPES.TRUSTED_HARD;
-  const data={
-    gapData:[
-      {name:"Emotional warmth",self:78,other:49,gap:-29},
-      {name:"Reliability",     self:86,other:68,gap:-18},
-      {name:"Directness",      self:64,other:82,gap:+18},
-    ],
-    blindSpotClusters:[
-      {theme:"Hard to read",       pct:41},
-      {theme:"Impatient",          pct:36},
-      {theme:"Sets high pressure", pct:28},
-    ],
-    actionPlan:[
-      {type:'Stop',   color:'var(--neg2)', text:"Assuming your care is obvious. The 29-point empathy gap is behaviour, not intention."},
-      {type:'Start',  color:'var(--cau2)', text:"Saying the thing you think people already know. Once per day."},
-      {type:'30 days',color:'var(--pos2)', text:"One clarifying question before reacting in any conversation where impatience could land."},
-    ],
-  };
-
-  buildResultContent(wrap,data,ptype);
-
-  // Bottom CTA
-  wrap.appendChild(el('div',{style:{textAlign:'center',padding:'20px 0 40px',borderTop:'1px solid var(--wire)',marginTop:'14px'}},
-    el('div',{style:{fontFamily:'var(--serif)',fontSize:'22px',color:'var(--t0)',marginBottom:'10px',fontStyle:'italic'}},'What would yours say?'),
-    el('div',{style:{fontSize:'13px',color:'var(--t2)',marginBottom:'18px',fontFamily:'var(--ui)'}},'Ask 8 people who know you. Anonymous. Verified.'),
-    (()=>{
-      const b=el('button',{class:'btn btn-p',style:{fontSize:'12px',padding:'16px 36px'}},'Create my perception link →');
-      b.onclick=()=>{state.screen='landing';render()};
-      return b;
-    })()
-  ));
-
-  root.appendChild(wrap);return root;
-}
-
-// ═══════════════════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════════════════
-
-
-// ================================================================
-// BACKEND API INTEGRATION
-// ================================================================
-
-async function apiCall(method, path, data) {
-  try {
-    const base = window.TELLMEMORE_API || '';
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (data) opts.body = JSON.stringify(data);
-    const r = await fetch(base + path, opts);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  } catch (e) {
-    console.warn('[API]', method, path, e.message);
-    return null;
-  }
-}
-
-// Override OwnerWait to persist profile & poll live count
-const _origOwnerWait = OwnerWait;
-function OwnerWait() {
-  // Persist profile to backend on first visit
-  if (!state.profileId && state.name && state.selfBeh) {
-    apiCall('POST', '/api/profiles', {
-      name: state.name,
-      context: state.context,
-      selfTraits: state.selfTraits,
-      selfBeh: state.selfBeh,
-      selfDec: state.selfDec,
-    }).then(data => {
-      if (data && data.id) {
-        state.profileId = data.id;
-        state.profileSlug = data.slug;
-        state.shareLink = data.link;
-      }
-    });
-  }
-
-  // Poll live response count every 8s
-  if (!state._pollTimer && state.profileId) {
-    state._pollTimer = setInterval(() => {
-      apiCall('GET', '/api/status/' + state.profileId).then(d => {
-        if (d && d.responseCount !== undefined && d.responseCount !== state.responseCount) {
-          state.responseCount = d.responseCount;
-          if (state.screen === 'owner') render(true);
-        }
-      });
-    }, 8000);
-  }
-
-  return _origOwnerWait();
-}
-
-// Override FormBlindSpot submit to save to backend
-const _origSubmitted = Submitted;
-function Submitted() {
-  // Save response to backend
-  if (!state._responseSaved && state.profileId) {
-    state._responseSaved = true;
-    apiCall('POST', '/api/responses', {
-      profileId: state.profileId,
-      beh: state.respBeh,
-      dec: state.respDec,
-      traits: state.respTraits,
-      forcedChoice: state.respFC,
-      energy: state.respEnergy || '',
-      blindSpot: state.respBlind1 || '',
-    }).then(d => {
-      if (d && d.responseCount !== undefined) {
-        state.responseCount = d.responseCount;
-      }
-    });
-  }
-  return _origSubmitted();
-}
-
-// Override Results to load real data when available
-const _origResults = Results;
-function Results() {
-  if (state.profileId && state.responseCount >= 8 && !state._resultsLoaded) {
-    state._resultsLoaded = true;
-    apiCall('GET', '/api/results/' + state.profileId).then(data => {
-      if (data && data.responseCount) {
-        state.responseCount = data.responseCount;
-        state._liveResults = data;
-        render();
-      }
-    });
-  }
-  return _origResults();
-}
-
-// Add energy selector to state
-if (!state.respEnergy) state.respEnergy = '';
-
+// ── Init ──────────────────────────────────────────────────────────────────────
 render();
 </script>
 </body>
