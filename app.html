@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8"/>
@@ -123,7 +123,7 @@ const urlParams = new URLSearchParams(location.search);
 const respondParam = urlParams.get('respond');
 if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// â”€â”€ API helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function api(method, path, data) {
   try {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -133,149 +133,149 @@ async function api(method, path, data) {
   } catch(e) { console.error(e); return null; }
 }
 
-// ── Question data (embedded) ──────────────────────────────────────────────────
+// â”€â”€ Question data (embedded) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const QUESTIONS = {
   friends: {
     section1: [
-      { id:'s1', format:'forced', section:1, text:'Yanında zaman geçirmek nasıl bir his?', options:[
-        {key:'A',text:'Rahatlatıcı — yanında olmak kolay'},
-        {key:'B',text:'Enerjik — her an bir şey oluyor'},
-        {key:'C',text:'Yoğun — güzel ama dozunu bilmek lazım'},
-        {key:'D',text:'Mesafeli — tam açılmıyor gibi hissettiriyor'}
+      { id:'s1', format:'forced', section:1, text:'YanÄ±nda zaman geÃ§irmek nasÄ±l bir his?', options:[
+        {key:'A',text:'RahatlatÄ±cÄ± â€” yanÄ±nda olmak kolay'},
+        {key:'B',text:'Enerjik â€” her an bir ÅŸey oluyor'},
+        {key:'C',text:'YoÄŸun â€” gÃ¼zel ama dozunu bilmek lazÄ±m'},
+        {key:'D',text:'Mesafeli â€” tam aÃ§Ä±lmÄ±yor gibi hissettiriyor'}
       ]},
-      { id:'s2', format:'forced', section:1, text:'Bir grupta bu kişi genellikle nerede durur?', options:[
-        {key:'A',text:'Ortanın tam merkezinde — herkes ona bakıyor'},
-        {key:'B',text:'Dengeyi kuran — sessiz ama belirleyici'},
-        {key:'C',text:'Gözlemleyen — konuşmak için doğru anı bekliyor'},
-        {key:'D',text:'Kenarda — gruba tam dahil olmuyor'}
+      { id:'s2', format:'forced', section:1, text:'Bir grupta bu kiÅŸi genellikle nerede durur?', options:[
+        {key:'A',text:'OrtanÄ±n tam merkezinde â€” herkes ona bakÄ±yor'},
+        {key:'B',text:'Dengeyi kuran â€” sessiz ama belirleyici'},
+        {key:'C',text:'GÃ¶zlemleyen â€” konuÅŸmak iÃ§in doÄŸru anÄ± bekliyor'},
+        {key:'D',text:'Kenarda â€” gruba tam dahil olmuyor'}
       ]},
-      { id:'s3', format:'forced', section:1, text:'Zor bir şey paylaşman gerekse ilk aklına gelir mi?', options:[
-        {key:'A',text:'Evet, hep ilk o aklıma gelir'},
-        {key:'B',text:'Bazen — bağlı olduğu konuya'},
-        {key:'C',text:'Pek değil — o tarz konular için değil'},
-        {key:'D',text:'Hayır — duygusal konularda kapalı'}
+      { id:'s3', format:'forced', section:1, text:'Zor bir ÅŸey paylaÅŸman gerekse ilk aklÄ±na gelir mi?', options:[
+        {key:'A',text:'Evet, hep ilk o aklÄ±ma gelir'},
+        {key:'B',text:'Bazen â€” baÄŸlÄ± olduÄŸu konuya'},
+        {key:'C',text:'Pek deÄŸil â€” o tarz konular iÃ§in deÄŸil'},
+        {key:'D',text:'HayÄ±r â€” duygusal konularda kapalÄ±'}
       ]}
     ],
     section2_fixed: [
-      { id:'s4', format:'forced', section:2, text:'Bu kişiyle anlaşmazlık yaşarsan ne olur?', options:[
-        {key:'A',text:'Sakin kalır, çözüm arar'},
-        {key:'B',text:'Dürüstçe konuşur, sonra geçer'},
-        {key:'C',text:'Sessizleşir, içine atar'},
-        {key:'D',text:'Savunmaya geçer, haklılığını kanıtlamaya çalışır'}
+      { id:'s4', format:'forced', section:2, text:'Bu kiÅŸiyle anlaÅŸmazlÄ±k yaÅŸarsan ne olur?', options:[
+        {key:'A',text:'Sakin kalÄ±r, Ã§Ã¶zÃ¼m arar'},
+        {key:'B',text:'DÃ¼rÃ¼stÃ§e konuÅŸur, sonra geÃ§er'},
+        {key:'C',text:'SessizleÅŸir, iÃ§ine atar'},
+        {key:'D',text:'Savunmaya geÃ§er, haklÄ±lÄ±ÄŸÄ±nÄ± kanÄ±tlamaya Ã§alÄ±ÅŸÄ±r'}
       ]},
-      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
-        {key:'A',text:'Fark ettiğinden daha çok güven veriyor'},
-        {key:'B',text:'Güvenilir görünüyor ama içine çok az alıyor'}
+      { id:'s5', format:'pair', section:2, text:'Bu kiÅŸiyle ilgili hangisi daha doÄŸru?', options:[
+        {key:'A',text:'Fark ettiÄŸinden daha Ã§ok gÃ¼ven veriyor'},
+        {key:'B',text:'GÃ¼venilir gÃ¶rÃ¼nÃ¼yor ama iÃ§ine Ã§ok az alÄ±yor'}
       ]},
-      { id:'s6', format:'forced', section:2, text:'Bu kişinin odaya girişi nasıl hissettiriyor?', options:[
-        {key:'A',text:'Enerji değişiyor — fark ediliyor'},
-        {key:'B',text:'Sıcaklık getiriyor — ortam rahatıyor'},
-        {key:'C',text:'Sessizce giriyor — zamanla fark ediliyor'},
-        {key:'D',text:'Pek değişmiyor — arka planda kalıyor'}
+      { id:'s6', format:'forced', section:2, text:'Bu kiÅŸinin odaya giriÅŸi nasÄ±l hissettiriyor?', options:[
+        {key:'A',text:'Enerji deÄŸiÅŸiyor â€” fark ediliyor'},
+        {key:'B',text:'SÄ±caklÄ±k getiriyor â€” ortam rahatÄ±yor'},
+        {key:'C',text:'Sessizce giriyor â€” zamanla fark ediliyor'},
+        {key:'D',text:'Pek deÄŸiÅŸmiyor â€” arka planda kalÄ±yor'}
       ]}
     ],
     section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:'Bu kadar sıcak ve açık biri — sınırlarını da koruyor mu?', options:[
-        {key:'A',text:'Evet — hem açık hem sınırları net'},
-        {key:'B',text:'Bazen çok veriyor, karşılık bulamıyor'}
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar sÄ±cak ve aÃ§Ä±k biri â€” sÄ±nÄ±rlarÄ±nÄ± da koruyor mu?', options:[
+        {key:'A',text:'Evet â€” hem aÃ§Ä±k hem sÄ±nÄ±rlarÄ± net'},
+        {key:'B',text:'Bazen Ã§ok veriyor, karÅŸÄ±lÄ±k bulamÄ±yor'}
       ]},
-      { id:'s8a', format:'forced', section:2, text:'İnsanlar ona ne zaman daha çok ihtiyaç duyuyor?', options:[
-        {key:'A',text:'Zor anlarda — güvende hissettiriyor'},
-        {key:'B',text:'Eğlenceli anlarda — enerji katar'},
+      { id:'s8a', format:'forced', section:2, text:'Ä°nsanlar ona ne zaman daha Ã§ok ihtiyaÃ§ duyuyor?', options:[
+        {key:'A',text:'Zor anlarda â€” gÃ¼vende hissettiriyor'},
+        {key:'B',text:'EÄŸlenceli anlarda â€” enerji katar'},
         {key:'C',text:'Her iki durumda da'},
-        {key:'D',text:'Pek ihtiyaç duyulmuyor aslında'}
+        {key:'D',text:'Pek ihtiyaÃ§ duyulmuyor aslÄ±nda'}
       ]}
     ],
     section2_pathB: [
       { id:'s7b', format:'forced', section:2, text:'Bu mesafe nereden geliyor sence?', options:[
-        {key:'A',text:'Kendi dünyasında — dışarıyı pek umursamıyor'},
-        {key:'B',text:'İlk önce test ediyor, sonra açılıyor'},
-        {key:'C',text:'Savunma mekanizması — bunu göstermiyor ama'},
-        {key:'D',text:'Umursamıyor sanki — ilgisiz'}
+        {key:'A',text:'Kendi dÃ¼nyasÄ±nda â€” dÄ±ÅŸarÄ±yÄ± pek umursamÄ±yor'},
+        {key:'B',text:'Ä°lk Ã¶nce test ediyor, sonra aÃ§Ä±lÄ±yor'},
+        {key:'C',text:'Savunma mekanizmasÄ± â€” bunu gÃ¶stermiyor ama'},
+        {key:'D',text:'UmursamÄ±yor sanki â€” ilgisiz'}
       ]},
-      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
-        {key:'A',text:'Gizemli — merak uyandırıyor, daha fazlasını öğrenmek istiyorum'},
-        {key:'B',text:'Zor anlaşılıyor — yorucu hissettiriyor bazen'}
+      { id:'s8b', format:'pair', section:2, text:'Bu kiÅŸiyle ilgili hangisi daha doÄŸru?', options:[
+        {key:'A',text:'Gizemli â€” merak uyandÄ±rÄ±yor, daha fazlasÄ±nÄ± Ã¶ÄŸrenmek istiyorum'},
+        {key:'B',text:'Zor anlaÅŸÄ±lÄ±yor â€” yorucu hissettiriyor bazen'}
       ]}
     ],
     section3: [
-      { id:'s9', format:'gut', section:3, text:'Bu kişi odadan çıkınca arkadaşlar ne der?', options:[
-        {key:'A',text:'"Ne kadar iyi biri — şanslıyız"'},
-        {key:'B',text:'"Çok eğlenceli, enerjisi bulaşıcı"'},
-        {key:'C',text:'"İyi biri ama tam anlayamadım"'},
-        {key:'D',text:'"Neden böyle davrandı acaba?"'}
+      { id:'s9', format:'gut', section:3, text:'Bu kiÅŸi odadan Ã§Ä±kÄ±nca arkadaÅŸlar ne der?', options:[
+        {key:'A',text:'"Ne kadar iyi biri â€” ÅŸanslÄ±yÄ±z"'},
+        {key:'B',text:'"Ã‡ok eÄŸlenceli, enerjisi bulaÅŸÄ±cÄ±"'},
+        {key:'C',text:'"Ä°yi biri ama tam anlayamadÄ±m"'},
+        {key:'D',text:'"Neden bÃ¶yle davrandÄ± acaba?"'}
       ]}
     ]
   },
   romance: {
     section1: [
-      { id:'s1', format:'forced', section:1, text:'Bu kişiyi ilk gördüğünde ne hissettin?', options:[
-        {key:'A',text:'Hemen dikkat çekti — gözüm gitti'},
-        {key:'B',text:'Merak uyandırdı — daha fazlasını öğrenmek istedim'},
-        {key:'C',text:'Zaman aldı — sonradan fark ettim'},
-        {key:'D',text:'Pek fark etmedim açıkçası'}
+      { id:'s1', format:'forced', section:1, text:'Bu kiÅŸiyi ilk gÃ¶rdÃ¼ÄŸÃ¼nde ne hissettin?', options:[
+        {key:'A',text:'Hemen dikkat Ã§ekti â€” gÃ¶zÃ¼m gitti'},
+        {key:'B',text:'Merak uyandÄ±rdÄ± â€” daha fazlasÄ±nÄ± Ã¶ÄŸrenmek istedim'},
+        {key:'C',text:'Zaman aldÄ± â€” sonradan fark ettim'},
+        {key:'D',text:'Pek fark etmedim aÃ§Ä±kÃ§asÄ±'}
       ]},
       { id:'s2', format:'forced', section:1, text:'Romantik olarak ne hissettiriyor?', options:[
-        {key:'A',text:'Heyecanlı ve güvende — ikisi bir arada'},
-        {key:'B',text:'Çekici ama gizemli — tam okuyamıyorum'},
-        {key:'C',text:'İlgi çekici ama sinyal vermiyor'},
-        {key:'D',text:'Belirsiz — ne düşündüğünü anlamak zor'}
+        {key:'A',text:'HeyecanlÄ± ve gÃ¼vende â€” ikisi bir arada'},
+        {key:'B',text:'Ã‡ekici ama gizemli â€” tam okuyamÄ±yorum'},
+        {key:'C',text:'Ä°lgi Ã§ekici ama sinyal vermiyor'},
+        {key:'D',text:'Belirsiz â€” ne dÃ¼ÅŸÃ¼ndÃ¼ÄŸÃ¼nÃ¼ anlamak zor'}
       ]},
-      { id:'s3', format:'forced', section:1, text:'Flört ettiğini anlayabilir misin?', options:[
-        {key:'A',text:'Evet, çok net ve doğal — kendiliğinden akıyor'},
-        {key:'B',text:'Bazen — ince ipuçları veriyor'},
-        {key:'C',text:'Zor — çok gizemli, sinyal belirsiz'},
-        {key:'D',text:'Hayır — hiç sinyal yok'}
+      { id:'s3', format:'forced', section:1, text:'FlÃ¶rt ettiÄŸini anlayabilir misin?', options:[
+        {key:'A',text:'Evet, Ã§ok net ve doÄŸal â€” kendiliÄŸinden akÄ±yor'},
+        {key:'B',text:'Bazen â€” ince ipuÃ§larÄ± veriyor'},
+        {key:'C',text:'Zor â€” Ã§ok gizemli, sinyal belirsiz'},
+        {key:'D',text:'HayÄ±r â€” hiÃ§ sinyal yok'}
       ]}
     ],
     section2_fixed: [
-      { id:'s4', format:'forced', section:2, text:'Romantik olarak en güçlü yanı ne?', options:[
-        {key:'A',text:'Kendinden emin duruşu — çekim yaratıyor'},
-        {key:'B',text:'Gerçekten dinliyor — özel hissettiriyor'},
-        {key:'C',text:'Sıcaklığı ve samimiyeti'},
-        {key:'D',text:'Açıkçası henüz güçlü bir yanını fark etmedim'}
+      { id:'s4', format:'forced', section:2, text:'Romantik olarak en gÃ¼Ã§lÃ¼ yanÄ± ne?', options:[
+        {key:'A',text:'Kendinden emin duruÅŸu â€” Ã§ekim yaratÄ±yor'},
+        {key:'B',text:'GerÃ§ekten dinliyor â€” Ã¶zel hissettiriyor'},
+        {key:'C',text:'SÄ±caklÄ±ÄŸÄ± ve samimiyeti'},
+        {key:'D',text:'AÃ§Ä±kÃ§asÄ± henÃ¼z gÃ¼Ã§lÃ¼ bir yanÄ±nÄ± fark etmedim'}
       ]},
-      { id:'s5', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
-        {key:'A',text:'Fark ettiğinden daha çekici — etkisinin farkında değil'},
-        {key:'B',text:'Çekici ama bu farkındalığı mesafe yaratıyor'}
+      { id:'s5', format:'pair', section:2, text:'Bu kiÅŸiyle ilgili hangisi daha doÄŸru?', options:[
+        {key:'A',text:'Fark ettiÄŸinden daha Ã§ekici â€” etkisinin farkÄ±nda deÄŸil'},
+        {key:'B',text:'Ã‡ekici ama bu farkÄ±ndalÄ±ÄŸÄ± mesafe yaratÄ±yor'}
       ]},
-      { id:'s6', format:'forced', section:2, text:'Bu kişinin varlığı ortamda ne hissettiriyor?', options:[
-        {key:'A',text:'Manyetik — gözler ona gidiyor'},
-        {key:'B',text:'Sıcak — yanında olmak güvende hissettiriyor'},
-        {key:'C',text:'Merak uyandırıcı — ama ulaşmak zor'},
-        {key:'D',text:'Nötr — pek iz bırakmıyor'}
+      { id:'s6', format:'forced', section:2, text:'Bu kiÅŸinin varlÄ±ÄŸÄ± ortamda ne hissettiriyor?', options:[
+        {key:'A',text:'Manyetik â€” gÃ¶zler ona gidiyor'},
+        {key:'B',text:'SÄ±cak â€” yanÄ±nda olmak gÃ¼vende hissettiriyor'},
+        {key:'C',text:'Merak uyandÄ±rÄ±cÄ± â€” ama ulaÅŸmak zor'},
+        {key:'D',text:'NÃ¶tr â€” pek iz bÄ±rakmÄ±yor'}
       ]}
     ],
     section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:'Bu kadar çekici biri — yaklaşmak kolay mı?', options:[
-        {key:'A',text:'Evet — çekici ve aynı zamanda ulaşılabilir'},
-        {key:'B',text:'Hayır — çekici ama yaklaşmak için cesaret lazım'}
+      { id:'s7a', format:'pair', section:2, text:'Bu kadar Ã§ekici biri â€” yaklaÅŸmak kolay mÄ±?', options:[
+        {key:'A',text:'Evet â€” Ã§ekici ve aynÄ± zamanda ulaÅŸÄ±labilir'},
+        {key:'B',text:'HayÄ±r â€” Ã§ekici ama yaklaÅŸmak iÃ§in cesaret lazÄ±m'}
       ]},
-      { id:'s8a', format:'forced', section:2, text:'Romantik olarak en büyük etkisi ne?', options:[
-        {key:'A',text:'Kendine güven veriyor — yanında iyi hissediyorsun'},
-        {key:'B',text:'Merak ettiriyor — daha fazlasını öğrenmek istiyorsun'},
-        {key:'C',text:'Heyecanlandırıyor — her an beklenmedik bir şey olabilir'},
-        {key:'D',text:'Sakinleştiriyor — güvende hissettiriyor'}
+      { id:'s8a', format:'forced', section:2, text:'Romantik olarak en bÃ¼yÃ¼k etkisi ne?', options:[
+        {key:'A',text:'Kendine gÃ¼ven veriyor â€” yanÄ±nda iyi hissediyorsun'},
+        {key:'B',text:'Merak ettiriyor â€” daha fazlasÄ±nÄ± Ã¶ÄŸrenmek istiyorsun'},
+        {key:'C',text:'HeyecanlandÄ±rÄ±yor â€” her an beklenmedik bir ÅŸey olabilir'},
+        {key:'D',text:'SakinleÅŸtiriyor â€” gÃ¼vende hissettiriyor'}
       ]}
     ],
     section2_pathB: [
       { id:'s7b', format:'forced', section:2, text:'Romantik olarak bu mesafe nereden geliyor?', options:[
-        {key:'A',text:'Kolay güvenmiyor — zamanla açılıyor'},
-        {key:'B',text:'Duygusal olarak hazır değil — zamanı değil sanki'},
-        {key:'C',text:'Duygusal olarak kırılgan — korunuyor'},
-        {key:'D',text:'İlgisiz görünüyor — romantik sinyal vermiyor'}
+        {key:'A',text:'Kolay gÃ¼venmiyor â€” zamanla aÃ§Ä±lÄ±yor'},
+        {key:'B',text:'Duygusal olarak hazÄ±r deÄŸil â€” zamanÄ± deÄŸil sanki'},
+        {key:'C',text:'Duygusal olarak kÄ±rÄ±lgan â€” korunuyor'},
+        {key:'D',text:'Ä°lgisiz gÃ¶rÃ¼nÃ¼yor â€” romantik sinyal vermiyor'}
       ]},
-      { id:'s8b', format:'pair', section:2, text:'Bu kişiyle ilgili hangisi daha doğru?', options:[
-        {key:'A',text:'Gizemli — bu mesafe aslında çekici kılıyor'},
-        {key:'B',text:'Zor okunuyor — bu belirsizlik yorucu'}
+      { id:'s8b', format:'pair', section:2, text:'Bu kiÅŸiyle ilgili hangisi daha doÄŸru?', options:[
+        {key:'A',text:'Gizemli â€” bu mesafe aslÄ±nda Ã§ekici kÄ±lÄ±yor'},
+        {key:'B',text:'Zor okunuyor â€” bu belirsizlik yorucu'}
       ]}
     ],
     section3: [
-      { id:'s9', format:'gut', section:3, text:'Bu kişide seni en çok etkileyen ne?', options:[
-        {key:'A',text:'Varlığı — ortama girince bir şeyler değişiyor'},
-        {key:'B',text:'Bakışı — sanki gerçekten görüyor seni'},
-        {key:'C',text:'Gizemli tarafı — hiç tam anlayamadım'},
-        {key:'D',text:'Aslında pek etkilemedi'}
+      { id:'s9', format:'gut', section:3, text:'Bu kiÅŸide seni en Ã§ok etkileyen ne?', options:[
+        {key:'A',text:'VarlÄ±ÄŸÄ± â€” ortama girince bir ÅŸeyler deÄŸiÅŸiyor'},
+        {key:'B',text:'BakÄ±ÅŸÄ± â€” sanki gerÃ§ekten gÃ¶rÃ¼yor seni'},
+        {key:'C',text:'Gizemli tarafÄ± â€” hiÃ§ tam anlayamadÄ±m'},
+        {key:'D',text:'AslÄ±nda pek etkilemedi'}
       ]}
     ]
   }
@@ -303,7 +303,7 @@ function buildQuestionQueue(mode, path) {
   ];
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function render() {
   const app = document.getElementById('app');
   app.innerHTML = '';
@@ -340,7 +340,7 @@ function bar(right) {
   return b;
 }
 
-// ── Landing ───────────────────────────────────────────────────────────────────
+// â”€â”€ Landing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderLanding() {
   const d = el('div','screen');
   d.appendChild(bar());
@@ -349,40 +349,40 @@ function renderLanding() {
   const ey = el('div','eyebrow','Perception Intelligence');
   const h = el('h1',''); h.innerHTML = 'How do people <em>actually</em> see you?';
   const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;line-height:1.7;margin:16px 0 36px';
-  sub.textContent = 'Arkadaşlarının seni romantik veya sosyal olarak nasıl gördüğünü öğren. Anonim. Gerçek.';
-  const btn1 = el('button','btn','Profilini oluştur');
+  sub.textContent = 'ArkadaÅŸlarÄ±nÄ±n seni romantik veya sosyal olarak nasÄ±l gÃ¶rdÃ¼ÄŸÃ¼nÃ¼ Ã¶ÄŸren. Anonim. GerÃ§ek.';
+  const btn1 = el('button','btn','Profilini oluÅŸtur');
   btn1.onclick = ()=>{state.screen='create';render();};
   const div = el('div',''); div.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0';
   const line1=el('div','');line1.style.cssText='flex:1;height:1px;background:var(--wire)';
   const or=el('span','');or.style.cssText='font-size:11px;color:var(--t3)';or.textContent='veya';
   const line2=el('div','');line2.style.cssText='flex:1;height:1px;background:var(--wire)';
   div.append(line1,or,line2);
-  const btn2 = el('button','btn btn-ghost','Biri hakkında cevapla');
+  const btn2 = el('button','btn btn-ghost','Biri hakkÄ±nda cevapla');
   btn2.onclick = ()=>{ const s=prompt('Link kodu:'); if(s){state.respondSlug=s.trim();state.screen='respond_loading';render();}};
   wrap.append(ey,h,sub,btn1,div,btn2);
   d.appendChild(wrap);
   return d;
 }
 
-// ── Create profile ────────────────────────────────────────────────────────────
+// â”€â”€ Create profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderCreate() {
   const d = el('div','screen');
   d.appendChild(bar('1 / 2'));
   const wrap = el('div','wrap');
   wrap.style.paddingTop = '36px';
-  const ey = el('div','eyebrow','Profil oluştur');
-  const h = el('h2',''); h.textContent = 'İsmin ne?';
+  const ey = el('div','eyebrow','Profil oluÅŸtur');
+  const h = el('h2',''); h.textContent = 'Ä°smin ne?';
   const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px';
-  sub.textContent = 'Arkadaşların bu ismi görecek.';
-  const inp = el('input','input'); inp.type='text'; inp.placeholder='Adın...'; inp.maxLength=30;
+  sub.textContent = 'ArkadaÅŸlarÄ±n bu ismi gÃ¶recek.';
+  const inp = el('input','input'); inp.type='text'; inp.placeholder='AdÄ±n...'; inp.maxLength=30;
   if (state.profileName) inp.value = state.profileName;
 
   const modeLabel = el('p',''); modeLabel.style.cssText='font-size:12px;color:var(--t2);margin:24px 0 8px';
-  modeLabel.textContent = 'Ne öğrenmek istiyorsun?';
+  modeLabel.textContent = 'Ne Ã¶ÄŸrenmek istiyorsun?';
   const cards = el('div','mode-cards');
   const modes = [
-    { id:'friends', icon:'👥', label:'Friends', sub:'Sosyal algın' },
-    { id:'romance', icon:'✦',  label:'Romance', sub:'Romantik algın' }
+    { id:'friends', icon:'ğŸ‘¥', label:'Friends', sub:'Sosyal algÄ±n' },
+    { id:'romance', icon:'âœ¦',  label:'Romance', sub:'Romantik algÄ±n' }
   ];
   let selectedMode = state.mode || null;
   modes.forEach(m => {
@@ -399,11 +399,11 @@ function renderCreate() {
   btn.style.marginTop='28px';
   btn.onclick = async ()=>{
     const name = inp.value.trim();
-    if (!name) { state.toast='İsim gir'; render(); return; }
-    if (!selectedMode) { state.toast='Bir mod seç'; render(); return; }
-    btn.textContent='Oluşturuluyor...'; btn.disabled=true;
+    if (!name) { state.toast='Ä°sim gir'; render(); return; }
+    if (!selectedMode) { state.toast='Bir mod seÃ§'; render(); return; }
+    btn.textContent='OluÅŸturuluyor...'; btn.disabled=true;
     const res = await api('POST','/api/profiles',{name,mode:selectedMode});
-    if (!res||res.error) { btn.textContent='Devam et'; btn.disabled=false; state.toast='Hata oluştu'; render(); return; }
+    if (!res||res.error) { btn.textContent='Devam et'; btn.disabled=false; state.toast='Hata oluÅŸtu'; render(); return; }
     state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
     state.screen='owner_wait'; render();
   };
@@ -412,25 +412,25 @@ function renderCreate() {
   return d;
 }
 
-// ── Owner wait ────────────────────────────────────────────────────────────────
+// â”€â”€ Owner wait â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderOwnerWait() {
   const d = el('div','screen');
   d.appendChild(bar());
   const wrap = el('div','wrap');
   wrap.style.paddingTop='36px';
-  const ey = el('div','eyebrow','Hazır');
-  const h = el('h2',''); h.innerHTML = `${state.profileName}, <em>linkini paylaş</em>`;
+  const ey = el('div','eyebrow','HazÄ±r');
+  const h = el('h2',''); h.innerHTML = `${state.profileName}, <em>linkini paylaÅŸ</em>`;
   const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px;line-height:1.6';
-  sub.textContent = `Arkadaşların bu link üzerinden ${state.mode==='friends'?'seni sosyal olarak':'romantik açıdan seni'} değerlendirecek.`;
+  sub.textContent = `ArkadaÅŸlarÄ±n bu link Ã¼zerinden ${state.mode==='friends'?'seni sosyal olarak':'romantik aÃ§Ä±dan seni'} deÄŸerlendirecek.`;
 
   const linkBox = el('div','');
   linkBox.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--v3);letter-spacing:.02em;word-break:break-all;margin-bottom:12px;cursor:pointer';
   const link = `${location.origin}/r/${state.profileSlug}`;
   linkBox.textContent = link;
-  linkBox.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
+  linkBox.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='KopyalandÄ±'; render(); };
 
   const btnCopy = el('button','btn','Linki kopyala');
-  btnCopy.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Kopyalandı'; render(); };
+  btnCopy.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='KopyalandÄ±'; render(); };
 
   const divider = el('div','divider');
   const countWrap = el('div','');
@@ -442,7 +442,7 @@ function renderOwnerWait() {
   const patternMsg = el('div',''); patternMsg.id='pattern-msg'; patternMsg.style.cssText='font-size:11px;color:var(--v3);margin-top:8px;min-height:16px';
   countWrap.append(countLabel,count,patternMsg);
 
-  const btnResults = el('button','btn','Sonuçları gör');
+  const btnResults = el('button','btn','SonuÃ§larÄ± gÃ¶r');
   btnResults.style.cssText='opacity:.4;cursor:not-allowed';
   btnResults.id='btn-results';
   btnResults.onclick = ()=>{ if(state.responseCount>=3){state.screen='results';render();}};
@@ -468,13 +468,13 @@ function renderOwnerWait() {
   return d;
 }
 
-// ── Responder loading ─────────────────────────────────────────────────────────
+// â”€â”€ Responder loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadResponderProfile() {
   const app = document.getElementById('app');
-  app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Yükleniyor...</div>';
+  app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">YÃ¼kleniyor...</div>';
   const res = await api('GET',`/api/profiles/${state.respondSlug}`);
   if (!res || res.error) {
-    app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--neg)">Profil bulunamadı.</div>';
+    app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--neg)">Profil bulunamadÄ±.</div>';
     return;
   }
   state.respondProfile = res;
@@ -483,7 +483,7 @@ async function loadResponderProfile() {
   render();
 }
 
-// ── Respond mode intro ────────────────────────────────────────────────────────
+// â”€â”€ Respond mode intro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderRespondMode() {
   const p = state.respondProfile;
   const d = el('div','screen');
@@ -491,16 +491,16 @@ function renderRespondMode() {
   const wrap = el('div','wrap');
   wrap.style.paddingTop='40px';
 
-  const ey = el('div','eyebrow','Güvenli & Anonim');
+  const ey = el('div','eyebrow','GÃ¼venli & Anonim');
   const h = el('h2',''); h.innerHTML = `<em>${p.name}</em> seni bekliyor`;
   const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:10px 0 8px;line-height:1.6';
-  sub.textContent = state.mode==='friends' ? `${p.name}'ın seni sosyal olarak nasıl gördüğünü merak ediyor. Dürüst ol — kimse kim cevap verdiğini göremez.` : `${p.name}'ı romantik açıdan değerlendiriyorsun. Kimse kimin cevap verdiğini göremez.`;
+  sub.textContent = state.mode==='friends' ? `${p.name}'Ä±n seni sosyal olarak nasÄ±l gÃ¶rdÃ¼ÄŸÃ¼nÃ¼ merak ediyor. DÃ¼rÃ¼st ol â€” kimse kim cevap verdiÄŸini gÃ¶remez.` : `${p.name}'Ä± romantik aÃ§Ä±dan deÄŸerlendiriyorsun. Kimse kimin cevap verdiÄŸini gÃ¶remez.`;
 
   const privacy = el('div','');
   privacy.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;margin:20px 0;font-size:12px;color:var(--t2);line-height:1.6';
-  privacy.innerHTML = '🔒 Cevapların tamamen anonim. İsmin veya kimliğin asla görünmez.';
+  privacy.innerHTML = 'ğŸ”’ CevaplarÄ±n tamamen anonim. Ä°smin veya kimliÄŸin asla gÃ¶rÃ¼nmez.';
 
-  const btn = el('button','btn','Başla');
+  const btn = el('button','btn','BaÅŸla');
   btn.onclick = ()=>{ state.answers={}; state.currentQ=0; state.path=null; state.queuedQuestions=buildInitialQueue(); state.screen='questions'; render(); };
   wrap.append(ey,h,sub,privacy,btn);
   d.appendChild(wrap);
@@ -511,7 +511,7 @@ function buildInitialQueue() {
   return QUESTIONS[state.mode].section1;
 }
 
-// ── Questions ─────────────────────────────────────────────────────────────────
+// â”€â”€ Questions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderQuestions() {
   const questions = state.queuedQuestions;
   const idx = state.currentQ;
@@ -533,8 +533,8 @@ function renderQuestions() {
   const wrap = el('div','wrap');
   wrap.style.paddingTop='28px';
 
-  const sectionNames = {1:'İlk İzlenim',2:'Karakter',3:'Son Söz'};
-  const sTag = el('div','section-tag', `Bölüm ${q.section} — ${sectionNames[q.section]||''}`);
+  const sectionNames = {1:'Ä°lk Ä°zlenim',2:'Karakter',3:'Son SÃ¶z'};
+  const sTag = el('div','section-tag', `BÃ¶lÃ¼m ${q.section} â€” ${sectionNames[q.section]||''}`);
   wrap.appendChild(sTag);
 
   const qtext = el('div','question-text', q.text);
@@ -546,7 +546,7 @@ function renderQuestions() {
     const pairWrap = el('div','pair-options');
     q.options.forEach(opt => {
       const o = el('div','pair-opt'+(selected===opt.key?' selected':''));
-      const lb = el('div','pair-label','Seçenek '+opt.key);
+      const lb = el('div','pair-label','SeÃ§enek '+opt.key);
       const tx = el('div','pair-text',opt.text);
       o.append(lb,tx);
       o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
@@ -608,34 +608,34 @@ async function submitAnswers() {
   render();
 }
 
-// ── Submitted ─────────────────────────────────────────────────────────────────
+// â”€â”€ Submitted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSubmitted() {
   const d = el('div','screen');
   d.appendChild(bar());
   const wrap = el('div','wrap');
   wrap.style.cssText='padding-top:80px;text-align:center';
-  const icon = el('div',''); icon.style.cssText='font-size:32px;margin-bottom:16px'; icon.textContent='✦';
-  const h = el('h2',''); h.textContent='Cevabın alındı';
+  const icon = el('div',''); icon.style.cssText='font-size:32px;margin-bottom:16px'; icon.textContent='âœ¦';
+  const h = el('h2',''); h.textContent='CevabÄ±n alÄ±ndÄ±';
   const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:12px auto;max-width:280px;line-height:1.6';
-  sub.textContent='Cevabın anonim olarak kaydedildi. Kimse kimin cevap verdiğini göremez.';
-  const btn = el('button','btn btn-ghost'); btn.textContent='Kendi profilini oluştur'; btn.style.marginTop='28px';
+  sub.textContent='CevabÄ±n anonim olarak kaydedildi. Kimse kimin cevap verdiÄŸini gÃ¶remez.';
+  const btn = el('button','btn btn-ghost'); btn.textContent='Kendi profilini oluÅŸtur'; btn.style.marginTop='28px';
   btn.onclick=()=>{state={screen:'create',mode:null,profileId:null,profileSlug:null,profileName:'',respondSlug:null,respondProfile:null,answers:{},currentQ:0,queuedQuestions:[],path:null,results:null,responseCount:0,toast:null};render();};
   wrap.append(icon,h,sub,btn);
   d.appendChild(wrap);
   return d;
 }
 
-// ── Results ───────────────────────────────────────────────────────────────────
+// â”€â”€ Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderResults() {
   const d = el('div','screen');
-  d.appendChild(bar('Sonuçlar'));
+  d.appendChild(bar('SonuÃ§lar'));
   const wrap = el('div','wrap');
   wrap.style.paddingTop='28px';
 
   if (!state.results) {
     const loading = el('div','');
     loading.style.cssText='text-align:center;padding:60px 0;font-size:12px;color:var(--t3)';
-    loading.textContent='Analiz yapılıyor...';
+    loading.textContent='Analiz yapÄ±lÄ±yor...';
     wrap.appendChild(loading);
     d.appendChild(wrap);
     loadResults();
@@ -645,8 +645,8 @@ function renderResults() {
   const r = state.results;
   const ins = r.insight;
 
-  const ey = el('div','eyebrow',`${r.profile.name} — ${r.profile.mode==='friends'?'Friends':'Romance'} modu`);
-  const h = el('h2',''); h.innerHTML=`${r.responseCount} kişi <em>cevapladı</em>`;
+  const ey = el('div','eyebrow',`${r.profile.name} â€” ${r.profile.mode==='friends'?'Friends':'Romance'} modu`);
+  const h = el('h2',''); h.innerHTML=`${r.responseCount} kiÅŸi <em>cevapladÄ±</em>`;
   wrap.append(ey,h);
 
   if (ins.livePattern) {
@@ -656,15 +656,15 @@ function renderResults() {
 
   // Contradiction (most important)
   const cont = el('div','contradiction-block');
-  const contLabel = el('div','result-block-label','Algı çelişkisi');
+  const contLabel = el('div','result-block-label','AlgÄ± Ã§eliÅŸkisi');
   const contText = el('div','contradiction-text', ins.contradiction || ins.contradictionText);
   cont.append(contLabel,contText);
   wrap.appendChild(cont);
 
   // Main blocks
   const blocks = [
-    { label:'İnsanlar seni nasıl görüyor', text:ins.howPeopleSeeYou },
-    { label:'Fark etmediğin şey', text:ins.whatYouDontRealize || ins.magneticText },
+    { label:'Ä°nsanlar seni nasÄ±l gÃ¶rÃ¼yor', text:ins.howPeopleSeeYou },
+    { label:'Fark etmediÄŸin ÅŸey', text:ins.whatYouDontRealize || ins.magneticText },
     { label:'Sosyal enerjin', text:ins.yourSocialEnergy },
     { label:'Tekrar eden pattern', text:ins.whatKeepsShowing }
   ];
@@ -690,13 +690,13 @@ function renderResults() {
   const card = el('div','share-card');
   const sName = el('div','share-name',r.profile.name);
   const sHead = el('div','share-headline', ins.shareHeadline || ins.contradictionText?.split('.')[0]);
-  const sCount = el('div','share-count',`${r.responseCount} kişi böyle gördü`);
+  const sCount = el('div','share-count',`${r.responseCount} kiÅŸi bÃ¶yle gÃ¶rdÃ¼`);
   const sBrand = el('div','share-brand','TellMeMore');
   card.append(sName,sHead,sCount,sBrand);
   wrap.appendChild(card);
 
-  const btnShare = el('button','btn','Share card\'ı kopyala');
-  btnShare.onclick=()=>{ navigator.clipboard?.writeText(`${ins.shareHeadline||ins.contradictionText?.split('.')[0]}\n\n${r.responseCount} kişi böyle gördü — TellMeMore`); state.toast='Kopyalandı'; render(); };
+  const btnShare = el('button','btn','Share card\'Ä± kopyala');
+  btnShare.onclick=()=>{ navigator.clipboard?.writeText(`${ins.shareHeadline||ins.contradictionText?.split('.')[0]}\n\n${r.responseCount} kiÅŸi bÃ¶yle gÃ¶rdÃ¼ â€” TellMeMore`); state.toast='KopyalandÄ±'; render(); };
   wrap.appendChild(btnShare);
   d.appendChild(wrap);
   return d;
@@ -706,7 +706,7 @@ async function loadResults() {
   if (!state.profileId) return;
   const res = await api('GET',`/api/results/${state.profileId}`);
   if (!res || res.error) {
-    state.toast = res?.error || 'Sonuç yüklenemedi';
+    state.toast = res?.error || 'SonuÃ§ yÃ¼klenemedi';
     state.screen = 'owner_wait';
     render();
     return;
@@ -715,8 +715,9 @@ async function loadResults() {
   render();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 render();
 </script>
 </body>
 </html>
+
