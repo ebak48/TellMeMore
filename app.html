@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8"/>
@@ -119,11 +119,12 @@ let state = {
 };
 
 // Check if responder link
+const _saved=localStorage.getItem('tmProfile');if(_saved){try{const _p=JSON.parse(_saved);state.profileId=_p.id;state.profileSlug=_p.slug;state.profileName=_p.name;state.mode=_p.mode;state.screen='owner_wait';}catch(e){}}
 const urlParams = new URLSearchParams(location.search);
 const respondParam = urlParams.get('respond');
 if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// â”€â”€ API helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function api(method, path, data) {
   try {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
@@ -133,27 +134,27 @@ async function api(method, path, data) {
   } catch(e) { console.error(e); return null; }
 }
 
-// ── Question data (embedded, English) ─────────────────────────────────────────
+// â”€â”€ Question data (embedded, English) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const QUESTIONS = {
   friends: {
     section1: [
       { id:'s1', format:'forced', section:1, text:"What's it like to spend time with this person?", options:[
-        {key:'A',text:'Easy and relaxing — natural to be around'},
-        {key:'B',text:'Energetic — something is always happening'},
-        {key:'C',text:'Intense — nice, but you need to know your limits'},
-        {key:'D',text:"Distant — they don't quite open up"}
+        {key:'A',text:'Easy and relaxing â€” natural to be around'},
+        {key:'B',text:'Energetic â€” something is always happening'},
+        {key:'C',text:'Intense â€” nice, but you need to know your limits'},
+        {key:'D',text:"Distant â€” they don't quite open up"}
       ]},
       { id:'s2', format:'forced', section:1, text:'Where does this person usually land in a group?', options:[
-        {key:'A',text:'At the center — everyone looks to them'},
-        {key:'B',text:'The balancer — quiet but decisive'},
-        {key:'C',text:'The observer — waiting for the right moment'},
-        {key:'D',text:'On the edges — not quite part of it'}
+        {key:'A',text:'At the center â€” everyone looks to them'},
+        {key:'B',text:'The balancer â€” quiet but decisive'},
+        {key:'C',text:'The observer â€” waiting for the right moment'},
+        {key:'D',text:'On the edges â€” not quite part of it'}
       ]},
       { id:'s3', format:'forced', section:1, text:'If you had something hard to share, would they be your first call?', options:[
-        {key:'A',text:'Yes — always the first person I think of'},
-        {key:'B',text:'Sometimes — depends on the topic'},
-        {key:'C',text:'Not really — not that kind of person'},
-        {key:'D',text:'No — emotionally closed off'}
+        {key:'A',text:'Yes â€” always the first person I think of'},
+        {key:'B',text:'Sometimes â€” depends on the topic'},
+        {key:'C',text:'Not really â€” not that kind of person'},
+        {key:'D',text:'No â€” emotionally closed off'}
       ]}
     ],
     section2_fixed: [
@@ -168,40 +169,40 @@ const QUESTIONS = {
         {key:'B',text:'Reliable on the surface, but lets very little in'}
       ]},
       { id:'s6', format:'forced', section:2, text:'What does it feel like when this person enters a room?', options:[
-        {key:'A',text:'The energy shifts — you notice them'},
-        {key:'B',text:'Warmth arrives — the room relaxes'},
-        {key:'C',text:'They slip in quietly — you notice them later'},
-        {key:'D',text:'Nothing really changes — they stay in the background'}
+        {key:'A',text:'The energy shifts â€” you notice them'},
+        {key:'B',text:'Warmth arrives â€” the room relaxes'},
+        {key:'C',text:'They slip in quietly â€” you notice them later'},
+        {key:'D',text:'Nothing really changes â€” they stay in the background'}
       ]}
     ],
     section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:"They're warm and open — do they still protect their limits?", options:[
-        {key:'A',text:'Yes — open but with clear limits'},
+      { id:'s7a', format:'pair', section:2, text:"They're warm and open â€” do they still protect their limits?", options:[
+        {key:'A',text:'Yes â€” open but with clear limits'},
         {key:'B',text:'Sometimes gives too much and gets nothing back'}
       ]},
       { id:'s8a', format:'forced', section:2, text:'When do people need this person most?', options:[
-        {key:'A',text:'In hard moments — they make you feel safe'},
-        {key:'B',text:'In fun moments — they bring the energy'},
-        {key:'C',text:'Both — always there'},
+        {key:'A',text:'In hard moments â€” they make you feel safe'},
+        {key:'B',text:'In fun moments â€” they bring the energy'},
+        {key:'C',text:'Both â€” always there'},
         {key:'D',text:"Honestly, they're not really needed"}
       ]}
     ],
     section2_pathB: [
       { id:'s7b', format:'forced', section:2, text:'Where does this distance come from?', options:[
-        {key:'A',text:"In their own world — doesn't engage much with the outside"},
-        {key:'B',text:'Tests you first — opens up once trust is built'},
-        {key:'C',text:"A defense mechanism — though they don't show it"},
-        {key:'D',text:'Just seems indifferent — disengaged'}
+        {key:'A',text:"In their own world â€” doesn't engage much with the outside"},
+        {key:'B',text:'Tests you first â€” opens up once trust is built'},
+        {key:'C',text:"A defense mechanism â€” though they don't show it"},
+        {key:'D',text:'Just seems indifferent â€” disengaged'}
       ]},
       { id:'s8b', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'Mysterious — makes you want to know more'},
-        {key:'B',text:'Hard to read — exhausting at times'}
+        {key:'A',text:'Mysterious â€” makes you want to know more'},
+        {key:'B',text:'Hard to read â€” exhausting at times'}
       ]}
     ],
     section3: [
       { id:'s9', format:'gut', section:3, text:'When they leave, what do people say?', options:[
-        {key:'A',text:'"What an incredible person — we\'re lucky to know them"'},
-        {key:'B',text:'"So much energy — it\'s contagious"'},
+        {key:'A',text:'"What an incredible person â€” we\'re lucky to know them"'},
+        {key:'B',text:'"So much energy â€” it\'s contagious"'},
         {key:'C',text:'"Good person, but hard to figure out"'},
         {key:'D',text:'"Why did they act like that?"'}
       ]}
@@ -211,70 +212,70 @@ const QUESTIONS = {
     section1: [
       { id:'s1', format:'forced', section:1, text:'What did you feel when you first saw this person?', options:[
         {key:'A',text:'They immediately caught my eye'},
-        {key:'B',text:'They made me curious — I wanted to know more'},
-        {key:'C',text:'It took a while — I noticed them later'},
+        {key:'B',text:'They made me curious â€” I wanted to know more'},
+        {key:'C',text:'It took a while â€” I noticed them later'},
         {key:'D',text:"Honestly, I didn't really notice them"}
       ]},
       { id:'s2', format:'forced', section:1, text:'What do they make you feel, romantically?', options:[
-        {key:'A',text:'Excited and safe — both at once'},
-        {key:'B',text:"Attracted but hard to read — can't quite figure them out"},
+        {key:'A',text:'Excited and safe â€” both at once'},
+        {key:'B',text:"Attracted but hard to read â€” can't quite figure them out"},
         {key:'C',text:'Interesting, but no clear signal'},
-        {key:'D',text:"Unclear — hard to know what they're thinking"}
+        {key:'D',text:"Unclear â€” hard to know what they're thinking"}
       ]},
       { id:'s3', format:'forced', section:1, text:"Can you tell when they're flirting?", options:[
-        {key:'A',text:'Yes — clear and natural, it just flows'},
-        {key:'B',text:'Sometimes — they give subtle hints'},
-        {key:'C',text:'Hard to say — very mysterious, signals unclear'},
-        {key:'D',text:'No — no signal at all'}
+        {key:'A',text:'Yes â€” clear and natural, it just flows'},
+        {key:'B',text:'Sometimes â€” they give subtle hints'},
+        {key:'C',text:'Hard to say â€” very mysterious, signals unclear'},
+        {key:'D',text:'No â€” no signal at all'}
       ]}
     ],
     section2_fixed: [
       { id:'s4', format:'forced', section:2, text:"What's their strongest romantic quality?", options:[
-        {key:'A',text:'Their confidence — it creates attraction'},
-        {key:'B',text:'They really listen — makes you feel seen'},
+        {key:'A',text:'Their confidence â€” it creates attraction'},
+        {key:'B',text:'They really listen â€” makes you feel seen'},
         {key:'C',text:'Their warmth and sincerity'},
         {key:'D',text:"Honestly, I haven't noticed a standout quality yet"}
       ]},
       { id:'s5', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'More attractive than they realize — unaware of their effect'},
+        {key:'A',text:'More attractive than they realize â€” unaware of their effect'},
         {key:'B',text:'Attractive, but that awareness creates distance'}
       ]},
       { id:'s6', format:'forced', section:2, text:'What does their presence feel like in a room?', options:[
-        {key:'A',text:'Magnetic — eyes go to them'},
-        {key:'B',text:'Warm — being near them feels safe'},
-        {key:'C',text:'Intriguing — but hard to reach'},
-        {key:'D',text:"Neutral — doesn't leave much of an impression"}
+        {key:'A',text:'Magnetic â€” eyes go to them'},
+        {key:'B',text:'Warm â€” being near them feels safe'},
+        {key:'C',text:'Intriguing â€” but hard to reach'},
+        {key:'D',text:"Neutral â€” doesn't leave much of an impression"}
       ]}
     ],
     section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:"They're attractive — are they easy to approach?", options:[
-        {key:'A',text:'Yes — attractive and approachable'},
-        {key:'B',text:'No — attractive but it takes courage to get close'}
+      { id:'s7a', format:'pair', section:2, text:"They're attractive â€” are they easy to approach?", options:[
+        {key:'A',text:'Yes â€” attractive and approachable'},
+        {key:'B',text:'No â€” attractive but it takes courage to get close'}
       ]},
       { id:'s8a', format:'forced', section:2, text:"What's their biggest romantic effect?", options:[
-        {key:'A',text:'Makes you feel confident — good to be around them'},
-        {key:'B',text:'Makes you curious — you want to know more'},
-        {key:'C',text:'Exciting — something unexpected could happen any moment'},
-        {key:'D',text:'Calming — makes you feel safe'}
+        {key:'A',text:'Makes you feel confident â€” good to be around them'},
+        {key:'B',text:'Makes you curious â€” you want to know more'},
+        {key:'C',text:'Exciting â€” something unexpected could happen any moment'},
+        {key:'D',text:'Calming â€” makes you feel safe'}
       ]}
     ],
     section2_pathB: [
       { id:'s7b', format:'forced', section:2, text:'Where does this romantic distance come from?', options:[
-        {key:'A',text:"Doesn't trust easily — opens up with time"},
-        {key:'B',text:"Not emotionally ready — it's just not the right time"},
-        {key:'C',text:'Emotionally fragile — protecting themselves'},
-        {key:'D',text:'Seems disinterested — not giving romantic signals'}
+        {key:'A',text:"Doesn't trust easily â€” opens up with time"},
+        {key:'B',text:"Not emotionally ready â€” it's just not the right time"},
+        {key:'C',text:'Emotionally fragile â€” protecting themselves'},
+        {key:'D',text:'Seems disinterested â€” not giving romantic signals'}
       ]},
       { id:'s8b', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'Mysterious — the distance actually makes them more attractive'},
-        {key:'B',text:'Hard to read — the uncertainty is tiring'}
+        {key:'A',text:'Mysterious â€” the distance actually makes them more attractive'},
+        {key:'B',text:'Hard to read â€” the uncertainty is tiring'}
       ]}
     ],
     section3: [
       { id:'s9', format:'gut', section:3, text:'What affects you most about this person?', options:[
-        {key:'A',text:'Their presence — something shifts when they enter a room'},
-        {key:'B',text:'Their gaze — like they actually see you'},
-        {key:'C',text:"Their mystery — I've never quite figured them out"},
+        {key:'A',text:'Their presence â€” something shifts when they enter a room'},
+        {key:'B',text:'Their gaze â€” like they actually see you'},
+        {key:'C',text:"Their mystery â€” I've never quite figured them out"},
         {key:'D',text:"Honestly, they haven't had much of an effect on me"}
       ]}
     ]
@@ -303,7 +304,7 @@ function buildQuestionQueue(mode, path) {
   ];
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function render() {
   const app = document.getElementById('app');
   app.innerHTML = '';
@@ -340,7 +341,7 @@ function bar(right) {
   return b;
 }
 
-// ── Landing ───────────────────────────────────────────────────────────────────
+// â”€â”€ Landing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderLanding() {
   const d = el('div','screen');
   d.appendChild(bar());
@@ -364,7 +365,7 @@ function renderLanding() {
   return d;
 }
 
-// ── Create profile ────────────────────────────────────────────────────────────
+// â”€â”€ Create profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderCreate() {
   const d = el('div','screen');
   d.appendChild(bar('1 / 2'));
@@ -411,7 +412,7 @@ function renderCreate() {
   return d;
 }
 
-// ── Owner wait ────────────────────────────────────────────────────────────────
+// â”€â”€ Owner wait â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderOwnerWait() {
   const d = el('div','screen');
   d.appendChild(bar());
@@ -476,7 +477,7 @@ function renderOwnerWait() {
   return d;
 }
 
-// ── Responder loading ─────────────────────────────────────────────────────────
+// â”€â”€ Responder loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadResponderProfile() {
   const app = document.getElementById('app');
   app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Loading...</div>';
@@ -491,7 +492,7 @@ async function loadResponderProfile() {
   render();
 }
 
-// ── Respond mode intro ────────────────────────────────────────────────────────
+// â”€â”€ Respond mode intro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderRespondMode() {
   const p = state.respondProfile;
   const d = el('div','screen');
@@ -521,7 +522,7 @@ function buildInitialQueue() {
   return QUESTIONS[state.mode].section1;
 }
 
-// ── Questions ─────────────────────────────────────────────────────────────────
+// â”€â”€ Questions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderQuestions() {
   const questions = state.queuedQuestions;
   const idx = state.currentQ;
@@ -544,7 +545,7 @@ function renderQuestions() {
   wrap.style.paddingTop='28px';
 
   const sectionNames = {1:'First Impression',2:'Deeper Read',3:'Gut Feeling'};
-  const sTag = el('div','section-tag', `Bölüm ${q.section} — ${sectionNames[q.section]||''}`);
+  const sTag = el('div','section-tag', `BÃ¶lÃ¼m ${q.section} â€” ${sectionNames[q.section]||''}`);
   wrap.appendChild(sTag);
 
   const qtext = el('div','question-text', q.text);
@@ -556,7 +557,7 @@ function renderQuestions() {
     const pairWrap = el('div','pair-options');
     q.options.forEach(opt => {
       const o = el('div','pair-opt'+(selected===opt.key?' selected':''));
-      const lb = el('div','pair-label','Seçenek '+opt.key);
+      const lb = el('div','pair-label','SeÃ§enek '+opt.key);
       const tx = el('div','pair-text',opt.text);
       o.append(lb,tx);
       o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
@@ -618,7 +619,7 @@ async function submitAnswers() {
   render();
 }
 
-// ── Submitted ─────────────────────────────────────────────────────────────────
+// â”€â”€ Submitted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderSubmitted() {
   const d = el('div','screen');
   d.appendChild(bar());
@@ -636,7 +637,7 @@ function renderSubmitted() {
   return d;
 }
 
-// ── Results ───────────────────────────────────────────────────────────────────
+// â”€â”€ Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderResults() {
   const d = el('div','screen');
   d.appendChild(bar('Results'));
@@ -659,7 +660,7 @@ function renderResults() {
   const nextTier = r.nextTier;
 
   // Header
-  const ey = el('div','eyebrow',`${r.profile.name} — ${r.profile.mode === 'friends' ? 'Friends' : 'Romance'}`);
+  const ey = el('div','eyebrow',`${r.profile.name} â€” ${r.profile.mode === 'friends' ? 'Friends' : 'Romance'}`);
   const h = el('h2','');
   h.innerHTML = `${r.responseCount} ${r.responseCount === 1 ? 'person' : 'people'} responded`;
   wrap.append(ey, h);
@@ -672,7 +673,7 @@ function renderResults() {
     wrap.appendChild(um);
   }
 
-  // ── TIER 1 — always shown ────────────────────────────────────────────────────
+  // â”€â”€ TIER 1 â€” always shown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (ins.howPeopleSeeYou) {
     const b = el('div','result-block');
     b.append(el('div','result-block-label','How people experience you'), el('div','result-text',ins.howPeopleSeeYou));
@@ -684,7 +685,7 @@ function renderResults() {
     wrap.appendChild(b);
   }
 
-  // ── TIER 2 — unlocked at 8 ──────────────────────────────────────────────────
+  // â”€â”€ TIER 2 â€” unlocked at 8 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (tier >= 2) {
     if (ins.contradiction) {
       const cont = el('div','contradiction-block');
@@ -705,14 +706,14 @@ function renderResults() {
     const lk1 = el('div',''); lk1.style.cssText='font-size:11px;color:var(--t3);margin-bottom:6px';
     lk1.textContent = 'The Contradiction';
     const lk2 = el('div',''); lk2.style.cssText='font-size:13px;color:var(--t3);filter:blur(5px);user-select:none;line-height:1.5';
-    lk2.textContent = 'People agree on something — and disagree on something else.';
+    lk2.textContent = 'People agree on something â€” and disagree on something else.';
     const lk3 = el('div',''); lk3.style.cssText='font-size:11px;color:var(--v2);margin-top:10px';
     lk3.textContent = nextTier ? `${nextTier.remaining} more response${nextTier.remaining===1?'':'s'} to unlock` : '';
     locked.append(lk1, lk2, lk3);
     wrap.appendChild(locked);
   }
 
-  // ── TIER 3 — unlocked at 12 ─────────────────────────────────────────────────
+  // â”€â”€ TIER 3 â€” unlocked at 12 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (tier >= 3) {
     if (ins.whatKeepsShowing) {
       const b = el('div','result-block');
@@ -724,7 +725,7 @@ function renderResults() {
       fr.append(el('div','friction-label','Only for you'), el('div','friction-text', ins.frictionText));
       wrap.appendChild(fr);
     }
-    // Share card — only at full profile
+    // Share card â€” only at full profile
     const card = el('div','share-card');
     const headline = ins.contradiction?.split('.')[0] || r.unlockMessage;
     card.append(
@@ -736,7 +737,7 @@ function renderResults() {
     wrap.appendChild(card);
     const btnShare = el('button','btn','Share result');
     btnShare.onclick = ()=>{
-      const text = `${headline}\n\n${r.responseCount} people experienced this — TellMeMore`;
+      const text = `${headline}\n\n${r.responseCount} people experienced this â€” TellMeMore`;
       if (navigator.share) navigator.share({ title:'TellMeMore', text, url: location.origin });
       else { navigator.clipboard?.writeText(text); state.toast='Copied'; render(); }
     };
@@ -790,8 +791,9 @@ async function loadResults() {
   render();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 render();
 </script>
 </body>
 </html>
+
