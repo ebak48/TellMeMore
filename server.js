@@ -8,7 +8,7 @@ import { QUESTIONS, RESULTS, ROUTING } from './questions.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const PORT  = process.env.PORT || 3000;
-const DB_PATH = process.env.DB_PATH || join(__dir, 'data', 'tellmemore.db');
+const DB_PATH = process.env.DB_PATH || join(__dir, 'data', 'tellmemore_v2.db');
 const APP_PATH = join(__dir, 'app.html');
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
@@ -361,4 +361,5 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  http://localhost:${PORT}`);
   console.log(`  DB: ${DB_PATH}\n`);
 });
+
 
