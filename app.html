@@ -405,7 +405,7 @@ function renderCreate() {
     if (!name) { state.toast='Enter your name'; render(); return; }
     if (!selectedMode) { state.toast='Select a mode'; render(); return; }
     btn.textContent='Creating...'; btn.disabled=true;
-    const res = await api('POST','/api/profiles',{name,mode:selectedMode}); alert('API: ' + JSON.stringify(res));
+    const res = await api('POST','/api/profiles',{name,mode:selectedMode})
     if (!res||res.error) { btn.textContent='Continue'; btn.disabled=false; state.toast='Something went wrong'; render(); return; }
     state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
     state.screen='owner_wait'; render();
@@ -799,5 +799,7 @@ render();
 </script>
 </body>
 </html>
+
+
 
 
