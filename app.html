@@ -119,7 +119,7 @@ let state = {
 };
 
 // Check if responder link
-const _saved=localStorage.getItem('tmProfile');if(_saved){try{const _p=JSON.parse(_saved);state.profileId=_p.id;state.profileSlug=_p.slug;state.profileName=_p.name;state.mode=_p.mode;state.screen='owner_wait';}catch(e){}}
+const _saved=localStorage.getItem('tmProfile');if(_saved){try{const _p=JSON.parse(_saved);if(_p.id&&_p.slug&&_p.name){state.profileId=_p.id;state.profileSlug=_p.slug;state.profileName=_p.name;state.mode=_p.mode;state.screen='owner_wait';}}catch(e){}}
 const urlParams = new URLSearchParams(location.search);
 const respondParam = urlParams.get('respond');
 if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
@@ -796,4 +796,5 @@ render();
 </script>
 </body>
 </html>
+
 
