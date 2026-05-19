@@ -1,10 +1,10 @@
-import { createServer } from 'node:http';
+﻿import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { QUESTIONS, RESULTS, ROUTING } from './tellmemore-questions.js';
+import { QUESTIONS, RESULTS, ROUTING } from './questions.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const PORT  = process.env.PORT || 3000;
@@ -12,7 +12,7 @@ const DB_PATH = process.env.DB_PATH || join(__dir, 'data', 'tellmemore.db');
 const APP_PATH = join(__dir, 'tellmemore-app-final.html');
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
-// ── DB ────────────────────────────────────────────────────────────────────────
+// â”€â”€ DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
@@ -35,7 +35,7 @@ db.exec(`
   );
 `);
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const uid  = () => randomBytes(8).toString('hex');
 const slug = name => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + randomBytes(3).toString('hex');
 const json = (res, data, status = 200) => { res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(JSON.stringify(data)); };
@@ -49,7 +49,7 @@ async function body(req) {
   });
 }
 
-// ── AI Results ────────────────────────────────────────────────────────────────
+// â”€â”€ AI Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function generateInsight(name, mode, signals, path, responseCount) {
   if (!ANTHROPIC_KEY) return buildFallbackInsight(name, mode, signals, path);
 
@@ -78,7 +78,7 @@ Rules:
 - Use: "magnetic", "presence", "emotionally attractive", "memorable", "charismatic"
 - No therapy language, no HR language
 - Keep each section under 2 sentences
-- The contradiction section is the most important — make it feel personal
+- The contradiction section is the most important â€” make it feel personal
 
 Return JSON only:
 {
@@ -115,10 +115,10 @@ function buildFallbackInsight(name, mode, signals, path) {
   return {
     howPeopleSeeYou: path === 'A'
       ? `People who know ${name} describe them as someone who feels ${mode === 'friends' ? 'easy to be around' : 'safe and present'}.`
-      : `People experience ${name} as intriguing — someone who takes time to fully reveal themselves.`,
+      : `People experience ${name} as intriguing â€” someone who takes time to fully reveal themselves.`,
     whatYouDontRealize: magneticText,
     yourSocialEnergy: magneticScore >= 2
-      ? `${name}'s presence is felt in a room — even when they're not trying.`
+      ? `${name}'s presence is felt in a room â€” even when they're not trying.`
       : `${name} leaves an impression over time. The first read is never the full picture.`,
     contradiction: contradictionText,
     whatKeepsShowing: `People keep noticing the same thing. That's not a coincidence.`,
@@ -131,7 +131,7 @@ function getLivePattern(count) {
   return ROUTING.getPatternMessage(count);
 }
 
-// ── Routes ────────────────────────────────────────────────────────────────────
+// â”€â”€ Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const routes = {
 
   'GET /': (req, res) => {
@@ -225,7 +225,7 @@ const routes = {
     const rows = db.prepare('SELECT signals, path FROM responses WHERE profile_id=? ORDER BY created_at DESC').all(p.id);
     const count = rows.length;
     const tier = ROUTING.getTier(count);
-    if (tier === 0) return err(res, 'Not enough responses — 4 needed to unlock first read', 403);
+    if (tier === 0) return err(res, 'Not enough responses â€” 4 needed to unlock first read', 403);
 
     const merged = {};
     for (const r of rows) {
@@ -239,17 +239,17 @@ const routes = {
 
     // Gate content by tier
     const insight = {
-      // Tier 1 — always shown at 4+
+      // Tier 1 â€” always shown at 4+
       howPeopleSeeYou: fullInsight.howPeopleSeeYou,
       yourSocialEnergy: fullInsight.yourSocialEnergy,
       magneticText: fullInsight.magneticText,
-      // Tier 2 — unlocked at 8+
+      // Tier 2 â€” unlocked at 8+
       ...(tier >= 2 && {
         contradiction: fullInsight.contradiction || fullInsight.contradictionText,
         whatYouDontRealize: fullInsight.whatYouDontRealize,
         shareHeadline: fullInsight.shareHeadline
       }),
-      // Tier 3 — unlocked at 12+
+      // Tier 3 â€” unlocked at 12+
       ...(tier >= 3 && {
         whatKeepsShowing: fullInsight.whatKeepsShowing,
         frictionText: fullInsight.frictionText
@@ -292,7 +292,7 @@ ${profiles.map(p => `<tr><td>${p.name}</td><td><span class="badge">${p.mode}</sp
   }
 };
 
-// ── Route matcher ─────────────────────────────────────────────────────────────
+// â”€â”€ Route matcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function matchRoute(method, pathname) {
   for (const key of Object.keys(routes)) {
     const [m, pattern] = key.split(' ');
@@ -311,7 +311,7 @@ function matchRoute(method, pathname) {
   return null;
 }
 
-// ── Server ────────────────────────────────────────────────────────────────────
+// â”€â”€ Server â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const server = createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -321,7 +321,7 @@ const server = createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const pathname = url.pathname.replace(/\/$/, '') || '/';
 
-  // Responder shortlink /r/:slug → redirect to /?respond=slug
+  // Responder shortlink /r/:slug â†’ redirect to /?respond=slug
   if (pathname.startsWith('/r/')) {
     const s = pathname.slice(3);
     res.writeHead(302, { Location: `/?respond=${s}` });
@@ -338,3 +338,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  http://localhost:${PORT}`);
   console.log(`  DB: ${DB_PATH}\n`);
 });
+
