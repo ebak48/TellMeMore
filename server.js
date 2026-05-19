@@ -1,18 +1,18 @@
-﻿import { createServer } from 'node:http';
+import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { QUESTIONS, RESULTS, ROUTING } from './questions.js';
+import { QUESTIONS, RESULTS, ROUTING } from './tellmemore-questions.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const PORT  = process.env.PORT || 3000;
 const DB_PATH = process.env.DB_PATH || join(__dir, 'data', 'tellmemore.db');
-const APP_PATH = join(__dir, 'app.html');
+const APP_PATH = join(__dir, 'tellmemore-app-final.html');
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
 
-// â”€â”€ DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DB ────────────────────────────────────────────────────────────────────────
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
@@ -35,7 +35,7 @@ db.exec(`
   );
 `);
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Helpers ───────────────────────────────────────────────────────────────────
 const uid  = () => randomBytes(8).toString('hex');
 const slug = name => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + randomBytes(3).toString('hex');
 const json = (res, data, status = 200) => { res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }); res.end(JSON.stringify(data)); };
@@ -49,7 +49,7 @@ async function body(req) {
   });
 }
 
-// â”€â”€ AI Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AI Results ────────────────────────────────────────────────────────────────
 async function generateInsight(name, mode, signals, path, responseCount) {
   if (!ANTHROPIC_KEY) return buildFallbackInsight(name, mode, signals, path);
 
@@ -78,7 +78,7 @@ Rules:
 - Use: "magnetic", "presence", "emotionally attractive", "memorable", "charismatic"
 - No therapy language, no HR language
 - Keep each section under 2 sentences
-- The contradiction section is the most important â€” make it feel personal
+- The contradiction section is the most important — make it feel personal
 
 Return JSON only:
 {
@@ -112,31 +112,26 @@ function buildFallbackInsight(name, mode, signals, path) {
   const magneticText = RESULTS.magnetic[magneticScore >= 3 ? 0 : magneticScore >= 2 ? 1 : 2];
   const frictionScore = (signals.negative || 0) + (signals.friction || 0);
   const frictionText = frictionScore >= 2 ? RESULTS.friction[Math.min(frictionScore - 2, 2)] : null;
-
-  const modeLabel = mode === 'friends' ? 'arkadaÅŸlarÄ±' : 'Ã§evresi';
   return {
-    howPeopleSeeYou: `${name}'Ä± tanÄ±yanlar, onu ${path === 'A' ? 'yakÄ±n ve gÃ¼venilir' : 'ilginÃ§ ama gizemli'} olarak tanÄ±mlÄ±yor.`,
+    howPeopleSeeYou: path === 'A'
+      ? `People who know ${name} describe them as someone who feels ${mode === 'friends' ? 'easy to be around' : 'safe and present'}.`
+      : `People experience ${name} as intriguing — someone who takes time to fully reveal themselves.`,
     whatYouDontRealize: magneticText,
-    yourSocialEnergy: magneticScore >= 2 ? `${name}'Ä±n varlÄ±ÄŸÄ± ortamda fark ediliyor â€” bunu her zaman gÃ¶stermiyor olsa da.` : `${name} Ã§evresini zaman iÃ§inde etkiliyor â€” ilk izlenim tam resmini yansÄ±tmÄ±yor.`,
+    yourSocialEnergy: magneticScore >= 2
+      ? `${name}'s presence is felt in a room — even when they're not trying.`
+      : `${name} leaves an impression over time. The first read is never the full picture.`,
     contradiction: contradictionText,
-    whatKeepsShowing: `${modeLabel.charAt(0).toUpperCase() + modeLabel.slice(1)} aynÄ± ÅŸeyi tekrar ediyor. Bu pattern tesadÃ¼f deÄŸil.`,
+    whatKeepsShowing: `People keep noticing the same thing. That's not a coincidence.`,
     shareHeadline: contradictionText.split('.')[0],
-    magneticText,
-    frictionText,
-    contradictionText,
-    livePattern: null
+    magneticText, frictionText, contradictionText
   };
 }
 
 function getLivePattern(count) {
-  const thresholds = Object.keys(RESULTS.livePattern).map(Number).sort((a, b) => b - a);
-  for (const t of thresholds) {
-    if (count >= t) return RESULTS.livePattern[t];
-  }
-  return null;
+  return ROUTING.getPatternMessage(count);
 }
 
-// â”€â”€ Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Routes ────────────────────────────────────────────────────────────────────
 const routes = {
 
   'GET /': (req, res) => {
@@ -213,30 +208,70 @@ const routes = {
     const p = db.prepare('SELECT * FROM profiles WHERE id=?').get(params.id);
     if (!p) return err(res, 'Not found', 404);
     const count = db.prepare('SELECT COUNT(*) as c FROM responses WHERE profile_id=?').get(p.id).c;
-    json(res, { responseCount: count, livePattern: getLivePattern(count), unlocked: count >= 3 });
+    const tier = ROUTING.getTier(count);
+    const nextTier = ROUTING.getNextTier(tier, count);
+    json(res, {
+      responseCount: count,
+      tier,
+      nextTier,
+      patternMessage: getLivePattern(count),
+      unlocked: tier >= 1
+    });
   },
 
   'GET /api/results/:id': async (req, res, params) => {
     const p = db.prepare('SELECT * FROM profiles WHERE id=?').get(params.id);
     if (!p) return err(res, 'Not found', 404);
     const rows = db.prepare('SELECT signals, path FROM responses WHERE profile_id=? ORDER BY created_at DESC').all(p.id);
-    if (rows.length < 3) return err(res, 'Not enough responses', 403);
+    const count = rows.length;
+    const tier = ROUTING.getTier(count);
+    if (tier === 0) return err(res, 'Not enough responses — 4 needed to unlock first read', 403);
 
     const merged = {};
     for (const r of rows) {
       const s = JSON.parse(r.signals);
       for (const [k, v] of Object.entries(s)) merged[k] = (merged[k] || 0) + v;
     }
-    const normalized = Object.fromEntries(Object.entries(merged).map(([k, v]) => [k, +(v / rows.length).toFixed(2)]));
-    const dominantPath = rows.filter(r => r.path === 'A').length >= rows.length / 2 ? 'A' : 'B';
-    const insight = await generateInsight(p.name, p.mode, normalized, dominantPath, rows.length);
+    const normalized = Object.fromEntries(Object.entries(merged).map(([k, v]) => [k, +(v / count).toFixed(2)]));
+    const dominantPath = rows.filter(r => r.path === 'A').length >= count / 2 ? 'A' : 'B';
+    const fullInsight = await generateInsight(p.name, p.mode, normalized, dominantPath, count);
+    const nextTier = ROUTING.getNextTier(tier, count);
 
-    json(res, { profile: { id: p.id, name: p.name, mode: p.mode }, responseCount: rows.length, signals: normalized, dominantPath, insight });
+    // Gate content by tier
+    const insight = {
+      // Tier 1 — always shown at 4+
+      howPeopleSeeYou: fullInsight.howPeopleSeeYou,
+      yourSocialEnergy: fullInsight.yourSocialEnergy,
+      magneticText: fullInsight.magneticText,
+      // Tier 2 — unlocked at 8+
+      ...(tier >= 2 && {
+        contradiction: fullInsight.contradiction || fullInsight.contradictionText,
+        whatYouDontRealize: fullInsight.whatYouDontRealize,
+        shareHeadline: fullInsight.shareHeadline
+      }),
+      // Tier 3 — unlocked at 12+
+      ...(tier >= 3 && {
+        whatKeepsShowing: fullInsight.whatKeepsShowing,
+        frictionText: fullInsight.frictionText
+      })
+    };
+
+    json(res, {
+      profile: { id: p.id, name: p.name, mode: p.mode },
+      responseCount: count,
+      tier,
+      nextTier,
+      unlockMessage: RESULTS.unlockMessage[tier === 1 ? 4 : tier === 2 ? 8 : 12],
+      patternMessage: getLivePattern(count),
+      signals: normalized,
+      dominantPath,
+      insight
+    });
   },
 
   'GET /share-preview': (req, res) => {
     try {
-      const html = readFileSync(join(__dir, 'share-preview.html'), 'utf8');
+      const html = readFileSync(join(__dir, 'tellmemore-share-preview.html'), 'utf8');
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(html);
     } catch {
@@ -257,7 +292,7 @@ ${profiles.map(p => `<tr><td>${p.name}</td><td><span class="badge">${p.mode}</sp
   }
 };
 
-// â”€â”€ Route matcher â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Route matcher ─────────────────────────────────────────────────────────────
 function matchRoute(method, pathname) {
   for (const key of Object.keys(routes)) {
     const [m, pattern] = key.split(' ');
@@ -276,7 +311,7 @@ function matchRoute(method, pathname) {
   return null;
 }
 
-// â”€â”€ Server â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Server ────────────────────────────────────────────────────────────────────
 const server = createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -286,7 +321,7 @@ const server = createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const pathname = url.pathname.replace(/\/$/, '') || '/';
 
-  // Responder shortlink /r/:slug â†’ redirect to /?respond=slug
+  // Responder shortlink /r/:slug → redirect to /?respond=slug
   if (pathname.startsWith('/r/')) {
     const s = pathname.slice(3);
     res.writeHead(302, { Location: `/?respond=${s}` });
