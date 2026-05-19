@@ -119,7 +119,6 @@ let state = {
 };
 
 // Check if responder link
-const _saved=localStorage.getItem('tmProfile');if(_saved){try{const _p=JSON.parse(_saved);if(_p.id&&_p.slug&&_p.name){state.profileId=_p.id;state.profileSlug=_p.slug;state.profileName=_p.name;state.mode=_p.mode;state.screen='owner_wait';}}catch(e){}}
 const urlParams = new URLSearchParams(location.search);
 const respondParam = urlParams.get('respond');
 if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
@@ -361,11 +360,15 @@ function renderLanding() {
   const btn2 = el('button','btn btn-ghost','Answer about someone');
   btn2.onclick = ()=>{ const s=prompt('Enter link code:'); if(s){state.respondSlug=s.trim();state.screen='respond_loading';render();}};
   wrap.append(ey,h,sub,btn1,div,btn2);
+  const footer = el('div','');
+  footer.style.cssText='margin-top:48px;padding-top:16px;border-top:1px solid var(--wire);display:flex;gap:16px;justify-content:center';
+  const privLink = el('a','');privLink.href='/privacy';privLink.style.cssText='font-size:11px;color:var(--t3)';privLink.textContent='Privacy';
+  const termsLink = el('a','');termsLink.href='/terms';termsLink.style.cssText='font-size:11px;color:var(--t3)';termsLink.textContent='Terms';
+  footer.append(privLink, termsLink);
+  wrap.appendChild(footer);
   d.appendChild(wrap);
   return d;
 }
-
-// â”€â”€ Create profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderCreate() {
   const d = el('div','screen');
   d.appendChild(bar('1 / 2'));
@@ -402,7 +405,7 @@ function renderCreate() {
     if (!name) { state.toast='Enter your name'; render(); return; }
     if (!selectedMode) { state.toast='Select a mode'; render(); return; }
     btn.textContent='Creating...'; btn.disabled=true;
-    const res = await api('POST','/api/profiles',{name,mode:selectedMode}); console.log("API RESPONSE:", JSON.stringify(res));
+    const res = await api('POST','/api/profiles',{name,mode:selectedMode}); console.log('API RESPONSE:', JSON.stringify(res));
     if (!res||res.error) { btn.textContent='Continue'; btn.disabled=false; state.toast='Something went wrong'; render(); return; }
     state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
     state.screen='owner_wait'; render();
@@ -796,6 +799,4 @@ render();
 </script>
 </body>
 </html>
-
-
 
