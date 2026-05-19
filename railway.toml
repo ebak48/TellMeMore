@@ -1,7 +1,12 @@
-﻿[build]
+[build]
 builder = "nixpacks"
 
 [deploy]
 startCommand = "node server.js"
+healthcheckPath = "/admin"
+healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+
+[[volumes]]
+mountPath = "/app/data"
