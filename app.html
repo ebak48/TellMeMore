@@ -1,807 +1,1020 @@
-﻿<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>TellMeMore</title>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#0f0f13">
+<title>TellMeMore — Perception Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap">
 <style>
+/* ── RESET + ROOT ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg0:#0a0a0b;--bg1:#111114;--bg2:#16161a;--bg3:#1c1c22;--bg4:#222229;
-  --wire:#2a2a35;--wire2:#383845;
-  --t0:#f0edf8;--t1:#c8c2d8;--t2:#8a8498;--t3:#555265;--t4:#333040;
-  --v:#8b5cf6;--v2:#7c3aed;--v3:#a78bfa;--v4:#ddd6fe;
-  --pos:#22c55e;--cau:#f59e0b;--neg:#ef4444;
+  --bg:#0f0f13;--s1:#16151e;--s2:#1e1c2a;
+  --border:#2a2840;--border2:#3d3a5a;
+  --accent:#7c6af5;--accent2:#9b8cff;
+  --text:#e8e6f0;--muted:#7a78a0;--dim:#4a4870;
+  --green:#4ade80;--red:#f87171;--gold:#fbbf24;
+  --radius:12px;--font:'DM Mono',ui-monospace,monospace;
 }
-html{font-size:16px;-webkit-font-smoothing:antialiased}
-body{background:var(--bg0);color:var(--t1);font-family:'JetBrains Mono',monospace;min-height:100vh;min-height:100dvh}
-.screen{animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.wrap{max-width:480px;margin:0 auto;padding:0 20px}
-.bar{padding:18px 24px;border-bottom:1px solid var(--wire);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg0);z-index:50}
-.logo{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--t0)}
-.logo-dot{width:6px;height:6px;background:var(--v);border-radius:50%}
-.bar-right{font-size:9px;color:var(--t3);letter-spacing:.2em;text-transform:uppercase}
-h1{font-family:'Libre Baskerville',serif;font-size:clamp(36px,7vw,56px);line-height:.95;letter-spacing:-.02em;color:var(--t0);font-weight:700}
-h1 em{font-style:italic;font-weight:400;color:var(--v3)}
-h2{font-family:'Libre Baskerville',serif;font-size:clamp(22px,4vw,30px);line-height:1.1;letter-spacing:-.01em;color:var(--t0)}
-.label{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3)}
-.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--v);margin-bottom:12px}
-.btn{display:block;width:100%;padding:14px 20px;background:var(--v);color:#fff;border:none;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:background .15s}
-.btn:hover{background:var(--v2)}
-.btn-ghost{background:transparent;border:1px solid var(--wire2);color:var(--t1)}
-.btn-ghost:hover{border-color:var(--v);color:var(--t0);background:transparent}
-.input{display:block;width:100%;padding:13px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:6px;color:var(--t0);font-family:'JetBrains Mono',monospace;font-size:14px;outline:none;transition:border .15s}
-.input:focus{border-color:var(--v)}
-.input::placeholder{color:var(--t3)}
-.divider{height:1px;background:var(--wire);margin:24px 0}
-.progress-bar{height:2px;background:var(--wire);border-radius:1px;overflow:hidden}
-.progress-fill{height:100%;background:var(--v);border-radius:1px;transition:width .4s cubic-bezier(.16,1,.3,1)}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border:1px solid var(--wire2);border-radius:20px;font-size:11px;color:var(--t2)}
-.chip.active{border-color:var(--v);color:var(--v3);background:rgba(139,92,246,.08)}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--wire2);border-radius:8px;padding:10px 20px;font-size:12px;color:var(--t0);z-index:100;animation:fadeUp .25s both;pointer-events:none}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-x:hidden}
 
-/* Mode selector */
-.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.mode-card{padding:20px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:10px;cursor:pointer;transition:all .15s;text-align:center}
-.mode-card:hover{border-color:var(--wire2)}
-.mode-card.selected{border-color:var(--v);background:rgba(139,92,246,.06)}
-.mode-card-icon{font-size:22px;margin-bottom:8px}
-.mode-card-label{font-size:13px;font-weight:500;color:var(--t0)}
-.mode-card-sub{font-size:11px;color:var(--t3);margin-top:3px}
+/* ── LAYOUT ── */
+.screen{width:100%;max-width:480px;padding:2rem 1.25rem 4rem;min-height:100dvh;display:flex;flex-direction:column;gap:1.5rem}
+.screen.center{justify-content:center;min-height:100dvh}
 
-/* Question */
-.section-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--v3);background:rgba(139,92,246,.1);margin-bottom:16px}
-.question-text{font-family:'Libre Baskerville',serif;font-size:clamp(17px,3.5vw,22px);line-height:1.35;color:var(--t0);margin-bottom:20px}
-.options{display:flex;flex-direction:column;gap:8px}
-.option{padding:14px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
-.option:hover{border-color:var(--wire2);background:var(--bg3)}
-.option.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
-.option-key{width:22px;height:22px;border-radius:50%;border:1px solid var(--wire2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--t3);flex-shrink:0;transition:all .15s}
-.option.selected .option-key{background:var(--v);border-color:var(--v);color:#fff}
-.option-text{font-size:13px;color:var(--t1);line-height:1.4;flex:1}
-.option.selected .option-text{color:var(--t0)}
-.pair-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.pair-opt{padding:16px 14px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px;cursor:pointer;transition:all .15s;text-align:left}
-.pair-opt:hover{border-color:var(--wire2);background:var(--bg3)}
-.pair-opt.selected{border-color:var(--v);background:rgba(139,92,246,.08)}
-.pair-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
-.pair-text{font-size:12px;color:var(--t1);line-height:1.45}
-.pair-opt.selected .pair-text{color:var(--t0)}
+/* ── TYPOGRAPHY ── */
+.h1{font-size:1.5rem;font-weight:500;line-height:1.3}
+.h2{font-size:1.1rem;font-weight:500;line-height:1.4}
+.body{font-size:.875rem;color:var(--muted);line-height:1.7}
+.small{font-size:.75rem;color:var(--dim);line-height:1.6}
+.label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim)}
+.accent{color:var(--accent)}
 
-/* Results */
-.result-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px}
-.result-block-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-.result-text{font-size:14px;color:var(--t0);line-height:1.65}
-.contradiction-block{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);border-radius:10px;padding:20px;margin-bottom:12px}
-.contradiction-text{font-family:'Libre Baskerville',serif;font-size:16px;color:var(--v4);line-height:1.5;font-style:italic}
-.friction-block{background:var(--bg2);border:1px solid var(--wire);border-radius:10px;padding:20px;margin-bottom:12px;border-left:3px solid var(--cau);border-radius:0 10px 10px 0}
-.friction-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--cau);margin-bottom:8px}
-.friction-text{font-size:13px;color:var(--t2);line-height:1.6}
-.pattern-msg{text-align:center;padding:12px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--v3);letter-spacing:.05em;margin-bottom:16px}
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
 
-/* Share card */
-.share-card{background:var(--bg1);border:1px solid var(--wire2);border-radius:12px;padding:28px 24px;text-align:center;margin:20px 0}
-.share-name{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
-.share-headline{font-family:'Libre Baskerville',serif;font-size:17px;color:var(--t0);line-height:1.4;margin-bottom:16px;font-style:italic}
-.share-count{font-size:11px;color:var(--t3)}
-.share-brand{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--v);margin-top:12px}
+/* ── BUTTONS ── */
+.btn{width:100%;padding:.875rem;border:none;border-radius:10px;font-family:var(--font);font-size:.9375rem;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;letter-spacing:.02em;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--muted);border:none;padding:.5rem;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 
-/* Unlock */
-.unlock-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--wire2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
-.unlock-progress{position:absolute;inset:0;border-radius:50%}
-.unlock-count{font-size:24px;font-weight:500;color:var(--t0)}
-.unlock-bar-wrap{background:var(--wire);border-radius:3px;height:4px;overflow:hidden;margin:16px 0}
-.unlock-bar{height:100%;background:var(--v);border-radius:3px;transition:width .4s}
+/* ── INPUTS ── */
+.input{width:100%;padding:.875rem 1rem;background:var(--s1);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:1rem;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.input:focus{border-color:var(--accent)}
+.input::placeholder{color:var(--dim)}
+.input-group{display:flex;flex-direction:column;gap:.5rem}
+.input-label{font-size:.75rem;color:var(--muted)}
+
+/* ── OPTION CARDS (questions) ── */
+.option{width:100%;padding:1rem;background:var(--s1);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:.875rem;line-height:1.5;cursor:pointer;text-align:left;transition:border-color .12s,background .12s;-webkit-tap-highlight-color:transparent;margin-bottom:.5rem}
+.option:hover{border-color:var(--border2);background:var(--s2)}
+.option.selected{border-color:var(--accent);background:#7c6af510}
+.option:active{transform:scale(.99)}
+
+/* ── PROGRESS ── */
+.progress-bar{width:100%;height:2px;background:var(--s2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s ease}
+.progress-row{display:flex;justify-content:space-between;align-items:center}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;border-radius:6px;font-size:.7rem;letter-spacing:.05em}
+.badge-green{background:#4ade8015;color:var(--green);border:1px solid #4ade8030}
+.badge-accent{background:#7c6af515;color:var(--accent2);border:1px solid #7c6af530}
+.badge-muted{background:var(--s2);color:var(--muted);border:1px solid var(--border)}
+
+/* ── UNLOCK TIERS ── */
+.tier-row{display:flex;align-items:center;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.tier-row:last-child{border-bottom:none}
+.tier-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.tier-icon.unlocked{background:#7c6af520;color:var(--accent)}
+.tier-icon.locked{background:var(--s2);color:var(--dim)}
+.tier-icon.next{background:#fbbf2415;color:var(--gold);border:1px solid #fbbf2430}
+.tier-text{flex:1}
+.tier-name{font-size:.8rem;font-weight:500}
+.tier-sub{font-size:.7rem;color:var(--muted);margin-top:.15rem}
+
+/* ── SIGNAL BARS ── */
+.signal-row{margin-bottom:.875rem}
+.signal-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
+.signal-name{font-size:.8rem;font-weight:500}
+.signal-score{font-size:.7rem;color:var(--muted)}
+.signal-track{height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
+.signal-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.signal-fill.pos{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.signal-fill.neg{background:linear-gradient(90deg,#f8717140,var(--red))}
+
+/* ── ANON NOTICE ── */
+.anon-notice{display:flex;align-items:flex-start;gap:.625rem;padding:.75rem 1rem;background:#4ade8008;border:1px solid #4ade8025;border-radius:8px}
+.anon-notice-icon{color:var(--green);font-size:.9rem;flex-shrink:0;margin-top:.1rem}
+.anon-notice-text{font-size:.78rem;color:var(--muted);line-height:1.5}
+
+/* ── SPINNER ── */
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:1rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── LOGO MARK ── */
+.logomark{font-size:1.4rem;color:var(--accent);letter-spacing:-.02em;font-weight:500}
+
+/* ── MODE CHOICE ── */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+.mode-card{padding:1.25rem 1rem;background:var(--s1);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.mode-card:hover{border-color:var(--border2)}
+.mode-card.selected{border-color:var(--accent);background:#7c6af510}
+.mode-card-icon{font-size:1.5rem;margin-bottom:.5rem}
+.mode-card-name{font-size:.875rem;font-weight:500;margin-bottom:.25rem}
+.mode-card-desc{font-size:.7rem;color:var(--muted)}
+
+/* ── SHARE LINK BOX ── */
+.link-box{display:flex;align-items:center;gap:.75rem;padding:.875rem 1rem;background:var(--s2);border:1px solid var(--border);border-radius:10px}
+.link-text{flex:1;font-size:.8rem;color:var(--muted);word-break:break-all;line-height:1.4}
+.link-copy{flex-shrink:0;padding:.5rem .875rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:.75rem;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.link-copy.copied{background:var(--green);color:#000}
+
+/* ── RESULT CARD ── */
+.result-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:.75rem}
+.result-card-head{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:.5rem}
+.result-card-body{font-size:.875rem;line-height:1.7;color:var(--text)}
+.result-card.locked{opacity:.45;filter:blur(1px);pointer-events:none;user-select:none}
+
+/* ── TOAST ── */
+/* toast: position:fixed is CTA-safe — only used for notifications, not interactive CTAs */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:.65rem 1.25rem;font-size:.8rem;color:var(--text);white-space:nowrap;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* ── MAGIC LINK BOX ── */
+.magic-box{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:1rem;word-break:break-all;font-size:.78rem;color:var(--accent2);line-height:1.5}
+
+/* ── STEP INDICATOR ── */
+.steps{display:flex;gap:.375rem;align-items:center}
+.step-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:background .2s,width .2s}
+.step-dot.active{background:var(--accent);width:18px;border-radius:3px}
+.step-dot.done{background:var(--border2)}
+
+/* ── BACK BTN ── */
+.back-btn{display:flex;align-items:center;gap:.375rem;background:none;border:none;color:var(--dim);font-family:var(--font);font-size:.8rem;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.back-btn:hover{color:var(--muted)}
+
+/* ── WHATSAPP BROWSER COMPAT: avoid fixed positioning ── */
+/* WAB-safe: all CTAs are in normal document flow, not position:fixed.
+   Toast uses position:fixed but is non-interactive so keyboard push is safe. */
+.sticky-bottom{padding:1rem 1.25rem;background:var(--bg);border-top:1px solid var(--border);width:100%;max-width:480px}
 </style>
 </head>
 <body>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- APP ROOT -->
 <div id="app"></div>
+
 <script>
-const API = '';
-let state = {
-  screen: 'landing',
-  mode: null,
-  profileId: null,
-  profileSlug: null,
-  profileName: '',
-  respondSlug: null,
-  respondProfile: null,
-  answers: {},
-  currentQ: 0,
-  queuedQuestions: [],
-  path: null,
-  results: null,
-  responseCount: 0,
-  toast: null
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const S = {
+  screen:       'landing',   // current screen
+  mode:         null,        // 'friends' | 'romance'
+  name:         '',
+  email:        '',
+  profileId:    null,
+  slug:         null,
+  shareId:      null,
+  shareUrl:     null,
+  respondUrl:   null,
+  sessionId:    getOrCreateSessionId(),
+  questions:    [],
+  qIndex:       0,
+  answers:      {},          // { questionId: optionId }
+  respondingTo: null,        // { profileId, name, mode, slug }
+  refProfileId: null,
+  src:          null,
+  result:       null,
+  authChecked:  false,
+  userId:       null,
+  magicUrl:     null,        // alpha mode: show magic link on screen
+  language:     detectLang()
 };
 
-// Check if responder link
-const urlParams = new URLSearchParams(location.search);
-const respondParam = urlParams.get('respond');
-if (respondParam) { state.screen = 'respond_loading'; state.respondSlug = respondParam; }
-
-// â”€â”€ API helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function api(method, path, data) {
+function getOrCreateSessionId() {
   try {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (data) opts.body = JSON.stringify(data);
-    const r = await fetch(API + path, opts);
-    return r.json();
-  } catch(e) { console.error(e); return null; }
+    let sid = sessionStorage.getItem('tmm_sid');
+    if (!sid) { sid = hex(16); sessionStorage.setItem('tmm_sid', sid); }
+    return sid;
+  } catch { return hex(16); }
 }
 
-// â”€â”€ Question data (embedded, English) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const QUESTIONS = {
-  friends: {
-    section1: [
-      { id:'s1', format:'forced', section:1, text:"What's it like to spend time with this person?", options:[
-        {key:'A',text:'Easy and relaxing â€” natural to be around'},
-        {key:'B',text:'Energetic â€” something is always happening'},
-        {key:'C',text:'Intense â€” nice, but you need to know your limits'},
-        {key:'D',text:"Distant â€” they don't quite open up"}
-      ]},
-      { id:'s2', format:'forced', section:1, text:'Where does this person usually land in a group?', options:[
-        {key:'A',text:'At the center â€” everyone looks to them'},
-        {key:'B',text:'The balancer â€” quiet but decisive'},
-        {key:'C',text:'The observer â€” waiting for the right moment'},
-        {key:'D',text:'On the edges â€” not quite part of it'}
-      ]},
-      { id:'s3', format:'forced', section:1, text:'If you had something hard to share, would they be your first call?', options:[
-        {key:'A',text:'Yes â€” always the first person I think of'},
-        {key:'B',text:'Sometimes â€” depends on the topic'},
-        {key:'C',text:'Not really â€” not that kind of person'},
-        {key:'D',text:'No â€” emotionally closed off'}
-      ]}
-    ],
-    section2_fixed: [
-      { id:'s4', format:'forced', section:2, text:'If you disagreed with this person, what would happen?', options:[
-        {key:'A',text:"They'd stay calm and look for a solution"},
-        {key:'B',text:"They'd be honest, then move on"},
-        {key:'C',text:"They'd go quiet and keep it inside"},
-        {key:'D',text:"They'd get defensive and try to prove they're right"}
-      ]},
-      { id:'s5', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'More trustworthy than they realize'},
-        {key:'B',text:'Reliable on the surface, but lets very little in'}
-      ]},
-      { id:'s6', format:'forced', section:2, text:'What does it feel like when this person enters a room?', options:[
-        {key:'A',text:'The energy shifts â€” you notice them'},
-        {key:'B',text:'Warmth arrives â€” the room relaxes'},
-        {key:'C',text:'They slip in quietly â€” you notice them later'},
-        {key:'D',text:'Nothing really changes â€” they stay in the background'}
-      ]}
-    ],
-    section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:"They're warm and open â€” do they still protect their limits?", options:[
-        {key:'A',text:'Yes â€” open but with clear limits'},
-        {key:'B',text:'Sometimes gives too much and gets nothing back'}
-      ]},
-      { id:'s8a', format:'forced', section:2, text:'When do people need this person most?', options:[
-        {key:'A',text:'In hard moments â€” they make you feel safe'},
-        {key:'B',text:'In fun moments â€” they bring the energy'},
-        {key:'C',text:'Both â€” always there'},
-        {key:'D',text:"Honestly, they're not really needed"}
-      ]}
-    ],
-    section2_pathB: [
-      { id:'s7b', format:'forced', section:2, text:'Where does this distance come from?', options:[
-        {key:'A',text:"In their own world â€” doesn't engage much with the outside"},
-        {key:'B',text:'Tests you first â€” opens up once trust is built'},
-        {key:'C',text:"A defense mechanism â€” though they don't show it"},
-        {key:'D',text:'Just seems indifferent â€” disengaged'}
-      ]},
-      { id:'s8b', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'Mysterious â€” makes you want to know more'},
-        {key:'B',text:'Hard to read â€” exhausting at times'}
-      ]}
-    ],
-    section3: [
-      { id:'s9', format:'gut', section:3, text:'When they leave, what do people say?', options:[
-        {key:'A',text:'"What an incredible person â€” we\'re lucky to know them"'},
-        {key:'B',text:'"So much energy â€” it\'s contagious"'},
-        {key:'C',text:'"Good person, but hard to figure out"'},
-        {key:'D',text:'"Why did they act like that?"'}
-      ]}
-    ]
-  },
-  romance: {
-    section1: [
-      { id:'s1', format:'forced', section:1, text:'What did you feel when you first saw this person?', options:[
-        {key:'A',text:'They immediately caught my eye'},
-        {key:'B',text:'They made me curious â€” I wanted to know more'},
-        {key:'C',text:'It took a while â€” I noticed them later'},
-        {key:'D',text:"Honestly, I didn't really notice them"}
-      ]},
-      { id:'s2', format:'forced', section:1, text:'What do they make you feel, romantically?', options:[
-        {key:'A',text:'Excited and safe â€” both at once'},
-        {key:'B',text:"Attracted but hard to read â€” can't quite figure them out"},
-        {key:'C',text:'Interesting, but no clear signal'},
-        {key:'D',text:"Unclear â€” hard to know what they're thinking"}
-      ]},
-      { id:'s3', format:'forced', section:1, text:"Can you tell when they're flirting?", options:[
-        {key:'A',text:'Yes â€” clear and natural, it just flows'},
-        {key:'B',text:'Sometimes â€” they give subtle hints'},
-        {key:'C',text:'Hard to say â€” very mysterious, signals unclear'},
-        {key:'D',text:'No â€” no signal at all'}
-      ]}
-    ],
-    section2_fixed: [
-      { id:'s4', format:'forced', section:2, text:"What's their strongest romantic quality?", options:[
-        {key:'A',text:'Their confidence â€” it creates attraction'},
-        {key:'B',text:'They really listen â€” makes you feel seen'},
-        {key:'C',text:'Their warmth and sincerity'},
-        {key:'D',text:"Honestly, I haven't noticed a standout quality yet"}
-      ]},
-      { id:'s5', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'More attractive than they realize â€” unaware of their effect'},
-        {key:'B',text:'Attractive, but that awareness creates distance'}
-      ]},
-      { id:'s6', format:'forced', section:2, text:'What does their presence feel like in a room?', options:[
-        {key:'A',text:'Magnetic â€” eyes go to them'},
-        {key:'B',text:'Warm â€” being near them feels safe'},
-        {key:'C',text:'Intriguing â€” but hard to reach'},
-        {key:'D',text:"Neutral â€” doesn't leave much of an impression"}
-      ]}
-    ],
-    section2_pathA: [
-      { id:'s7a', format:'pair', section:2, text:"They're attractive â€” are they easy to approach?", options:[
-        {key:'A',text:'Yes â€” attractive and approachable'},
-        {key:'B',text:'No â€” attractive but it takes courage to get close'}
-      ]},
-      { id:'s8a', format:'forced', section:2, text:"What's their biggest romantic effect?", options:[
-        {key:'A',text:'Makes you feel confident â€” good to be around them'},
-        {key:'B',text:'Makes you curious â€” you want to know more'},
-        {key:'C',text:'Exciting â€” something unexpected could happen any moment'},
-        {key:'D',text:'Calming â€” makes you feel safe'}
-      ]}
-    ],
-    section2_pathB: [
-      { id:'s7b', format:'forced', section:2, text:'Where does this romantic distance come from?', options:[
-        {key:'A',text:"Doesn't trust easily â€” opens up with time"},
-        {key:'B',text:"Not emotionally ready â€” it's just not the right time"},
-        {key:'C',text:'Emotionally fragile â€” protecting themselves'},
-        {key:'D',text:'Seems disinterested â€” not giving romantic signals'}
-      ]},
-      { id:'s8b', format:'pair', section:2, text:'Which feels more true?', options:[
-        {key:'A',text:'Mysterious â€” the distance actually makes them more attractive'},
-        {key:'B',text:'Hard to read â€” the uncertainty is tiring'}
-      ]}
-    ],
-    section3: [
-      { id:'s9', format:'gut', section:3, text:'What affects you most about this person?', options:[
-        {key:'A',text:'Their presence â€” something shifts when they enter a room'},
-        {key:'B',text:'Their gaze â€” like they actually see you'},
-        {key:'C',text:"Their mystery â€” I've never quite figured them out"},
-        {key:'D',text:"Honestly, they haven't had much of an effect on me"}
-      ]}
-    ]
-  }
-};
-
-function computePath(answers, mode) {
-  const pos = ['A','B'], neg = ['C','D'];
-  const q1 = QUESTIONS[mode].section1;
-  const s1sig = pos.includes(answers.s1) ? 'pos' : 'neg';
-  const s2sig = pos.includes(answers.s2) ? 'pos' : 'neg';
-  const s3sig = pos.includes(answers.s3) ? 'pos' : 'neg';
-  if (s1sig === 'neg') return 'B';
-  const posCount = [s1sig,s2sig,s3sig].filter(s=>s==='pos').length;
-  if (posCount >= 2) return 'A';
-  return 'B';
+function detectLang() {
+  return (navigator.language || 'en').slice(0, 2);
 }
 
-function buildQuestionQueue(mode, path) {
-  const q = QUESTIONS[mode];
-  return [
-    ...q.section1,
-    ...q.section2_fixed,
-    ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
-    ...q.section3
-  ];
+function hex(n) {
+  const a = new Uint8Array(n);
+  crypto.getRandomValues(a);
+  return Array.from(a).map(x => x.toString(16).padStart(2,'0')).join('');
 }
 
-// â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function render() {
-  const app = document.getElementById('app');
-  app.innerHTML = '';
-  const s = state.screen;
-  if (s === 'landing')          app.appendChild(renderLanding());
-  else if (s === 'create')      app.appendChild(renderCreate());
-  else if (s === 'owner_wait')  app.appendChild(renderOwnerWait());
-  else if (s === 'respond_loading') loadResponderProfile();
-  else if (s === 'respond_mode')    app.appendChild(renderRespondMode());
-  else if (s === 'questions')       app.appendChild(renderQuestions());
-  else if (s === 'submitted')       app.appendChild(renderSubmitted());
-  else if (s === 'results')         app.appendChild(renderResults());
-  if (state.toast) {
-    const t = el('div','toast',state.toast);
-    app.appendChild(t);
-    setTimeout(()=>{state.toast=null;render();},2500);
-  }
-}
+// ─── ROUTING ─────────────────────────────────────────────────────────────────
+function boot() {
+  const path = location.pathname;
 
-function el(tag,cls,text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text) e.textContent = text;
-  return e;
-}
-
-function bar(right) {
-  const b = el('div','bar');
-  const logo = el('div','logo');
-  const dot = el('div','logo-dot'); logo.appendChild(dot);
-  const name = el('span',''); name.textContent = 'TellMeMore'; logo.appendChild(name);
-  b.appendChild(logo);
-  if (right) { const r = el('div','bar-right',right); b.appendChild(r); }
-  return b;
-}
-
-// â”€â”€ Landing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderLanding() {
-  const d = el('div','screen');
-  d.appendChild(bar());
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop = '48px';
-  const ey = el('div','eyebrow','Perception Intelligence');
-  const h = el('h1',''); h.innerHTML = 'How do people <em>actually</em> see you?';
-  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;line-height:1.7;margin:16px 0 36px';
-  sub.textContent = 'Discover how friends or romantic interests actually experience you. Anonymous. Real.';
-  const btn1 = el('button','btn','Create my link');
-  btn1.onclick = ()=>{state.screen='create';render();};
-  const div = el('div',''); div.style.cssText='display:flex;align-items:center;gap:12px;margin:16px 0';
-  const line1=el('div','');line1.style.cssText='flex:1;height:1px;background:var(--wire)';
-  const or=el('span','');or.style.cssText='font-size:11px;color:var(--t3)';or.textContent='or';
-  const line2=el('div','');line2.style.cssText='flex:1;height:1px;background:var(--wire)';
-  div.append(line1,or,line2);
-  const btn2 = el('button','btn btn-ghost','Answer about someone');
-  btn2.onclick = ()=>{ const s=prompt('Enter link code:'); if(s){state.respondSlug=s.trim();state.screen='respond_loading';render();}};
-  wrap.append(ey,h,sub,btn1,div,btn2);
-  const footer = el('div','');
-  footer.style.cssText='margin-top:48px;padding-top:16px;border-top:1px solid var(--wire);display:flex;gap:16px;justify-content:center';
-  const privLink = el('a','');privLink.href='/privacy';privLink.style.cssText='font-size:11px;color:var(--t3)';privLink.textContent='Privacy';
-  const termsLink = el('a','');termsLink.href='/terms';termsLink.style.cssText='font-size:11px;color:var(--t3)';termsLink.textContent='Terms';
-  footer.append(privLink, termsLink);
-  wrap.appendChild(footer);
-  d.appendChild(wrap);
-  return d;
-}
-function renderCreate() {
-  const d = el('div','screen');
-  d.appendChild(bar('1 / 2'));
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop = '36px';
-  const ey = el('div','eyebrow','Create profile');
-  const h = el('h2',''); h.textContent = 'Your first name';
-  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px';
-  sub.textContent = 'This is what your respondents will see.';
-  const inp = el('input','input'); inp.type='text'; inp.placeholder='First name...'; inp.maxLength=30;
-  if (state.profileName) inp.value = state.profileName;
-
-  const modeLabel = el('p',''); modeLabel.style.cssText='font-size:12px;color:var(--t2);margin:24px 0 8px';
-  modeLabel.textContent = 'What do you want to discover?';
-  const cards = el('div','mode-cards');
-  const modes = [
-    { id:'friends', icon:'', label:'Friends', sub:'Social perception' },
-    { id:'romance', icon:'',  label:'Romance', sub:'Romantic perception' }
-  ];
-  let selectedMode = state.mode || null;
-  modes.forEach(m => {
-    const c = el('div','mode-card' + (selectedMode===m.id?' selected':''));
-    const lb = el('div','mode-card-label',m.label);
-    const sb = el('div','mode-card-sub',m.sub);
-    c.append(lb,sb);
-    c.onclick = ()=>{ selectedMode=m.id; cards.querySelectorAll('.mode-card').forEach(x=>x.classList.remove('selected')); c.classList.add('selected'); };
-    cards.appendChild(c);
-  });
-
-  const btn = el('button','btn','Continue');
-  btn.style.marginTop='28px';
-  btn.onclick = async ()=>{
-    const name = inp.value.trim();
-    if (!name) { state.toast='Enter your name'; render(); return; }
-    if (!selectedMode) { state.toast='Select a mode'; render(); return; }
-    btn.textContent='Creating...'; btn.disabled=true;
-    const res = await api('POST','/api/profiles',{name,mode:selectedMode})
-    if (!res||res.error) { btn.textContent='Continue'; btn.disabled=false; state.toast='Something went wrong'; render(); return; }
-    state.profileId=res.id; state.profileSlug=res.slug; state.profileName=res.name; state.mode=res.mode;
-    state.screen='owner_wait'; render();
-  };
-  wrap.append(ey,h,sub,inp,modeLabel,cards,btn);
-  d.appendChild(wrap);
-  return d;
-}
-
-// â”€â”€ Owner wait â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderOwnerWait() {
-  const d = el('div','screen');
-  d.appendChild(bar());
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop='36px';
-  const ey = el('div','eyebrow','Your link is live');
-  const h = el('h2',''); h.innerHTML = `${state.profileName}, <em>share your link</em>`;
-  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:12px;margin:8px 0 24px;line-height:1.6';
-  sub.textContent = state.mode==='friends'
-    ? `Share this link. People will answer about how they experience you socially.`
-    : `Share this link. People will answer about how they experience you romantically.`;
-
-  const linkBox = el('div','');
-  linkBox.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--v3);letter-spacing:.02em;word-break:break-all;margin-bottom:12px;cursor:pointer';
-  const link = `${location.origin}/r/${state.profileSlug}`;
-  linkBox.textContent = link;
-  linkBox.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Copied'; render(); };
-
-  const btnCopy = el('button','btn','Copy link');
-  btnCopy.onclick = ()=>{ navigator.clipboard?.writeText(link); state.toast='Copied'; render(); };
-
-  const divider = el('div','divider');
-  const countWrap = el('div','');
-  countWrap.style.cssText='text-align:center;margin-bottom:20px';
-  const countLabel = el('div','label','Responses');
-  countLabel.style.marginBottom='8px';
-  const countEl = el('div',''); countEl.style.cssText='font-size:32px;font-weight:500;color:var(--t0)';
-  countEl.id='resp-count'; countEl.textContent='0';
-  const patternMsg = el('div',''); patternMsg.id='pattern-msg';
-  patternMsg.style.cssText='font-size:12px;color:var(--v3);margin-top:10px;min-height:18px;font-style:italic';
-  countWrap.append(countLabel,countEl,patternMsg);
-
-  const btnResults = el('button','btn','See what\'s emerging');
-  btnResults.style.cssText='opacity:.35;cursor:not-allowed';
-  btnResults.id='btn-results';
-  btnResults.onclick = ()=>{ if(state.responseCount>=4){state.screen='results';render();}};
-
-  wrap.append(ey,h,sub,linkBox,btnCopy,divider,countWrap,btnResults);
-  d.appendChild(wrap);
-
-  async function poll() {
-    if (!state.profileId) return;
-    const res = await api('GET',`/api/status/${state.profileId}`);
-    if (!res) return;
-    state.responseCount = res.responseCount||0;
-    const elCount = document.getElementById('resp-count');
-    const elPattern = document.getElementById('pattern-msg');
-    const elBtn = document.getElementById('btn-results');
-    if (elCount) elCount.textContent = state.responseCount;
-    if (elPattern && res.patternMessage) elPattern.textContent = res.patternMessage;
-    if (elBtn) {
-      if(state.responseCount>=4){
-        elBtn.style.opacity='1'; elBtn.style.cursor='pointer';
-        elBtn.textContent = res.tier >= 2 ? 'View results' : "See what's emerging";
-      } else {
-        elBtn.style.opacity='.35'; elBtn.style.cursor='not-allowed';
-      }
+  if (path.startsWith('/r/')) {
+    const slug = path.slice(3);
+    if (slug === 'results') {
+      // Magic link return
+      checkSessionThenShowResults();
+      return;
     }
-  }
-  poll();
-  const pollInt = setInterval(()=>{ if(state.screen!=='owner_wait'){ clearInterval(pollInt); return; } poll(); },6000);
-  return d;
-}
-
-// â”€â”€ Responder loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function loadResponderProfile() {
-  const app = document.getElementById('app');
-  app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Loading...</div>';
-  const res = await api('GET',`/api/profiles/${state.respondSlug}`);
-  if (!res || res.error) {
-    app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--neg)">Profile not found.</div>';
+    loadProfileForResponder(slug);
     return;
   }
-  state.respondProfile = res;
-  state.mode = res.mode;
-  state.screen = 'respond_mode';
-  render();
-}
 
-// â”€â”€ Respond mode intro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderRespondMode() {
-  const p = state.respondProfile;
-  const d = el('div','screen');
-  d.appendChild(bar('Anonymous'));
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop='40px';
-
-  const ey = el('div','eyebrow','Anonymous & Private');
-  const h = el('h2',''); h.innerHTML = `<em>${p.name}</em> wants to know`;
-  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:10px 0 8px;line-height:1.6';
-  sub.textContent = state.mode==='friends'
-    ? `Answer honestly about how you experience ${p.name} socially. No one can see who responded.`
-    : `Answer honestly about how you experience ${p.name} romantically. No one can see who responded.`;
-
-  const privacy = el('div','');
-  privacy.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:14px 16px;margin:20px 0;font-size:12px;color:var(--t2);line-height:1.6';
-  privacy.innerHTML = 'Your answers are completely anonymous. Your identity is never revealed.';
-
-  const btn = el('button','btn','Start');
-  btn.onclick = ()=>{ state.answers={}; state.currentQ=0; state.path=null; state.queuedQuestions=buildInitialQueue(); state.screen='questions'; render(); };
-  wrap.append(ey,h,sub,privacy,btn);
-  d.appendChild(wrap);
-  return d;
-}
-
-function buildInitialQueue() {
-  return QUESTIONS[state.mode].section1;
-}
-
-// â”€â”€ Questions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderQuestions() {
-  const questions = state.queuedQuestions;
-  const idx = state.currentQ;
-  const q = questions[idx];
-  if (!q) { submitAnswers(); return el('div',''); }
-
-  const totalExpected = 9;
-  const progress = Math.round(((idx+1)/totalExpected)*100);
-
-  const d = el('div','screen');
-  d.appendChild(bar(`${idx+1} / ${totalExpected}`));
-
-  const progressBar = el('div','progress-bar');
-  const fill = el('div','progress-fill');
-  fill.style.width=progress+'%';
-  progressBar.appendChild(fill);
-  d.appendChild(progressBar);
-
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop='28px';
-
-  const sectionNames = {1:'First Impression',2:'Deeper Read',3:'Gut Feeling'};
-  const sTag = el('div','section-tag', `BÃ¶lÃ¼m ${q.section} â€” ${sectionNames[q.section]||''}`);
-  wrap.appendChild(sTag);
-
-  const qtext = el('div','question-text', q.text);
-  wrap.appendChild(qtext);
-
-  const selected = state.answers[q.id] || null;
-
-  if (q.format === 'pair') {
-    const pairWrap = el('div','pair-options');
-    q.options.forEach(opt => {
-      const o = el('div','pair-opt'+(selected===opt.key?' selected':''));
-      const lb = el('div','pair-label','SeÃ§enek '+opt.key);
-      const tx = el('div','pair-text',opt.text);
-      o.append(lb,tx);
-      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
-      pairWrap.appendChild(o);
-    });
-    wrap.appendChild(pairWrap);
-  } else {
-    const optWrap = el('div','options');
-    q.options.forEach(opt => {
-      const o = el('div','option'+(selected===opt.key?' selected':''));
-      const k = el('div','option-key',opt.key);
-      const t = el('div','option-text',opt.text);
-      o.append(k,t);
-      o.onclick = ()=>{ state.answers[q.id]=opt.key; advance(); };
-      optWrap.appendChild(o);
-    });
-    wrap.appendChild(optWrap);
-  }
-
-  d.appendChild(wrap);
-  return d;
-}
-
-async function advance() {
-  const idx = state.currentQ;
-  const questions = state.queuedQuestions;
-
-  // After S3, compute path and inject adaptive questions
-  if (idx === 2 && questions.length === 3) {
-    const path = computePath(state.answers, state.mode);
-    state.path = path;
-    const q = QUESTIONS[state.mode];
-    state.queuedQuestions = [
-      ...q.section1,
-      ...q.section2_fixed,
-      ...(path === 'A' ? q.section2_pathA : q.section2_pathB),
-      ...q.section3
-    ];
-  }
-
-  state.currentQ = idx + 1;
-  if (state.currentQ >= state.queuedQuestions.length) {
-    await submitAnswers();
-  } else {
+  const params = new URLSearchParams(location.search);
+  if (params.get('auth') === 'expired') {
+    S.screen = 'return_expired';
     render();
+    return;
   }
+
+  checkSessionSilently(() => {
+    S.screen = 'landing';
+    render();
+  });
 }
 
-async function submitAnswers() {
-  const profileId = state.respondProfile?.id;
-  if (!profileId) { state.screen='submitted'; render(); return; }
+function checkSessionSilently(cb) {
+  apiFetch('/api/me').then(d => {
+    if (d && d.userId) {
+      S.userId    = d.userId;
+      S.profileId = d.profileId;
+      if (d.profile) {
+        S.slug    = d.profile.slug;
+        S.shareId = d.profile.share_id;
+        S.name    = d.profile.name;
+        S.mode    = d.profile.mode;
+        S.shareUrl = `${location.origin}/s/${d.profile.share_id}`;
+      }
+    }
+    S.authChecked = true;
+    cb();
+  }).catch(() => { S.authChecked = true; cb(); });
+}
 
-  const d = document.getElementById('app');
-  d.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-size:12px;color:var(--t3)">Kaydediliyor...</div>';
+function checkSessionThenShowResults() {
+  apiFetch('/api/me').then(d => {
+    if (d && d.userId && d.profileId) {
+      S.userId    = d.userId;
+      S.profileId = d.profileId;
+      if (d.profile) { S.name = d.profile.name; S.mode = d.profile.mode; }
+      S.screen = 'results_loading';
+      render();
+      loadResults();
+    } else {
+      S.screen = 'return_email';
+      render();
+    }
+  }).catch(() => { S.screen = 'return_email'; render(); });
+}
 
-  const res = await api('POST','/api/responses',{ profileId, answers:state.answers });
-  state.responseCount = res?.responseCount || 0;
-  state.screen = 'submitted';
+async function loadProfileForResponder(slug) {
+  S.screen = 'loading';
   render();
+  const params = new URLSearchParams(location.search);
+  S.refProfileId = params.get('ref') || null;
+  S.src          = params.get('src') || detectSrc();
+
+  const data = await apiFetch(`/api/profile/${encodeURIComponent(slug)}`).catch(() => null);
+  if (!data || !data.profile) { S.screen = 'not_found'; render(); return; }
+
+  S.respondingTo = data.profile;
+  S.questions    = data.questions || [];
+  S.qIndex       = 0;
+  S.answers      = {};
+  S.screen       = 'respond_intro';
+  render();
+  trackEvent('responder_started', { profileId: data.profile.id });
 }
 
-// â”€â”€ Submitted â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function renderSubmitted() {
-  const d = el('div','screen');
-  d.appendChild(bar());
-  const wrap = el('div','wrap');
-  wrap.style.cssText='padding-top:80px;text-align:center';
-  const icon = el('div',''); icon.style.cssText='font-size:32px;margin-bottom:16px';
-  icon.textContent='';
-  const h = el('h2',''); h.textContent='Response recorded';
-  const sub = el('p',''); sub.style.cssText='color:var(--t2);font-size:13px;margin:12px auto;max-width:280px;line-height:1.6';
-  sub.textContent='Your answers were saved anonymously. No one will know you responded.';
-  const btn = el('button','btn btn-ghost'); btn.textContent='Create your own profile'; btn.style.marginTop='28px';
-  btn.onclick=()=>{state={screen:'create',mode:null,profileId:null,profileSlug:null,profileName:'',respondSlug:null,respondProfile:null,answers:{},currentQ:0,queuedQuestions:[],path:null,results:null,responseCount:0,toast:null};render();};
-  wrap.append(icon,h,sub,btn);
-  d.appendChild(wrap);
-  return d;
+function detectSrc() {
+  const ua = navigator.userAgent;
+  if (/FBAN|FBAV|Instagram/.test(ua)) return 'instagram';
+  if (/WhatsApp/.test(ua)) return 'whatsapp';
+  if (/Telegram/.test(ua)) return 'telegram';
+  return 'web';
 }
 
-// â”€â”€ Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── API ─────────────────────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json', ...opts.headers },
+    credentials: 'same-origin',
+    ...opts
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(e.error || 'Request failed');
+  }
+  return res.json();
+}
+
+async function trackEvent(event, extra = {}) {
+  apiFetch('/api/track', {
+    method: 'POST',
+    body: JSON.stringify({
+      event,
+      profileId: S.profileId || (S.respondingTo && S.respondingTo.id) || null,
+      sessionId: S.sessionId,
+      userId:    S.userId,
+      language:  S.language,
+      platform:  detectSrc(),
+      ...extra
+    })
+  }).catch(() => {});
+}
+
+// ─── CLIPBOARD / SHARE COMPAT (WhatsApp / in-app browsers) ───────────────────
+async function copyText(text) {
+  // Try navigator.clipboard first (may fail in some in-app browsers)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try { await navigator.clipboard.writeText(text); return true; } catch {}
+  }
+  // Fallback: execCommand (deprecated but works in WAB)
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch { return false; }
+}
+
+// WAB fallback: if navigator.share fails or is absent, falls back to clipboard copy
+async function shareOrCopy(url, title = 'TellMeMore') {
+  trackEvent('share_clicked');
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text: 'How do you see me? Answer anonymously →', url });
+      return 'shared';
+    } catch (e) {
+      if (e.name === 'AbortError') return 'cancelled';
+    }
+  }
+  const ok = await copyText(url);
+  return ok ? 'copied' : 'failed';
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+// ─── SANITIZE FOR DOM OUTPUT ─────────────────────────────────────────────────
+// Never use innerHTML with user content without this.
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+function setText(el, text) {
+  if (typeof el === 'string') el = document.getElementById(el);
+  if (el) el.textContent = text;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  const screens = {
+    landing:          renderLanding,
+    create_mode:      renderCreateMode,
+    create_name:      renderCreateName,
+    create_email:     renderCreateEmail,
+    create_link:      renderCreateLink,
+    return_email:     renderReturnEmail,
+    return_sent:      renderReturnSent,
+    return_expired:   renderReturnExpired,
+    respond_intro:    renderRespondIntro,
+    respond_questions:renderRespondQuestions,
+    respond_done:     renderRespondDone,
+    results_loading:  renderResultsLoading,
+    results:          renderResults,
+    loading:          renderLoading,
+    not_found:        renderNotFound
+  };
+  const fn = screens[S.screen];
+  if (fn) app.innerHTML = fn();
+  else     app.innerHTML = '<div class="screen center"><p class="body">Unknown screen.</p></div>';
+  bindEvents();
+}
+
+// ── LANDING ──────────────────────────────────────────────────────────────────
+function renderLanding() {
+  const hasSession = !!S.userId;
+  return `
+<div class="screen center" style="gap:2rem;padding-top:3rem">
+  <div>
+    <div class="logomark" style="margin-bottom:.5rem">TellMeMore</div>
+    <div class="small">perception intelligence</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.75rem">
+    <p class="h1">Find out how<br>people actually see you.</p>
+    <p class="body">Share a link. Friends answer anonymously.<br>You unlock their honest perception of you.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.625rem;width:100%">
+    <button class="btn btn-primary" data-action="start-create">Get started</button>
+    ${hasSession
+      ? `<button class="btn btn-secondary" data-action="go-results">View my results</button>`
+      : `<button class="btn btn-secondary" data-action="go-return">Return to my results</button>`}
+  </div>
+  <p class="small" style="text-align:center">
+    <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/terms" style="color:var(--dim);text-decoration:none">Terms</a>
+  </p>
+</div>`;
+}
+
+// ── CREATE FLOW ───────────────────────────────────────────────────────────────
+function renderCreateMode() {
+  return `
+<div class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <button class="back-btn" data-action="back-landing">&#8592; Back</button>
+    <div class="steps">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+  <p class="h2">Who will you share with?</p>
+  <p class="body">Choose the type of perception you want to explore.</p>
+  <div class="mode-cards">
+    <div class="mode-card ${S.mode==='friends'?'selected':''}" data-mode="friends">
+      <div class="mode-card-icon">◈</div>
+      <div class="mode-card-name">Friends</div>
+      <div class="mode-card-desc">How people in your life see you</div>
+    </div>
+    <div class="mode-card ${S.mode==='romance'?'selected':''}" data-mode="romance">
+      <div class="mode-card-icon">◇</div>
+      <div class="mode-card-name">Romantic</div>
+      <div class="mode-card-desc">How you appear in intimate contexts</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="btn-mode-next" ${!S.mode?'disabled':''} data-action="mode-next">Continue</button>
+</div>`;
+}
+
+function renderCreateName() {
+  return `
+<div class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <button class="back-btn" data-action="back-mode">&#8592; Back</button>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+  </div>
+  <p class="h2">What is your first name?</p>
+  <p class="body">This is what responders will see. Use your real first name.</p>
+  <div class="input-group">
+    <label class="input-label" for="inp-name">First name</label>
+    <input id="inp-name" class="input" type="text" placeholder="e.g. Alex" maxlength="60" autocomplete="given-name" value="${esc(S.name)}">
+  </div>
+  <button class="btn btn-primary" id="btn-name-next" data-action="name-next">Continue</button>
+</div>`;
+}
+
+function renderCreateEmail() {
+  return `
+<div class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <button class="back-btn" data-action="back-name">&#8592; Back</button>
+    <div class="steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+    </div>
+  </div>
+  <p class="h2">Where do we send your results link?</p>
+  <p class="body">Your email lets you return to your results from any device. We do not send marketing email.</p>
+  <div class="input-group">
+    <label class="input-label" for="inp-email">Email address</label>
+    <input id="inp-email" class="input" type="email" placeholder="you@example.com" maxlength="200" autocomplete="email" value="${esc(S.email)}">
+  </div>
+  <div class="anon-notice">
+    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-text">Your responders never see your email. We only use it for account recovery.</div>
+  </div>
+  <p class="small">You must be at least 16 years old to create a profile.</p>
+  <button class="btn btn-primary" id="btn-email-next" data-action="email-next">Create my profile</button>
+</div>`;
+}
+
+function renderCreateLink() {
+  const url = S.shareUrl || '';
+  return `
+<div class="screen">
+  <div class="badge badge-green" style="align-self:flex-start">&#x2714; Profile created</div>
+  <p class="h1">Share your link,<br>get honest answers.</p>
+  <p class="body">Send this link to friends, colleagues, or anyone you want perception from. They answer anonymously.</p>
+
+  <div class="card" style="gap:.75rem;display:flex;flex-direction:column">
+    <div class="label">Your share link</div>
+    <div class="link-box">
+      <div class="link-text" id="share-link-text">${esc(url)}</div>
+      <button class="link-copy" id="btn-copy-link" data-action="copy-link">Copy</button>
+    </div>
+    <button class="btn btn-primary" data-action="share-link" style="margin-top:.25rem">&#x2197; Share link</button>
+  </div>
+
+  <div class="card">
+    <div class="label" style="margin-bottom:.75rem">How unlocking works</div>
+    ${renderUnlockTiers(0)}
+  </div>
+
+  <button class="btn btn-secondary" data-action="go-results">View my results</button>
+</div>`;
+}
+
+// ── RETURN FLOW ───────────────────────────────────────────────────────────────
+function renderReturnEmail() {
+  return `
+<div class="screen center">
+  <button class="back-btn" data-action="back-landing">&#8592; Back</button>
+  <div style="height:1rem"></div>
+  <p class="h2">Return to your results</p>
+  <p class="body">Enter the email you used when creating your profile. We will send you a link to get back in.</p>
+  <div class="input-group" style="margin-top:.5rem">
+    <label class="input-label" for="inp-return-email">Email address</label>
+    <input id="inp-return-email" class="input" type="email" placeholder="you@example.com" autocomplete="email">
+  </div>
+  <button class="btn btn-primary" id="btn-send-magic" data-action="send-magic" style="margin-top:.25rem">Send my link</button>
+  <p id="return-error" class="small" style="color:var(--red);min-height:1rem"></p>
+</div>`;
+}
+
+function renderReturnSent() {
+  return `
+<div class="screen center" style="gap:1.25rem">
+  <div class="badge badge-green">&#x2714; Link sent</div>
+  <p class="h2">Check your inbox</p>
+  <p class="body">We sent a login link to <strong>${esc(S.email)}</strong>. Click it to return to your results.</p>
+  ${S.magicUrl ? `
+  <div class="card" style="gap:.5rem;display:flex;flex-direction:column">
+    <div class="label">Alpha mode — copy this link manually</div>
+    <div class="magic-box">${esc(S.magicUrl)}</div>
+    <button class="btn btn-secondary" data-action="copy-magic">Copy link</button>
+  </div>` : ''}
+  <p class="small" style="text-align:center">No email? Check spam, or try again.</p>
+  <button class="btn btn-ghost" data-action="back-return">Try a different email</button>
+</div>`;
+}
+
+function renderReturnExpired() {
+  return `
+<div class="screen center" style="gap:1rem">
+  <p class="h2">Link expired</p>
+  <p class="body">Magic links expire after 24 hours. Request a new one below.</p>
+  <button class="btn btn-primary" data-action="go-return">Get a new link</button>
+</div>`;
+}
+
+// ── RESPOND FLOW ──────────────────────────────────────────────────────────────
+function renderRespondIntro() {
+  if (!S.respondingTo) return renderNotFound();
+  const name = esc(S.respondingTo.name);
+  const mode = S.respondingTo.mode === 'romance' ? 'romantic' : 'friendship';
+  return `
+<div class="screen center" style="gap:1.5rem">
+  <div style="text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:500;color:#fff;margin:0 auto 1rem">${esc(S.respondingTo.name.charAt(0).toUpperCase())}</div>
+    <p class="label" style="margin-bottom:.5rem">${mode} perception</p>
+    <p class="h1">${name} wants to know<br>how you see them</p>
+  </div>
+  <div class="anon-notice">
+    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-text">Your answers are shown without your name. We do not reveal who submitted them.</div>
+  </div>
+  <p class="body" style="text-align:center">
+    ${S.questions.length} questions &middot; about 2 minutes.<br>Be honest — they only see the patterns, not your individual answers.
+  </p>
+  <button class="btn btn-primary" data-action="start-questions">Start answering</button>
+  <a href="/" style="font-size:.78rem;color:var(--dim);text-decoration:none">Create your own profile &#x2192;</a>
+</div>`;
+}
+
+function renderRespondQuestions() {
+  const q   = S.questions[S.qIndex];
+  if (!q) return renderRespondDone(); // all answered
+  const pct = ((S.qIndex) / S.questions.length * 100).toFixed(0);
+  const sel = S.answers[q.id];
+
+  return `
+<div class="screen" style="padding-bottom:1.5rem">
+  <div>
+    <div class="progress-row" style="margin-bottom:.5rem">
+      <span class="small">${S.qIndex + 1} of ${S.questions.length}</span>
+      <span class="small">${pct}%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  </div>
+
+  <p class="h2" style="margin-top:.5rem">${esc(q.text)}</p>
+
+  <div id="options-list">
+    ${q.options.map(o => `
+    <button class="option ${sel === o.id ? 'selected' : ''}" data-option="${esc(o.id)}" data-qid="${esc(q.id)}">
+      ${esc(o.text)}
+    </button>`).join('')}
+  </div>
+
+  <div class="anon-notice" style="margin-top:auto">
+    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-text">Your identity is never revealed. ${esc(S.respondingTo.name)} only sees patterns across all responses.</div>
+  </div>
+</div>`;
+}
+
+function renderRespondDone() {
+  return `
+<div class="screen center" style="gap:1.5rem">
+  <div class="badge badge-green">&#x2714; Done</div>
+  <p class="h1">Thank you for<br>answering honestly.</p>
+  <p class="body">${S.respondingTo ? `${esc(S.respondingTo.name)} will see` : 'They will see'} your answers as part of their perception profile — never linked to you.</p>
+  <div class="card" style="text-align:center">
+    <p class="body" style="margin-bottom:1rem">Curious how people see you?</p>
+    <a href="/" class="btn btn-primary" style="text-decoration:none;display:block;padding:.875rem;border-radius:10px;text-align:center">Create my own profile &#x2192;</a>
+  </div>
+  <p class="small" style="text-align:center;color:var(--dim)">
+    <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy policy</a>
+  </p>
+</div>`;
+}
+
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function renderResultsLoading() {
+  return `<div class="screen center"><div class="spinner"></div><p class="small" style="text-align:center;margin-top:.5rem">Loading your results...</p></div>`;
+}
+
 function renderResults() {
-  const d = el('div','screen');
-  d.appendChild(bar('Results'));
-  const wrap = el('div','wrap');
-  wrap.style.paddingTop='28px';
+  if (!S.result) return renderResultsLoading();
+  const r = S.result;
+  const n = r.responseCount;
+  const tier = r.tier;
+  const name = esc(S.name || 'Your');
+  const url  = S.shareUrl || '';
 
-  if (!state.results) {
-    const loading = el('div','');
-    loading.style.cssText='text-align:center;padding:60px 0;font-size:12px;color:var(--t3);font-style:italic';
-    loading.textContent='Reading the signals...';
-    wrap.appendChild(loading);
-    d.appendChild(wrap);
-    loadResults();
-    return d;
-  }
+  const tierLabels = {
+    locked:           'Waiting for responses',
+    first_glimpse:    'First glimpse',
+    basic_profile:    'Basic profile',
+    strength_insight: 'Strength insight',
+    hidden_signal:    'Hidden signal revealed',
+    full_result:      'Full result'
+  };
 
-  const r = state.results;
-  const ins = r.insight;
-  const tier = r.tier || 1;
-  const nextTier = r.nextTier;
+  const isUnlocked = (t) => {
+    const order = ['locked','first_glimpse','basic_profile','strength_insight','hidden_signal','full_result'];
+    return order.indexOf(tier) >= order.indexOf(t);
+  };
 
-  // Header
-  const ey = el('div','eyebrow',`${r.profile.name} â€” ${r.profile.mode === 'friends' ? 'Friends' : 'Romance'}`);
-  const h = el('h2','');
-  h.innerHTML = `${r.responseCount} ${r.responseCount === 1 ? 'person' : 'people'} responded`;
-  wrap.append(ey, h);
+  return `
+<div class="screen">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div class="logomark" style="font-size:1rem">TellMeMore</div>
+    <button class="btn-ghost" data-action="logout" style="font-size:.75rem">Sign out</button>
+  </div>
 
-  // Unlock message
-  if (r.unlockMessage) {
-    const um = el('div','');
-    um.style.cssText='font-size:13px;color:var(--v3);font-style:italic;margin:12px 0 20px;padding:12px 16px;background:rgba(139,92,246,.08);border-radius:6px;border-left:3px solid var(--v)';
-    um.textContent = r.unlockMessage;
-    wrap.appendChild(um);
-  }
+  <div>
+    <p class="label" style="margin-bottom:.375rem">${name}'s perception profile</p>
+    <p class="h2">${tierLabels[tier] || 'Results'}</p>
+    <p class="small" style="margin-top:.25rem">${n} response${n !== 1 ? 's' : ''} received</p>
+  </div>
 
-  // â”€â”€ TIER 1 â€” always shown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  if (ins.howPeopleSeeYou) {
-    const b = el('div','result-block');
-    b.append(el('div','result-block-label','How people experience you'), el('div','result-text',ins.howPeopleSeeYou));
-    wrap.appendChild(b);
-  }
-  if (ins.yourSocialEnergy || ins.magneticText) {
-    const b = el('div','result-block');
-    b.append(el('div','result-block-label','Your energy'), el('div','result-text', ins.yourSocialEnergy || ins.magneticText));
-    wrap.appendChild(b);
-  }
+  <!-- Unlock progress -->
+  <div class="card">
+    <div class="label" style="margin-bottom:.75rem">Unlock progress</div>
+    ${renderUnlockTiers(n)}
+    ${r.nextUnlock ? `<p class="small" style="margin-top:.75rem;text-align:center">${r.nextUnlock - n} more response${r.nextUnlock - n !== 1 ? 's' : ''} to unlock the next tier</p>` : '<p class="small" style="margin-top:.75rem;text-align:center;color:var(--green)">Full result unlocked.</p>'}
+  </div>
 
-  // â”€â”€ TIER 2 â€” unlocked at 8 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  if (tier >= 2) {
-    if (ins.contradiction) {
-      const cont = el('div','contradiction-block');
-      const lbl = el('div','result-block-label','The contradiction');
-      const txt = el('div','contradiction-text', ins.contradiction);
-      cont.append(lbl, txt);
-      wrap.appendChild(cont);
+  <!-- Share again -->
+  <div class="card">
+    <div class="label" style="margin-bottom:.625rem">Share your link</div>
+    <div class="link-box">
+      <div class="link-text">${esc(url)}</div>
+      <button class="link-copy" id="btn-copy-results" data-action="copy-link">Copy</button>
+    </div>
+    <button class="btn btn-primary" data-action="share-link" style="margin-top:.75rem">&#x2197; Share to get more responses</button>
+  </div>
+
+  <!-- Results content -->
+  ${tier === 'locked' ? `
+  <div class="card" style="text-align:center;gap:.75rem;display:flex;flex-direction:column">
+    <p class="body">No responses yet.</p>
+    <p class="small">Share your link above to get your first result.</p>
+  </div>` : ''}
+
+  ${isUnlocked('first_glimpse') && r.primary ? `
+  <div class="result-card">
+    <div class="result-card-head">Primary signal</div>
+    <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.primary.label)}</div>
+    <div class="result-card-body">${esc(r.primary.text)}</div>
+    ${renderSignalBar(r.primary.signal, r.primary.score)}
+  </div>` : ''}
+
+  ${isUnlocked('basic_profile') && r.secondary ? `
+  <div class="result-card">
+    <div class="result-card-head">Secondary signal</div>
+    <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.secondary.label)}</div>
+    <div class="result-card-body">${esc(r.secondary.text)}</div>
+    ${renderSignalBar(r.secondary.signal, r.secondary.score)}
+  </div>` : ''}
+
+  ${isUnlocked('strength_insight') && r.tertiary ? `
+  <div class="result-card">
+    <div class="result-card-head">Strength signal</div>
+    <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.tertiary.label)}</div>
+    <div class="result-card-body">${esc(r.tertiary.text)}</div>
+    ${renderSignalBar(r.tertiary.signal, r.tertiary.score)}
+  </div>` : ''}
+
+  ${isUnlocked('hidden_signal') && r.hidden ? `
+  <div class="result-card">
+    <div class="result-card-head">Hidden signal &#x2014; something you may not know about yourself</div>
+    <div class="label" style="color:var(--gold);margin-bottom:.375rem">${esc(r.hidden.label)}</div>
+    <div class="result-card-body">${esc(r.hidden.text)}</div>
+    ${renderSignalBar(r.hidden.signal, r.hidden.score)}
+  </div>` : ''}
+
+  ${isUnlocked('full_result') && r.blindSpot ? `
+  <div class="result-card" style="border-color:#f8717130">
+    <div class="result-card-head">Blind spot &#x2014; what you likely underestimate about your own impact</div>
+    <div class="label" style="color:var(--red);margin-bottom:.375rem">${esc(r.blindSpot.label)}</div>
+    <div class="result-card-body">${esc(r.blindSpot.text)}</div>
+    ${renderSignalBar(r.blindSpot.signal, r.blindSpot.score)}
+  </div>` : ''}
+
+  ${!isUnlocked('first_glimpse') ? '' : `
+  <div class="result-card locked">
+    <div class="result-card-head">Locked</div>
+    <div class="result-card-body">&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;</div>
+  </div>`}
+
+  <p class="small" style="text-align:center;color:var(--dim)">
+    <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/terms" style="color:var(--dim);text-decoration:none">Terms</a>
+  </p>
+</div>`;
+}
+
+function renderSignalBar(signal, score) {
+  const pct  = Math.round(Math.abs(score) * 100);
+  const pos  = score >= 0;
+  return `
+<div class="signal-row" style="margin-top:.75rem">
+  <div class="signal-header">
+    <span class="signal-name">${pos ? '+' : '−'} ${pct}% signal strength</span>
+  </div>
+  <div class="signal-track">
+    <div class="signal-fill ${pos ? 'pos' : 'neg'}" style="width:${pct}%"></div>
+  </div>
+</div>`;
+}
+
+function renderUnlockTiers(responseCount) {
+  const tiers = [
+    { key:'first_glimpse',    n: 1,  label:'First glimpse',     sub:'Primary signal revealed' },
+    { key:'basic_profile',    n: 3,  label:'Basic profile',     sub:'Top 2 signals + context' },
+    { key:'strength_insight', n: 5,  label:'Strength insight',  sub:'3 signals + depth' },
+    { key:'hidden_signal',    n: 7,  label:'Hidden signal',     sub:'4th signal you may not know' },
+    { key:'full_result',      n: 10, label:'Full result',       sub:'All signals + blind spot' }
+  ];
+  return tiers.map(t => {
+    const done = responseCount >= t.n;
+    const next = !done && tiers.find(x => responseCount < x.n) === t;
+    const cls  = done ? 'unlocked' : next ? 'next' : 'locked';
+    const icon = done ? '&#x2714;' : next ? '&#x25CF;' : '&#x25A1;';
+    return `<div class="tier-row">
+      <div class="tier-icon ${cls}">${icon}</div>
+      <div class="tier-text">
+        <div class="tier-name">${t.n} response${t.n !== 1 ? 's' : ''} — ${t.label}</div>
+        <div class="tier-sub">${t.sub}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderLoading() {
+  return `<div class="screen center"><div class="spinner"></div></div>`;
+}
+
+function renderNotFound() {
+  return `<div class="screen center" style="gap:1rem"><p class="h2">Profile not found.</p><a href="/" class="btn btn-secondary" style="text-decoration:none;display:block;text-align:center">Go home</a></div>`;
+}
+
+// ─── EVENT BINDING ────────────────────────────────────────────────────────────
+function bindEvents() {
+  // Delegated click handler — single listener, no memory leaks
+  document.getElementById('app').addEventListener('click', handleClick);
+  // Input handler for mode cards
+  document.querySelectorAll('[data-mode]').forEach(el => {
+    el.addEventListener('click', () => { S.mode = el.dataset.mode; render(); });
+  });
+  // Option selection in questions
+  document.querySelectorAll('[data-option]').forEach(el => {
+    el.addEventListener('click', () => selectOption(el.dataset.qid, el.dataset.option));
+  });
+}
+
+function handleClick(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+
+  switch(action) {
+    case 'start-create':   S.screen = 'create_mode'; render(); break;
+    case 'back-landing':   S.screen = 'landing';     render(); break;
+    case 'back-mode':      S.screen = 'create_mode'; render(); break;
+    case 'back-name':      S.screen = 'create_name'; render(); break;
+    case 'back-return':    S.screen = 'return_email';render(); break;
+    case 'go-return':      S.screen = 'return_email';render(); break;
+
+    case 'mode-next':
+      if (S.mode) { S.screen = 'create_name'; render(); }
+      break;
+
+    case 'name-next': {
+      const inp = document.getElementById('inp-name');
+      const val = (inp ? inp.value : '').trim();
+      if (val.length < 2) { toast('Please enter your first name.'); return; }
+      S.name = val; S.screen = 'create_email'; render();
+      break;
     }
-    if (ins.whatYouDontRealize) {
-      const b = el('div','result-block');
-      b.append(el('div','result-block-label','What you may not realize'), el('div','result-text', ins.whatYouDontRealize));
-      wrap.appendChild(b);
+
+    case 'email-next':
+      handleCreateProfile();
+      break;
+
+    case 'send-magic':
+      handleSendMagic();
+      break;
+
+    case 'copy-magic':
+      if (S.magicUrl) copyText(S.magicUrl).then(() => toast('Link copied!'));
+      break;
+
+    case 'start-questions':
+      S.screen = 'respond_questions'; render();
+      break;
+
+    case 'go-results':
+      if (S.profileId) { S.screen = 'results_loading'; render(); loadResults(); }
+      else              { S.screen = 'return_email';    render(); }
+      break;
+
+    case 'copy-link': {
+      const url = S.shareUrl || '';
+      copyText(url).then(ok => {
+        if (ok) {
+          toast('Link copied!');
+          const btn = document.getElementById('btn-copy-link') || document.getElementById('btn-copy-results');
+          if (btn) { btn.textContent = 'Copied!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
+        } else { toast('Copy failed — select the link manually.'); }
+      });
+      break;
     }
-  } else {
-    // Locked tier 2 preview
-    const locked = el('div','');
-    locked.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:20px 16px;text-align:center;margin:16px 0';
-    const lk1 = el('div',''); lk1.style.cssText='font-size:11px;color:var(--t3);margin-bottom:6px';
-    lk1.textContent = 'The Contradiction';
-    const lk2 = el('div',''); lk2.style.cssText='font-size:13px;color:var(--t3);filter:blur(5px);user-select:none;line-height:1.5';
-    lk2.textContent = 'People agree on something â€” and disagree on something else.';
-    const lk3 = el('div',''); lk3.style.cssText='font-size:11px;color:var(--v2);margin-top:10px';
-    lk3.textContent = nextTier ? `${nextTier.remaining} more response${nextTier.remaining===1?'':'s'} to unlock` : '';
-    locked.append(lk1, lk2, lk3);
-    wrap.appendChild(locked);
+
+    case 'share-link': {
+      const url = S.shareUrl || '';
+      shareOrCopy(url).then(result => {
+        if (result === 'copied') toast('Link copied!');
+        else if (result === 'failed') toast('Could not share — copy the link instead.');
+      });
+      break;
+    }
+
+    case 'logout':
+      apiFetch('/api/auth/logout', { method: 'DELETE' }).finally(() => {
+        S.userId = null; S.profileId = null; S.result = null;
+        S.screen = 'landing'; render();
+      });
+      break;
+  }
+}
+
+function selectOption(qid, optId) {
+  S.answers[qid] = optId;
+  trackEvent('question_answered', { metadata: { q: qid, a: optId } });
+
+  // Auto-advance after short delay
+  setTimeout(() => {
+    S.qIndex++;
+    if (S.qIndex >= S.questions.length) {
+      submitResponse();
+    } else {
+      render();
+    }
+  }, 280);
+}
+
+// ─── API ACTIONS ──────────────────────────────────────────────────────────────
+async function handleCreateProfile() {
+  const inp = document.getElementById('inp-email');
+  const email = (inp ? inp.value : '').trim().toLowerCase();
+  if (!email || !email.includes('@')) { toast('Please enter a valid email address.'); return; }
+
+  const btn = document.getElementById('btn-email-next');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+
+  S.email = email;
+  try {
+    const data = await apiFetch('/api/profile', {
+      method: 'POST',
+      body: JSON.stringify({ name: S.name, mode: S.mode, email: S.email, language: S.language })
+    });
+    S.profileId  = data.profileId;
+    S.slug       = data.slug;
+    S.shareId    = data.shareId;
+    S.shareUrl   = data.shareUrl;
+    S.respondUrl = data.respondUrl;
+    S.screen     = 'create_link';
+    render();
+  } catch (e) {
+    toast(e.message || 'Could not create profile. Try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Create my profile'; }
+  }
+}
+
+async function handleSendMagic() {
+  const inp = document.getElementById('inp-return-email');
+  const email = (inp ? inp.value : '').trim().toLowerCase();
+  const errEl = document.getElementById('return-error');
+
+  if (!email || !email.includes('@')) {
+    if (errEl) errEl.textContent = 'Please enter a valid email.';
+    return;
   }
 
-  // â”€â”€ TIER 3 â€” unlocked at 12 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  if (tier >= 3) {
-    if (ins.whatKeepsShowing) {
-      const b = el('div','result-block');
-      b.append(el('div','result-block-label','What keeps showing up'), el('div','result-text', ins.whatKeepsShowing));
-      wrap.appendChild(b);
-    }
-    if (ins.frictionText) {
-      const fr = el('div','friction-block');
-      fr.append(el('div','friction-label','Only for you'), el('div','friction-text', ins.frictionText));
-      wrap.appendChild(fr);
-    }
-    // Share card â€” only at full profile
-    const card = el('div','share-card');
-    const headline = ins.contradiction?.split('.')[0] || r.unlockMessage;
-    card.append(
-      el('div','share-name', r.profile.name),
-      el('div','share-headline', headline),
-      el('div','share-count', `${r.responseCount} people experienced this`),
-      el('div','share-brand','TellMeMore')
-    );
-    wrap.appendChild(card);
-    const btnShare = el('button','btn','Share result');
-    btnShare.onclick = ()=>{
-      const text = `${headline}\n\n${r.responseCount} people experienced this â€” TellMeMore`;
-      if (navigator.share) navigator.share({ title:'TellMeMore', text, url: location.origin });
-      else { navigator.clipboard?.writeText(text); state.toast='Copied'; render(); }
-    };
-    wrap.appendChild(btnShare);
-  } else if (tier >= 2) {
-    // Locked tier 3 preview
-    const locked = el('div','');
-    locked.style.cssText='background:var(--bg2);border:1px solid var(--wire);border-radius:8px;padding:20px 16px;text-align:center;margin:16px 0';
-    const lk1 = el('div',''); lk1.style.cssText='font-size:11px;color:var(--t3);margin-bottom:6px';
-    lk1.textContent = 'Full Profile';
-    const lk2 = el('div',''); lk2.style.cssText='font-size:13px;color:var(--t3);filter:blur(5px);user-select:none';
-    lk2.textContent = 'This is how you are experienced. All of it.';
-    const lk3 = el('div',''); lk3.style.cssText='font-size:11px;color:var(--v2);margin-top:10px';
-    lk3.textContent = nextTier ? `${nextTier.remaining} more to unlock the full profile` : '';
-    locked.append(lk1, lk2, lk3);
-    wrap.appendChild(locked);
-  }
+  const btn = document.getElementById('btn-send-magic');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
-  // Progress toward next tier
-  if (nextTier) {
-    const prog = el('div','');
-    prog.style.cssText='margin-top:24px;padding:14px 16px;background:var(--bg2);border:1px solid var(--wire);border-radius:8px';
-    const progLabel = el('div',''); progLabel.style.cssText='font-size:11px;color:var(--t2);margin-bottom:8px';
-    progLabel.textContent = `${nextTier.remaining} more response${nextTier.remaining===1?'':'s'} unlocks the ${nextTier.label}`;
-    const bar = el('div','progress-bar');
-    const fill = el('div','progress-fill');
-    const pct = Math.round(((r.responseCount - (nextTier.threshold - (nextTier.threshold === 4 ? 4 : nextTier.threshold === 8 ? 4 : 4))) / (nextTier.threshold === 4 ? 4 : 4)) * 100);
-    fill.style.width = Math.min(pct, 99) + '%';
-    bar.appendChild(fill);
-    const askBtn = el('button','btn btn-ghost'); askBtn.style.marginTop='12px';
-    askBtn.textContent = 'Ask more people';
-    askBtn.onclick = ()=>{ navigator.clipboard?.writeText(`${location.origin}/r/${state.profileSlug}`); state.toast='Responder link copied'; render(); };
-    prog.append(progLabel, bar, askBtn);
-    wrap.appendChild(prog);
+  S.email = email;
+  try {
+    const data = await apiFetch('/api/auth/email', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    S.magicUrl = data.magicUrl || null; // alpha mode only
+    S.screen = 'return_sent';
+    render();
+  } catch (e) {
+    if (errEl) errEl.textContent = e.message || 'Could not send link. Try again.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Send my link'; }
   }
+}
 
-  d.appendChild(wrap);
-  return d;
+async function submitResponse() {
+  S.screen = 'loading'; render();
+
+  try {
+    await apiFetch('/api/responses', {
+      method: 'POST',
+      body: JSON.stringify({
+        profileId:    S.respondingTo.id,
+        sessionId:    S.sessionId,
+        answers:      S.answers,
+        refProfileId: S.refProfileId,
+        src:          S.src,
+        language:     S.language
+      })
+    });
+
+    // If responder came via referral, mark potential conversion
+    if (S.refProfileId) {
+      apiFetch('/api/track', {
+        method: 'POST',
+        body: JSON.stringify({ event: 'responder_started', profileId: S.respondingTo.id, sessionId: S.sessionId })
+      }).catch(() => {});
+    }
+
+    S.screen = 'respond_done'; render();
+  } catch (e) {
+    toast(e.message || 'Could not submit. Please try again.');
+    S.qIndex = S.questions.length - 1;
+    S.screen = 'respond_questions'; render();
+  }
 }
 
 async function loadResults() {
-  if (!state.profileId) return;
-  const res = await api('GET',`/api/results/${state.profileId}`);
-  if (!res || res.error) {
-    state.toast = res?.error || 'Could not load results';
-    state.screen = 'owner_wait';
-    render();
-    return;
+  try {
+    const data = await apiFetch(`/api/results/${S.profileId}`);
+    S.result = data.result;
+    if (data.profile) {
+      S.name    = data.profile.name;
+      S.shareId = data.profile.shareId;
+      S.shareUrl = `${location.origin}/s/${data.profile.shareId}`;
+    }
+    S.screen = 'results'; render();
+  } catch (e) {
+    toast(e.message || 'Could not load results.');
+    S.screen = 'landing'; render();
   }
-  state.results = res;
-  render();
 }
 
-// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-render();
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+boot();
 </script>
 </body>
 </html>
-
-
-
-
-
-
