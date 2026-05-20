@@ -633,7 +633,7 @@ function renderRespondDone() {
   <p class="body">${S.respondingTo ? `${esc(S.respondingTo.name)} will see` : 'They will see'} your answers as part of their perception profile — never linked to you.</p>
   <div class="card" style="text-align:center">
     <p class="body" style="margin-bottom:1rem">Curious how people see you?</p>
-    <a href="/" class="btn btn-primary" style="text-decoration:none;display:block;padding:.875rem;border-radius:10px;text-align:center">Create my own profile &#x2192;</a>
+    <a href="/" class="btn btn-primary" style="text-decoration:none;display:block;padding:.875rem;border-radius:10px;text-align:center" onclick="trackEvent('own_profile_created_after_response',{sessionId:S.sessionId})">Create my own profile &#x2192;</a>
   </div>
   <p class="small" style="text-align:center;color:var(--dim)">
     <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy policy</a>
@@ -646,6 +646,23 @@ function renderResultsLoading() {
   return `<div class="screen center"><div class="spinner"></div><p class="small" style="text-align:center;margin-top:.5rem">Loading your results...</p></div>`;
 }
 
+const TIER_NAMES = {
+  first_glimpse:    'Basic Profile',
+  basic_profile:    'Strength Insight',
+  strength_insight: 'Hidden Signal',
+  hidden_signal:    'Full Result',
+  full_result:      null
+};
+function getNextTierKey(tier) {
+  return ({
+    locked:           'first_glimpse',
+    first_glimpse:    'basic_profile',
+    basic_profile:    'strength_insight',
+    strength_insight: 'hidden_signal',
+    hidden_signal:    'full_result',
+    full_result:      null
+  })[tier];
+}
 function renderResults() {
   if (!S.result) return renderResultsLoading();
   const r = S.result;
@@ -688,14 +705,15 @@ function renderResults() {
     ${r.nextUnlock ? `<p class="small" style="margin-top:.75rem;text-align:center">${r.nextUnlock - n} more response${r.nextUnlock - n !== 1 ? 's' : ''} to unlock the next tier</p>` : '<p class="small" style="margin-top:.75rem;text-align:center;color:var(--green)">Full result unlocked.</p>'}
   </div>
 
-  <!-- Share again -->
-  <div class="card">
-    <div class="label" style="margin-bottom:.625rem">Share your link</div>
+  <!-- Share again — re-share CTA -->
+  <div class="card" style="border-color:${tier==='locked'?'var(--border)':'#7c6af530'}">
+    <div class="label" style="margin-bottom:.375rem">Share your link</div>
+    ${r.nextUnlock ? `<p class="small" style="margin-bottom:.75rem;color:var(--muted)">Share again to unlock <strong>${TIER_NAMES[getNextTierKey(tier)]||'the next layer'}</strong> — ${r.nextUnlock - n} more response${r.nextUnlock-n!==1?'s':''} away.</p>` : '<p class="small" style="margin-bottom:.75rem;color:var(--green)">All layers unlocked. Share to build your long-term perception profile.</p>'}
     <div class="link-box">
       <div class="link-text">${esc(url)}</div>
       <button class="link-copy" id="btn-copy-results" data-action="copy-link">Copy</button>
     </div>
-    <button class="btn btn-primary" data-action="share-link" style="margin-top:.75rem">&#x2197; Share to get more responses</button>
+    <button class="btn btn-primary" data-action="share-link" style="margin-top:.75rem">&#x2197; Share for more responses</button>
   </div>
 
   <!-- Results content -->
@@ -878,6 +896,10 @@ function handleClick(e) {
 
     case 'share-link': {
       const url = S.shareUrl || '';
+      // Track share_after_result if fired from results screen; share_clicked otherwise
+      const onResults = S.screen === 'results';
+      const shareEvent = onResults ? 'share_after_result' : 'share_clicked';
+      trackEvent(shareEvent);
       shareOrCopy(url).then(result => {
         if (result === 'copied') toast('Link copied!');
         else if (result === 'failed') toast('Could not share — copy the link instead.');
@@ -929,6 +951,13 @@ async function handleCreateProfile() {
     S.shareId    = data.shareId;
     S.shareUrl   = data.shareUrl;
     S.respondUrl = data.respondUrl;
+    // If this owner created their profile after responding to someone else
+    if (S.refProfileId) {
+      apiFetch('/api/referral/convert', {
+        method: 'POST',
+        body: JSON.stringify({ sessionId: S.sessionId, invitedProfileId: data.profileId })
+      }).catch(() => {});
+    }
     S.screen     = 'create_link';
     render();
   } catch (e) {

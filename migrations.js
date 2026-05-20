@@ -147,7 +147,6 @@ const MIGRATIONS = [
   },
 
   // ── v2: add question_bank_version to profiles ──────────────────────────────
-  // Allows tracking which question set a profile used, for result engine compat.
   {
     version: 2,
     name: 'profile_question_version',
@@ -155,6 +154,20 @@ const MIGRATIONS = [
       db.exec(`
         ALTER TABLE profiles ADD COLUMN question_version TEXT DEFAULT 'v1';
       `);
+    }
+  },
+
+  // ── v3: add invited_profile_id to referrals + share_after_result support ──
+  // safe: ALTER TABLE ADD COLUMN is non-destructive in SQLite
+  {
+    version: 3,
+    name: 'referrals_invited_profile_id',
+    up(db) {
+      try {
+        db.exec(`ALTER TABLE referrals ADD COLUMN invited_profile_id TEXT;`);
+      } catch(e) {
+        if (!e.message.includes('duplicate column')) throw e;
+      }
     }
   }
 

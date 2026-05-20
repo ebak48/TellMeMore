@@ -1,0 +1,49 @@
+feat: soft-launch candidate — complete build
+
+Signal system:
+- 12 signals (v2): Quiet Authority, Soft Power, Social Gravity,
+  Controlled Fire, Emotional Radar, Rare Energy, Protective Force,
+  Calm Magnet, Hard to Read, Dangerous Calm, Selective Depth, Raw Warmth
+- Signal lines_en + lines_tr for 2-line OG typography
+
+Question system:
+- 11 questions (down from 31) — behavioral, 3-min completion
+- 100% signal mapping coverage
+- QUESTION_BANK_VERSION v3
+
+Unlock thresholds (simplified):
+- emerging: 1 response
+- first_unlock: 3 responses  
+- confirmed: 8 responses
+
+OG card system (cinematic v4):
+- 3 states: invite / emerging / final
+- 96px signal type, 2-line centered, weight 200
+- TR: "Sence doğru mu?" (was: "KATILIYOR MUSUN?")
+- TR invite: "[NAME]'İN GÖRÜŞLERİNİ BEKLIYOR."
+- Background #0C0B10, radial gradient top
+- System fonts for OG bot compatibility
+
+Auth & return flow:
+- Email capture on profile creation
+- Magic link via Resend (or alpha mode: URL in response)
+- 30-day session cookie
+- /r/results redirect after verify
+
+Share infrastructure:
+- /s/:shareId teaser page with dynamic OG
+- /og/:shareId.svg — state computed from response count
+- referral attribution (?ref= ?src= on all share links)
+- share_after_result event tracking
+- responder→creator conversion tracking
+
+Safety:
+- Owner delete/hide responses
+- /api/report endpoint
+- Rate limiting: 1 response/IP/profile/hour
+- XSS sanitization + CSP header
+- Safe anonymity copy (no overclaim)
+- /privacy + /terms pages
+
+DB migrations: v1 + v2 + v3 (non-destructive)
+Admin: /admin (basic auth) — metrics + coverage report
