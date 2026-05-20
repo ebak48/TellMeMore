@@ -46,6 +46,56 @@ const MIGRATIONS = [
     version: 1,
     name: 'core_schema',
     up(db) {
+      // ── Legacy schema upgrade ──────────────────────────────────────────
+      // If tables exist from an earlier deployment with a different schema,
+      // add any missing columns before CREATE TABLE IF NOT EXISTS (which
+      // silently skips existing tables) and CREATE INDEX.
+      function hasColumn(table, column) {
+        const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+        return cols.some(c => c.name === column);
+      }
+      function hasTable(table) {
+        const row = db.prepare(
+          "SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table' AND name=?"
+        ).get(table);
+        return row.n > 0;
+      }
+      function addColumnIfMissing(table, column, definition) {
+        if (hasTable(table) && !hasColumn(table, column)) {
+          db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`);
+        }
+      }
+
+      // profiles: old schema may lack user_id, share_id, context, language
+      addColumnIfMissing('profiles', 'user_id',    "TEXT");
+      addColumnIfMissing('profiles', 'share_id',   "TEXT");
+      addColumnIfMissing('profiles', 'name',       "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing('profiles', 'mode',       "TEXT NOT NULL DEFAULT 'friends'");
+      addColumnIfMissing('profiles', 'context',    "TEXT");
+      addColumnIfMissing('profiles', 'language',   "TEXT DEFAULT 'en'");
+      addColumnIfMissing('profiles', 'created_at', "INTEGER NOT NULL DEFAULT 0");
+
+      // responses: old schema may lack session_id, ref_profile_id, src, ip_hash, hidden, reported
+      addColumnIfMissing('responses', 'profile_id',     "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing('responses', 'session_id',     "TEXT NOT NULL DEFAULT ''");
+      addColumnIfMissing('responses', 'answers',        "TEXT NOT NULL DEFAULT '{}'");
+      addColumnIfMissing('responses', 'ref_profile_id', "TEXT");
+      addColumnIfMissing('responses', 'src',            "TEXT");
+      addColumnIfMissing('responses', 'ip_hash',        "TEXT");
+      addColumnIfMissing('responses', 'hidden',         "INTEGER DEFAULT 0");
+      addColumnIfMissing('responses', 'reported',       "INTEGER DEFAULT 0");
+      addColumnIfMissing('responses', 'created_at',     "INTEGER NOT NULL DEFAULT 0");
+
+      // Backfill NULL share_id values for any legacy profile rows
+      if (hasTable('profiles') && hasColumn('profiles', 'share_id')) {
+        const crypto = require('node:crypto');
+        const rows = db.prepare("SELECT id FROM profiles WHERE share_id IS NULL").all();
+        const stmt = db.prepare("UPDATE profiles SET share_id = ? WHERE id = ?");
+        for (const row of rows) {
+          stmt.run(crypto.randomBytes(6).toString('hex'), row.id);
+        }
+      }
+
       db.exec(`
         -- Profile owners (email-based identity, no password)
         CREATE TABLE IF NOT EXISTS users (
