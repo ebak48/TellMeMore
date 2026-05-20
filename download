@@ -1,0 +1,19 @@
+# DB and data files — never commit
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Environment — never commit
+.env
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local test artifacts
+*.log
