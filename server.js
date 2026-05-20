@@ -510,6 +510,32 @@ const server=http.createServer(async(req,res)=>{
       return json(res,{ok:true});
     }
 
+    // ── STATIC OG FALLBACK PNG (served as SVG — accepted by most platforms) ───
+    if(method==='GET'&&pathname==='/og-default.png'){
+      const fallback=`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="0%" r="70%">
+      <stop offset="0%" stop-color="#1e1830" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0C0B10" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0C0B10"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="600" y="272" font-family="-apple-system,'Helvetica Neue',monospace" font-size="72"
+    font-weight="200" letter-spacing="8" fill="#f0eeff" text-anchor="middle">TELL ME</text>
+  <text x="600" y="368" font-family="-apple-system,'Helvetica Neue',monospace" font-size="72"
+    font-weight="200" letter-spacing="8" fill="#f0eeff" text-anchor="middle">MORE</text>
+  <text x="600" y="460" font-family="-apple-system,'Helvetica Neue',monospace" font-size="22"
+    font-weight="300" letter-spacing="8" fill="#4a4870" text-anchor="middle">SOCIAL PERCEPTION</text>
+  <rect x="0" y="0" width="3" height="630" fill="#534AB7" opacity="0.6"/>
+  <text x="48" y="50" font-family="-apple-system,monospace" font-size="14"
+    font-weight="300" letter-spacing="8" fill="#2d2b3d">TMM</text>
+</svg>`;
+      res.writeHead(200,{'Content-Type':'image/svg+xml','Cache-Control':'public, max-age=86400'});
+      return res.end(fallback);
+    }
+
     // ── DYNAMIC OG SVG CARD ──────────────────────────────────────────────────
     if(method==='GET'&&pathname.startsWith('/og/')&&pathname.endsWith('.svg')){
       const sid=sanitize(pathname.slice(4,pathname.length-4),20);
