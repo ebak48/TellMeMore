@@ -1,4 +1,4 @@
-ï»¿'use strict';
+'use strict';
 const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const fs = require('node:fs');
@@ -32,6 +32,7 @@ function repairExistingSchema(db) {
   let n = 0;
   if (tables.has('profiles')) {
     if (addColumn(db,'profiles','user_id','TEXT')) n++;
+    if (addColumn(db,'profiles','mode',"TEXT DEFAULT 'friends'")) n++;
     if (addColumn(db,'profiles','share_id','TEXT')) n++;
     if (addColumn(db,'profiles','context','TEXT')) n++;
     if (addColumn(db,'profiles','language',"TEXT DEFAULT 'en'")) n++;
@@ -47,7 +48,7 @@ function repairExistingSchema(db) {
   if (tables.has('referrals')) {
     if (addColumn(db,'referrals','invited_profile_id','TEXT')) n++;
   }
-  if (n > 0) console.log(`[DB] Schema repair complete â€” ${n} column(s) added`);
+  if (n > 0) console.log(`[DB] Schema repair complete — ${n} column(s) added`);
 }
 const MIGRATIONS = [
   { version:1, name:'core_schema', up(db) {
@@ -88,7 +89,7 @@ function runMigrations(db) {
     applied++;
   }
   const latest = MIGRATIONS[MIGRATIONS.length-1].version;
-  if (applied) console.log(`[DB] Applied ${applied} migration(s) â€” now at v${latest}`);
+  if (applied) console.log(`[DB] Applied ${applied} migration(s) — now at v${latest}`);
   else console.log(`[DB] Schema up to date (v${latest})`);
 }
 function initDb() {
