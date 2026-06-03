@@ -1,18 +1,16 @@
 'use strict';
 // ─────────────────────────────────────────────────────────────────────────────
-// TellMeMore — Question Bank v3 + Signal System v2
-// Elite council revision: 12 signals, 11 questions, simplified unlock system.
-// Signals are identity archetypes — not personality types.
-// Questions feel fast, intuitive, emotionally immediate.
+// TellMeMore — Question Bank v4
+// LOCKED DECISIONS APPLIED (2026-06-03):
+//   LD-06: 7 structured questions + 1 optional text field (was 11)
+//   LD-05: Unlock thresholds 1-2 / 3-4 / 5+ (was 1/3/8)
+//   LD-04: Mode 'dating' (was 'romance')
+//   Operating system: PRODUCT_DECISIONS.md governs all changes.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const QUESTION_BANK_VERSION = 'v3';
+const QUESTION_BANK_VERSION = 'v4';
 
 // ── SIGNAL SYSTEM v2 ──────────────────────────────────────────────────────────
-// Philosophy: 1-2 words, psychologically charged, slightly mysterious,
-// aspirational without being cringe. Screenshot objects, not test categories.
-// Must feel "strangely accurate" — not "obviously generated."
-
 const SIGNALS = {
   quiet_authority: {
     label:'Quiet Authority', label_tr:'Sessiz Otorite',
@@ -124,134 +122,100 @@ const SIGNALS = {
   }
 };
 
-// ── UNLOCK SYSTEM (simplified) ────────────────────────────────────────────────
+// ── UNLOCK SYSTEM (LD-05) ─────────────────────────────────────────────────────
+// State structure:
+//   locked:         0 responses  → Invite state
+//   first_signals:  1-2 responses → "Something keeps showing up."
+//   emerging:       3-4 responses → Emerging signal shown
+//   unlocked:       5+ responses  → Full result unlocked
 const UNLOCK_THRESHOLDS = {
-  emerging:     1,   // Signal name visible, low opacity. "Something is forming."
-  first_unlock: 3,   // Primary signal revealed. Basic result.
-  confirmed:    8    // Higher confidence. Blind spot revealed.
+  first_signals: 1,
+  emerging:      3,
+  unlocked:      5
 };
 
-// ── QUESTION BANK v3 ─────────────────────────────────────────────────────────
-// 11 questions. All "both" mode. Fast, intuitive, emotionally immediate.
-// No academic framing. Each answer maps to 2-3 signals with clear weight logic.
+// ── QUESTION BANK v4 (LD-06) ──────────────────────────────────────────────────
+// 7 questions. Selected for maximum signal coverage + emotional immediacy.
+// Completion target: 60–90 seconds.
+// All mode: 'both' — same 7 questions for friends and dating.
 
 const QUESTIONS = [
   {
     id: 'q01', mode: 'both', weight: 1.3,
     text: 'When this person enters a room, the atmosphere usually...',
     options: [
-      { id: 'a', text: 'Shifts — people orient toward them without realizing it',   signals: { social_gravity: 3, quiet_authority: 1 } },
-      { id: 'b', text: 'Stays the same — they blend in comfortably',               signals: { hard_to_read: 1, selective_depth: 1   } },
-      { id: 'c', text: 'Gets more energized — conversations pick up',              signals: { rare_energy: 2, social_gravity: 1      } },
-      { id: 'd', text: 'Gets lighter — there is a sense of ease',                  signals: { calm_magnet: 2, raw_warmth: 1         } }
+      { id: 'a', text: 'Shifts — people orient toward them without realizing it',        signals: { social_gravity: 3, quiet_authority: 1  } },
+      { id: 'b', text: 'Stays the same — they blend in comfortably',                    signals: { hard_to_read: 1, selective_depth: 1    } },
+      { id: 'c', text: 'Gets more energized — conversations pick up',                   signals: { rare_energy: 2, social_gravity: 1      } },
+      { id: 'd', text: 'Gets lighter — there is a sense of ease',                       signals: { calm_magnet: 2, raw_warmth: 1          } }
     ]
   },
   {
     id: 'q02', mode: 'both', weight: 1.4,
     text: 'Under real pressure, this person becomes...',
     options: [
-      { id: 'a', text: 'Quieter and more focused — the opposite of panicked',      signals: { dangerous_calm: 3, quiet_authority: 1  } },
-      { id: 'b', text: 'Visibly stressed but they push through anyway',            signals: { controlled_fire: 1, protective_force: 1 } },
-      { id: 'c', text: 'The one who holds others together while absorbing the weight', signals: { soft_power: 2, protective_force: 2 } },
-      { id: 'd', text: 'Hard to read — you cannot tell how much it is affecting them', signals: { hard_to_read: 2, dangerous_calm: 1 } }
+      { id: 'a', text: 'Quieter and more focused — the opposite of panicked',           signals: { dangerous_calm: 3, quiet_authority: 1  } },
+      { id: 'b', text: 'Visibly stressed but they push through anyway',                 signals: { controlled_fire: 1, protective_force: 1 } },
+      { id: 'c', text: 'The one who holds others together while absorbing the weight',  signals: { soft_power: 2, protective_force: 2     } },
+      { id: 'd', text: 'Hard to read — you cannot tell how much it is affecting them',  signals: { hard_to_read: 2, dangerous_calm: 1     } }
     ]
   },
   {
     id: 'q03', mode: 'both', weight: 1.2,
     text: 'After spending real time with this person, you usually feel...',
     options: [
-      { id: 'a', text: 'Energized — something about them stays with you',          signals: { rare_energy: 3, calm_magnet: 1        } },
-      { id: 'b', text: 'Understood — like they actually saw you',                  signals: { emotional_radar: 3, raw_warmth: 1     } },
-      { id: 'c', text: 'Calmer — like the noise around you turned down',           signals: { calm_magnet: 3, soft_power: 1         } },
-      { id: 'd', text: 'Curious about them — like you want to know more',          signals: { hard_to_read: 2, selective_depth: 2   } }
-    ]
-  },
-  {
-    id: 'q04', mode: 'both', weight: 1.3,
-    text: 'When this person disagrees, they tend to...',
-    options: [
-      { id: 'a', text: 'Say it clearly and hold the position without apology',     signals: { quiet_authority: 2, controlled_fire: 1 } },
-      { id: 'b', text: 'Navigate it carefully — they shift perspectives without creating conflict', signals: { soft_power: 3, quiet_authority: 1 } },
-      { id: 'c', text: 'Stay quiet — but the disagreement is palpable',            signals: { dangerous_calm: 2, hard_to_read: 1     } },
-      { id: 'd', text: 'Go along in the moment but come back to it',               signals: { controlled_fire: 1, selective_depth: 1  } }
+      { id: 'a', text: 'Energized — something about them stays with you',               signals: { rare_energy: 3, calm_magnet: 1         } },
+      { id: 'b', text: 'Understood — like they actually saw you',                       signals: { emotional_radar: 3, raw_warmth: 1      } },
+      { id: 'c', text: 'Calmer — like the noise around you turned down',                signals: { calm_magnet: 3, soft_power: 1          } },
+      { id: 'd', text: 'Curious about them — like you want to know more',               signals: { hard_to_read: 2, selective_depth: 2    } }
     ]
   },
   {
     id: 'q05', mode: 'both', weight: 1.2,
     text: 'When someone close to them needs something, this person...',
     options: [
-      { id: 'a', text: 'Shows up before being asked',                              signals: { protective_force: 3, raw_warmth: 1     } },
-      { id: 'b', text: 'Responds reliably when asked but does not anticipate',     signals: { selective_depth: 1, protective_force: 1 } },
-      { id: 'c', text: 'Senses the need before being told and moves toward it',   signals: { emotional_radar: 2, protective_force: 2 } },
-      { id: 'd', text: 'Gives space — shows care by not overwhelming',             signals: { soft_power: 1, selective_depth: 2       } }
-    ]
-  },
-  {
-    id: 'q06', mode: 'both', weight: 1.2,
-    text: 'The way this person listens is...',
-    options: [
-      { id: 'a', text: 'Unusually attentive — you feel heard in a way that is rare', signals: { emotional_radar: 3, raw_warmth: 1  } },
-      { id: 'b', text: 'Present but already preparing their response',             signals: { quiet_authority: 1, controlled_fire: 1 } },
-      { id: 'c', text: 'Hard to gauge — their face does not give much away',       signals: { hard_to_read: 2, dangerous_calm: 1     } },
-      { id: 'd', text: 'Warm — though they tend to steer it back to themselves',   signals: { raw_warmth: 1, social_gravity: 1       } }
+      { id: 'a', text: 'Shows up before being asked',                                   signals: { protective_force: 3, raw_warmth: 1     } },
+      { id: 'b', text: 'Responds reliably when asked but does not anticipate',          signals: { selective_depth: 1, protective_force: 1 } },
+      { id: 'c', text: 'Senses the need before being told and moves toward it',        signals: { emotional_radar: 2, protective_force: 2 } },
+      { id: 'd', text: 'Gives space — shows care by not overwhelming',                  signals: { soft_power: 1, selective_depth: 2       } }
     ]
   },
   {
     id: 'q07', mode: 'both', weight: 1.1,
     text: 'The gap between what this person shows and who they really are is...',
     options: [
-      { id: 'a', text: 'Small — what you see is consistently what you get',        signals: { raw_warmth: 2, selective_depth: -1     } },
-      { id: 'b', text: 'Real — there is a private self most people never reach',   signals: { selective_depth: 3, hard_to_read: 1    } },
-      { id: 'c', text: 'Large — you sense depth that rarely surfaces publicly',    signals: { dangerous_calm: 2, selective_depth: 2   } },
-      { id: 'd', text: 'Inconsistent — different people get different versions',   signals: { hard_to_read: 2, soft_power: -1         } }
+      { id: 'a', text: 'Small — what you see is consistently what you get',             signals: { raw_warmth: 2, selective_depth: -1     } },
+      { id: 'b', text: 'Real — there is a private self most people never reach',        signals: { selective_depth: 3, hard_to_read: 1    } },
+      { id: 'c', text: 'Large — you sense depth that rarely surfaces publicly',         signals: { dangerous_calm: 2, selective_depth: 2  } },
+      { id: 'd', text: 'Inconsistent — different people get different versions',        signals: { hard_to_read: 2, soft_power: -1        } }
     ]
   },
   {
     id: 'q08', mode: 'both', weight: 1.3,
     text: 'When something goes seriously wrong, this person...',
     options: [
-      { id: 'a', text: 'Becomes unnervingly steady — their calm in a crisis is real', signals: { dangerous_calm: 3, quiet_authority: 1 } },
-      { id: 'b', text: 'Gets intense — controlled but the pressure is visible',    signals: { controlled_fire: 3, quiet_authority: 1  } },
-      { id: 'c', text: 'Takes care of others while quietly carrying the weight',   signals: { protective_force: 2, soft_power: 2      } },
-      { id: 'd', text: 'Shows the stress — they do not perform stability',         signals: { raw_warmth: 1, selective_depth: -1       } }
-    ]
-  },
-  {
-    id: 'q09', mode: 'both', weight: 1.3,
-    text: 'When this person says they will do something, you...',
-    options: [
-      { id: 'a', text: 'Know it is done — they treat their word as binding',       signals: { protective_force: 2, quiet_authority: 1  } },
-      { id: 'b', text: 'Trust it — but occasionally follow up just in case',       signals: { protective_force: 1, selective_depth: 1  } },
-      { id: 'c', text: 'Wait and see — it depends on their current state',         signals: { protective_force: -1, controlled_fire: -1 } },
-      { id: 'd', text: 'Do not rely on it',                                        signals: { protective_force: -2, selective_depth: -1 } }
+      { id: 'a', text: 'Becomes unnervingly steady — their calm in a crisis is real',  signals: { dangerous_calm: 3, quiet_authority: 1  } },
+      { id: 'b', text: 'Gets intense — controlled but the pressure is visible',        signals: { controlled_fire: 3, quiet_authority: 1  } },
+      { id: 'c', text: 'Takes care of others while quietly carrying the weight',       signals: { protective_force: 2, soft_power: 2      } },
+      { id: 'd', text: 'Shows the stress — they do not perform stability',             signals: { raw_warmth: 1, selective_depth: -1       } }
     ]
   },
   {
     id: 'q10', mode: 'both', weight: 1.4,
     text: 'The effect this person has on the people around them is usually...',
     options: [
-      { id: 'a', text: 'Gravitational — people adjust to their presence',          signals: { social_gravity: 3, quiet_authority: 1    } },
-      { id: 'b', text: 'Warm — people feel safe and at ease',                      signals: { calm_magnet: 2, raw_warmth: 2            } },
-      { id: 'c', text: 'Electric — hard to define but hard to ignore',             signals: { rare_energy: 3, controlled_fire: 1       } },
-      { id: 'd', text: 'Subtle — they shift rooms without being the loudest thing', signals: { soft_power: 3, dangerous_calm: 1        } }
-    ]
-  },
-  {
-    id: 'q11', mode: 'both', weight: 1.2,
-    text: 'In terms of emotional intensity, this person is...',
-    options: [
-      { id: 'a', text: 'Contained — whatever they feel is managed, rarely exposed', signals: { dangerous_calm: 2, hard_to_read: 1    } },
-      { id: 'b', text: 'Present — you feel their emotional state without them performing it', signals: { emotional_radar: 2, raw_warmth: 1 } },
-      { id: 'c', text: 'Controlled depth — calm surface, real intensity underneath', signals: { controlled_fire: 2, selective_depth: 1 } },
-      { id: 'd', text: 'Open — what they feel is usually visible',                 signals: { raw_warmth: 2, rare_energy: 1            } }
+      { id: 'a', text: 'Gravitational — people adjust to their presence',              signals: { social_gravity: 3, quiet_authority: 1  } },
+      { id: 'b', text: 'Warm — people feel safe and at ease',                          signals: { calm_magnet: 2, raw_warmth: 2          } },
+      { id: 'c', text: 'Electric — hard to define but hard to ignore',                 signals: { rare_energy: 3, controlled_fire: 1     } },
+      { id: 'd', text: 'Subtle — they shift rooms without being the loudest thing',    signals: { soft_power: 3, dangerous_calm: 1       } }
     ]
   }
 ];
 
-// ── RESULT ENGINE v3 ──────────────────────────────────────────────────────────
+// ── RESULT ENGINE v4 ──────────────────────────────────────────────────────────
 
 function getQuestionsForMode() {
-  return QUESTIONS; // all 11 questions work for both modes
+  return QUESTIONS; // all 7 questions work for both modes (LD-04)
 }
 
 function computeResult(responseRows) {
@@ -314,23 +278,24 @@ function computeResult(responseRows) {
     primary:   sig(ranked[0]),
     secondary: sig(ranked[1]),
     tertiary:  sig(ranked[2]),
-    blindSpot: tier === 'confirmed' && blindSpotKey ? sig(blindSpotKey) : null
+    blindSpot: tier === 'unlocked' && blindSpotKey ? sig(blindSpotKey) : null
   };
 }
 
+// LD-05: Tiers map to unlock states
 function getTier(n) {
-  if (n >= UNLOCK_THRESHOLDS.confirmed)    return 'confirmed';
-  if (n >= UNLOCK_THRESHOLDS.first_unlock) return 'first_unlock';
-  if (n >= UNLOCK_THRESHOLDS.emerging)     return 'emerging';
+  if (n >= UNLOCK_THRESHOLDS.unlocked)      return 'unlocked';
+  if (n >= UNLOCK_THRESHOLDS.emerging)      return 'emerging';
+  if (n >= UNLOCK_THRESHOLDS.first_signals) return 'first_signals';
   return 'locked';
 }
 
 function getNextThreshold(tier) {
   return ({
-    locked:       UNLOCK_THRESHOLDS.emerging,
-    emerging:     UNLOCK_THRESHOLDS.first_unlock,
-    first_unlock: UNLOCK_THRESHOLDS.confirmed,
-    confirmed:    null
+    locked:        UNLOCK_THRESHOLDS.first_signals,
+    first_signals: UNLOCK_THRESHOLDS.emerging,
+    emerging:      UNLOCK_THRESHOLDS.unlocked,
+    unlocked:      null
   })[tier] ?? null;
 }
 

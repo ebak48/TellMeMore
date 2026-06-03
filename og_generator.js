@@ -1,12 +1,15 @@
 'use strict';
 // ─────────────────────────────────────────────────────────────────────────────
-// TellMeMore — OG SVG Generator v4
-// 3 states: invite → emerging (1-2 responses) → final (3+ responses)
+// TellMeMore — OG SVG Generator v5
+// LOCKED DECISIONS APPLIED (2026-06-03):
+//   LD-05 / LD-08: OG states:
+//     invite   → 0 responses
+//     emerging → 1–4 responses
+//     final    → 5+ responses (was 3+ in v4 — CORRECTED)
+//   SP-03: Mode labels NEVER shown on OG cards
 // Cinematic, dark premium. System fonts for OG bot compatibility.
-// TR copy: "Sence doğru mu?" (per product council spec)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 2-line breaks for all 12 signals — always two lines, centered
 const SIGNAL_LINES = {
   quiet_authority:  { en:['QUIET','AUTHORITY'],    tr:['SESSİZ','OTORİTE']       },
   soft_power:       { en:['SOFT','POWER'],          tr:['YUMUŞAK','GÜÇ']          },
@@ -62,7 +65,7 @@ function genInvite(name, lang) {
 `);
 }
 
-// ── STATE 2: EMERGING — 1–2 responses ─────────────────────────────────────────
+// ── STATE 2: EMERGING — 1–4 responses (LD-08: emerging at 1-4) ────────────────
 function genEmerging(name, lang, signalKey, responseCount) {
   const n      = uName(name);
   const lines  = SIGNAL_LINES[signalKey]?.[lang] || ['SIGNAL','FORMING'];
@@ -95,7 +98,7 @@ function genEmerging(name, lang, signalKey, responseCount) {
 `);
 }
 
-// ── STATE 3: FINAL — 3+ responses ─────────────────────────────────────────────
+// ── STATE 3: FINAL — 5+ responses (LD-05: unlocked at 5+) ─────────────────────
 function genFinal(name, lang, signalKey, responseCount) {
   const n      = uName(name);
   const lines  = SIGNAL_LINES[signalKey]?.[lang] || ['SIGNAL','NAME'];
@@ -103,7 +106,7 @@ function genFinal(name, lang, signalKey, responseCount) {
   const appar  = lang==='tr' ? 'GÖRÜNÜŞE GÖRE' : 'APPARENTLY';
   const agree  = lang==='tr' ? 'Sence doğru mu?' : 'Do you agree?';
   const cta    = lang==='tr' ? 'GÖRÜŞÜNÜ EKLE →' : 'ADD YOUR TAKE →';
-  const countTxt = responseCount>=3
+  const countTxt = responseCount>=5
     ? `${responseCount} ${lang==='tr'?'KİŞİ · ANONİM':'PEOPLE · ANONYMOUS'}` : '';
   return frame(`
   <radialGradient id="bg" cx="50%" cy="0%" r="65%">
@@ -141,12 +144,16 @@ function frame(inner) {
 </svg>`;
 }
 
+// LD-05 + LD-08: OG state boundaries:
+//   0 responses           → invite
+//   1-4 responses + signal → emerging
+//   5+ responses + signal  → final (LOCKED: was 3+ in v4, corrected to 5+)
 function generateOgCard(opts) {
   const { name, lang='en', signalKey, responseCount=0 } = opts;
   const n = Math.max(0, parseInt(responseCount,10)||0);
   if (!signalKey || n===0) return genInvite(name, lang);
-  if (n >= 3)             return genFinal(name, lang, signalKey, n);
-  return genEmerging(name, lang, signalKey, n);
+  if (n >= 5)              return genFinal(name, lang, signalKey, n);   // LD-05: unlocked at 5+
+  return genEmerging(name, lang, signalKey, n);                          // LD-08: emerging at 1-4
 }
 
 module.exports = { generateOgCard, SIGNAL_LINES };

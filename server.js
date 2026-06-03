@@ -1,7 +1,12 @@
 'use strict';
 // ─────────────────────────────────────────────────────────────────────────────
-// TellMeMore — Server v3 (investor kill-risk edition)
-// All 12 kill risks addressed. Node.js 22+, zero npm deps, node:sqlite.
+// TellMeMore — Server v4
+// LOCKED DECISIONS APPLIED (2026-06-03):
+//   LD-04: Mode validation: ['friends','dating'] — not 'romance'
+//   LD-05: OG card threshold: final at n>=5, emerging at 1-4
+//   LD-08: OG states: invite(0) / emerging(1-4) / final(5+)
+//   Operating system: PRODUCT_DECISIONS.md governs all changes.
+// Zero npm deps. Node.js 22+, node:sqlite.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const http   = require('node:http');
@@ -30,7 +35,6 @@ try {
   db = initDb();
 } catch (e) {
   console.error('[FATAL] Database initialization failed:', e);
-  console.error('[FATAL] If the database file is corrupted, delete /app/data/tellmemore.db and redeploy.');
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -47,6 +51,21 @@ function tok()    { return crypto.randomBytes(32).toString('hex'); }
 function hashIp(ip){ return crypto.createHash('sha256').update(ip+IP_SALT).digest('hex').slice(0,16); }
 function slugify(n){ return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)+'-'+crypto.randomBytes(3).toString('hex'); }
 function shareId() { return crypto.randomBytes(6).toString('hex'); }
+
+// ── MODE NORMALIZATION (v4.2 — P1) ───────────────────────────────────────────
+// Normalizes any mode string read from DB to a valid MVP mode.
+// Rule (from PRODUCT_DECISIONS.md LD-04 + CR-002):
+//   romance → dating   (old DB records, backward compat)
+//   dating  → dating
+//   friends → friends
+//   social  → friends
+//   unknown → friends  (safe default)
+// Applied everywhere profile.mode is read for display, result, or OG logic.
+// NOT applied on write — profiles are inserted with validated mode already.
+function normalizeMode(m) {
+  if (m === 'dating' || m === 'romance') return 'dating';
+  return 'friends';
+}
 
 // ── IN-MEMORY RATE LIMITER ────────────────────────────────────────────────────
 const _rl = new Map();
@@ -117,9 +136,10 @@ function ogMeta(title,desc,shareId=null){
 }
 
 // ── SHARE / TEASER PAGE ───────────────────────────────────────────────────────
+// SP-03: Mode label NOT shown on public-facing share/OG pages (context exposure risk for dating mode)
 function renderSharePage(profile, responseCount) {
-  const n    = esc(profile.name);
-  const mode = profile.mode === 'romance' ? 'romantic perception' : 'friendship perception';
+  const n = esc(profile.name);
+  // SP-03: no mode label on public page
   const countText = responseCount > 0
     ? `<div class="count">${responseCount} person${responseCount===1?'':'s'} already answered</div>`
     : '';
@@ -128,7 +148,7 @@ function renderSharePage(profile, responseCount) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-${ogMeta(`${profile.name} wants to know how you really see them`,`Answer anonymously. Your name is never revealed. Takes 2 minutes.`,profile.share_id)}
+${ogMeta(`${profile.name} wants to know how you really see them`,`Answer anonymously. Your name is never revealed. Takes 90 seconds.`,profile.share_id)}
 <title>${n} — TellMeMore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap">
@@ -145,16 +165,14 @@ h1{font-size:1.2rem;font-weight:500;line-height:1.4;margin-bottom:.75rem}
 .btn-p{display:block;width:100%;padding:1rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.95rem;font-weight:500;cursor:pointer;text-decoration:none;margin-bottom:.75rem}
 .btn-s{display:block;width:100%;padding:.85rem;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:.85rem;cursor:pointer;text-decoration:none}
 .btn-p:hover{opacity:.9}.btn-s:hover{border-color:var(--accent);color:var(--text)}
-.mode{font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5rem}
 footer{font-size:.7rem;color:var(--muted);margin-top:1.25rem}footer a{color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="av">${esc(profile.name.charAt(0).toUpperCase())}</div>
-  <p class="mode">${mode}</p>
   <h1>${n} wants to know<br>how you really see them</h1>
-  <p class="sub">A few short questions. Takes about 2 minutes.</p>
+  <p class="sub">A few short questions. Takes about 90 seconds.</p>
   ${countText}
   <div class="anon">&#x2714;&nbsp; Your answers are shown without your name.<br>We do not reveal who submitted them.</div>
   <a class="btn-p" href="${esc(BASE_URL)}/r/${esc(profile.slug)}">Answer for ${n}</a>
@@ -175,10 +193,10 @@ function renderPrivacyPage(){
 <h2>What we collect</h2>
 <ul>
 <li>Profile owner email (for account recovery only — not used for marketing)</li>
-<li>Profile name and selected mode (friends / romance)</li>
+<li>Profile name and selected mode (social / dating)</li>
 <li>Anonymous perception responses from responders</li>
 <li>Basic analytics events (page views, funnel steps) — no personal identifiers attached</li>
-<li>Hashed IP address for rate limiting (one-way hash, cannot be reversed to original IP)</li>
+<li>Hashed IP address for rate limiting (one-way hash, cannot be reversed)</li>
 </ul>
 <h2>What we do not collect</h2>
 <ul>
@@ -187,7 +205,7 @@ function renderPrivacyPage(){
 <li>Any data from third-party advertising networks</li>
 </ul>
 <h2>Anonymity</h2>
-<p>Responder answers are aggregated. Profile owners see signal patterns across all responses — not individual responses linked to a name. Your answers are shown without your name. We do not reveal who submitted them. Note: for legal compliance purposes, hashed technical identifiers (session ID and hashed IP) are stored alongside responses and may be accessed if required by law.</p>
+<p>Responder answers are aggregated. Profile owners see signal patterns across all responses — not individual responses linked to a name. Note: for legal compliance, hashed technical identifiers (session ID and hashed IP) are stored and may be accessed if required by law.</p>
 <h2>How we use your data</h2>
 <p>Your email is used only to send your magic access link. We do not send marketing email. Perception responses are used solely to generate your result — we do not sell, share, or use this data for advertising.</p>
 <h2>Data retention</h2>
@@ -207,7 +225,7 @@ function renderTermsPage(){
 <a class="back" href="/">&larr; Back</a>
 <h1>Terms of Use</h1>
 <h2>Eligibility</h2><p>You must be at least 16 years old to create a profile or answer questions.</p>
-<h2>Acceptable use</h2><p>Do not use TellMeMore to harass, target, or harm others. Profiles created to gather coordinated negative responses about a specific person violate these terms and will be removed. Submitting responses with the intent to harm is prohibited.</p>
+<h2>Acceptable use</h2><p>Do not use TellMeMore to harass, target, or harm others. Profiles created to gather coordinated negative responses about a specific person violate these terms and will be removed.</p>
 <h2>Anonymity and responses</h2><p>Responses are submitted without identity. Profile owners see aggregated perception signals — not individual responses. We reserve the right to remove reported responses that violate these terms.</p>
 <h2>No guaranteed accuracy</h2><p>Results represent the aggregated perception of respondents, not objective fact or psychological assessment. TellMeMore is not a clinical tool.</p>
 <h2>Data</h2><p>See our <a href="/privacy">Privacy Policy</a>.</p>
@@ -232,8 +250,16 @@ function renderAdminPage(){
   const refT=db.prepare('SELECT COUNT(*) AS n FROM referrals').get().n;
   const kEst=refT>0?((conv/refT)*100).toFixed(1)+'%':'n/a';
 
+  // LD-05: profile distribution by tier (locked/first_signals/emerging/unlocked)
+  const profilesAt0  =db.prepare('SELECT COUNT(*) AS n FROM (SELECT p.id FROM profiles p LEFT JOIN responses r ON r.profile_id=p.id AND r.hidden=0 GROUP BY p.id HAVING COUNT(r.id)=0)').get().n;
+  const profilesAt1  =db.prepare('SELECT COUNT(*) AS n FROM (SELECT p.id FROM profiles p JOIN responses r ON r.profile_id=p.id AND r.hidden=0 GROUP BY p.id HAVING COUNT(r.id) BETWEEN 1 AND 2)').get().n;
+  const profilesAt3  =db.prepare('SELECT COUNT(*) AS n FROM (SELECT p.id FROM profiles p JOIN responses r ON r.profile_id=p.id AND r.hidden=0 GROUP BY p.id HAVING COUNT(r.id) BETWEEN 3 AND 4)').get().n;
+  const profilesAt5  =db.prepare('SELECT COUNT(*) AS n FROM (SELECT p.id FROM profiles p JOIN responses r ON r.profile_id=p.id AND r.hidden=0 GROUP BY p.id HAVING COUNT(r.id) >= 5)').get().n;
+
   const top=db.prepare('SELECT p.name,p.slug,COUNT(r.id) cnt FROM profiles p LEFT JOIN responses r ON r.profile_id=p.id AND r.hidden=0 GROUP BY p.id ORDER BY cnt DESC LIMIT 10').all();
   const events=db.prepare('SELECT event,COUNT(*) n FROM analytics WHERE created_at>? GROUP BY event ORDER BY n DESC').all(now-week);
+  // v4.2 P1: mode split with normalizeMode — romance and dating merged into dating
+  const modeSplit=db.prepare("SELECT CASE WHEN mode IN ('dating','romance') THEN 'dating' ELSE 'friends' END AS nm, COUNT(*) AS n FROM profiles GROUP BY nm").all();
 
   const m=(l,v,warn=false)=>`<tr><td>${l}</td><td style="font-weight:500;color:${warn?'#f87171':'#7c6af5'}">${v}</td></tr>`;
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -247,7 +273,7 @@ th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid #2a2840}th{co
 .mn{font-size:1.6rem;font-weight:500;color:#7c6af5}.ml{font-size:.75rem;color:#7a78a0;margin-top:.25rem}
 .warn{color:#f87171!important}
 </style></head><body>
-<h1>TellMeMore — Admin Dashboard</h1>
+<h1>TellMeMore — Admin Dashboard (v4)</h1>
 <div class="grid">
 <div class="mc"><div class="mn">${p}</div><div class="ml">Total profiles</div></div>
 <div class="mc"><div class="mn">${r}</div><div class="ml">Total responses</div></div>
@@ -258,6 +284,19 @@ th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid #2a2840}th{co
 <div class="mc"><div class="mn ${rpts>0?'warn':''}">${rpts}</div><div class="ml">Open reports</div></div>
 <div class="mc"><div class="mn">${rh}</div><div class="ml">Hidden responses</div></div>
 </div>
+
+<h2>Mode split (v4.2: romance normalised → dating)</h2>
+<table><tbody>
+${modeSplit.map(r=>m(r.nm+' profiles',r.n)).join('')}
+</tbody></table>
+
+<h2>Unlock funnel (LD-05: locked / first_signals / emerging / unlocked)</h2>
+<table><tbody>
+${m('0 responses (locked)',profilesAt0)}
+${m('1-2 responses (first signals)',profilesAt1)}
+${m('3-4 responses (emerging)',profilesAt3)}
+${m('5+ responses (unlocked)',profilesAt5)}
+</tbody></table>
 
 <h2>K-factor indicators</h2>
 <table><tbody>
@@ -279,11 +318,11 @@ ${top.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.slug)}</td><td>${t.cnt}</td
 ${events.map(e=>`<tr><td>${esc(e.event)}</td><td>${e.n}</td></tr>`).join('')}
 </tbody></table>
 
-<h2>Credibility system</h2>
+<h2>Question bank / credibility</h2>
 <table><tbody>
 ${(()=>{const cv=coverageReport();return [
   m('Question bank version',cv.version),
-  m('Total questions',cv.total),
+  m('Total questions (LD-06: should be 7)',cv.total,cv.total!==7),
   m('Mapped questions',cv.mapped),
   m('Mapping coverage',cv.coverage,cv.coverage!=='100%'),
   m('Signal count',cv.signalCount),
@@ -344,7 +383,7 @@ const server=http.createServer(async(req,res)=>{
     // ── HEALTH CHECK ──────────────────────────────────────────────────────────
     if(method==='GET'&&pathname==='/health'){
       if(!db) return json(res,{status:'error',message:'database not initialized'},503);
-      return json(res,{status:'ok'});
+      return json(res,{status:'ok',version:'v4',questions:coverageReport().total});
     }
 
     // ── ADMIN ─────────────────────────────────────────────────────────────────
@@ -360,11 +399,13 @@ const server=http.createServer(async(req,res)=>{
     }
 
     // ── API: CREATE PROFILE ───────────────────────────────────────────────────
+    // LD-04: valid modes are 'friends' and 'dating' only
     if(method==='POST'&&pathname==='/api/profile'){
       if(!rateLimit(`prof:${hashIp(ip)}`,5,3600000))return err(res,'Too many profiles. Try again later.',429);
       const body=await parseBody(req);
       const name =sanitize(body.name||'',60);
-      const mode =['friends','romance'].includes(body.mode)?body.mode:'friends';
+      // LD-04: reject any mode not in ['friends','dating']
+      const mode =['friends','dating'].includes(body.mode)?body.mode:'friends';
       const lang =sanitize(body.language||'en',10);
       const email=sanitize(body.email||'',200).toLowerCase();
       if(!name||name.length<2)return err(res,'Name is required (min 2 chars).');
@@ -384,6 +425,8 @@ const server=http.createServer(async(req,res)=>{
       const sess=validateSession(getSession(req));
       if(!sess)return err(res,'Not authenticated.',401);
       const profile=db.prepare('SELECT id,slug,share_id,name,mode,language FROM profiles WHERE id=?').get(sess.profileId);
+      // v4.2 P1: normalizeMode on all profile reads from DB
+      if(profile) profile.mode = normalizeMode(profile.mode);
       return json(res,{userId:sess.userId,profileId:sess.profileId,profile});
     }
 
@@ -392,6 +435,8 @@ const server=http.createServer(async(req,res)=>{
       const slug=sanitize(pathname.slice(13),60);
       const profile=db.prepare('SELECT id,slug,share_id,name,mode,language FROM profiles WHERE slug=?').get(slug);
       if(!profile)return err(res,'Profile not found.',404);
+      // v4.2 P1: normalizeMode — old 'romance' profiles return as 'dating'
+      profile.mode = normalizeMode(profile.mode);
       const questions=getQuestionsForMode(profile.mode);
       return json(res,{profile,questions});
     }
@@ -444,7 +489,8 @@ const server=http.createServer(async(req,res)=>{
       const rows=db.prepare('SELECT answers,created_at FROM responses WHERE profile_id=? AND hidden=0').all(profileId);
       const result=computeResult(rows);
       track('result_viewed',{profileId,userId:sess.userId,language:profile.language});
-      return json(res,{profile:{name:profile.name,mode:profile.mode,shareId:profile.share_id,slug:profile.slug},result});
+      // v4.2 P1: normalizeMode on result response
+      return json(res,{profile:{name:profile.name,mode:normalizeMode(profile.mode),shareId:profile.share_id,slug:profile.slug},result});
     }
 
     // ── API: SUBMIT RESPONSE ──────────────────────────────────────────────────
@@ -458,7 +504,6 @@ const server=http.createServer(async(req,res)=>{
       const lang      =sanitize(body.language||'en',10);
       const profile=db.prepare('SELECT * FROM profiles WHERE id=?').get(profileId);
       if(!profile)return err(res,'Profile not found.',404);
-      if(!rateLimit(`resp:${hashIp(ip)}:${profileId}`,1,3600000))return err(res,'You have already responded to this profile recently.',429);
       const rawAns=body.answers||{};
       if(typeof rawAns!=='object'||Array.isArray(rawAns))return err(res,'Invalid answers format.');
       const questions=getQuestionsForMode(profile.mode);
@@ -468,9 +513,17 @@ const server=http.createServer(async(req,res)=>{
         const o=q.options.find(o=>o.id===sanitize(String(optId),5));if(!o)continue;
         safe[q.id]=o.id;answered++;
       }
-      if(answered<5)return err(res,'Please answer at least 5 questions.');
+      // v4.2 P3: Completed response requires min 6 of 7 structured answers.
+      // IMPORTANT: answer validation MUST come before per-profile rate limit.
+      // If rate limit fires first, a 5/7 attempt blocks legitimate retry for 1 hour.
+      if(answered<6)return err(res,'Please answer at least 6 questions.');
+      // Per-profile rate limit: only applied after answers are validated as complete.
+      if(!rateLimit(`resp:${hashIp(ip)}:${profileId}`,1,3600000))return err(res,'You have already responded to this profile recently.',429);
+      // v4.2 P2: optional_note stored in DB column (Option B — deliberate persistence).
+      // LD-03: never shown raw to owner. Internal only. Included in delete behavior.
+      const optNote=body.metadata&&typeof body.metadata==='object'?sanitize(String(body.metadata.optional_note||''),300):'';
       const responseId=uid();
-      db.prepare('INSERT INTO responses(id,profile_id,session_id,answers,ref_profile_id,src,ip_hash,hidden,reported,created_at)VALUES(?,?,?,?,?,?,?,0,0,?)').run(responseId,profileId,sessionId,JSON.stringify(safe),refProfId||null,src||null,hashIp(ip),Date.now());
+      db.prepare('INSERT INTO responses(id,profile_id,session_id,answers,ref_profile_id,src,ip_hash,hidden,reported,optional_note,created_at)VALUES(?,?,?,?,?,?,?,0,0,?,?)').run(responseId,profileId,sessionId,JSON.stringify(safe),refProfId||null,src||null,hashIp(ip),optNote||null,Date.now());
       if(refProfId){
         db.prepare('INSERT OR IGNORE INTO referrals(id,share_id,referrer_profile_id,responder_session,src,converted,created_at)VALUES(?,?,?,?,?,0,?)').run(uid(),profile.share_id,refProfId,sessionId,src||null,Date.now());
       }
@@ -505,7 +558,7 @@ const server=http.createServer(async(req,res)=>{
     // ── API: TRACK ────────────────────────────────────────────────────────────
     if(method==='POST'&&pathname==='/api/track'){
       const body=await parseBody(req);
-      const allowed=new Set(['profile_created','responder_started','question_answered','response_submitted','result_viewed','share_clicked','share_after_result','teaser_viewed','responder_converted','return_requested','result_unlocked','own_profile_created_after_response']);
+      const allowed=new Set(['profile_created','responder_started','question_answered','response_submitted','response_note','result_viewed','share_clicked','share_after_result','teaser_viewed','responder_converted','return_requested','result_unlocked','own_profile_created_after_response']);
       const event=sanitize(body.event||'',60);
       if(!allowed.has(event))return err(res,'Unknown event.');
       track(event,{profileId:sanitize(body.profileId||'',40),sessionId:sanitize(body.sessionId||'',40),userId:sanitize(body.userId||'',40),language:sanitize(body.language||'',10),platform:sanitize(body.platform||'',100),metadata:body.metadata||null});
@@ -522,7 +575,7 @@ const server=http.createServer(async(req,res)=>{
       return json(res,{ok:true});
     }
 
-    // ── STATIC OG FALLBACK PNG (served as SVG — accepted by most platforms) ───
+    // ── STATIC OG FALLBACK PNG (served as SVG) ────────────────────────────────
     if(method==='GET'&&pathname==='/og-default.png'){
       const fallback=`<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -539,7 +592,7 @@ const server=http.createServer(async(req,res)=>{
   <text x="600" y="368" font-family="-apple-system,'Helvetica Neue',monospace" font-size="72"
     font-weight="200" letter-spacing="8" fill="#f0eeff" text-anchor="middle">MORE</text>
   <text x="600" y="460" font-family="-apple-system,'Helvetica Neue',monospace" font-size="22"
-    font-weight="300" letter-spacing="8" fill="#4a4870" text-anchor="middle">SOCIAL PERCEPTION</text>
+    font-weight="300" letter-spacing="8" fill="#4a4870" text-anchor="middle">PERCEPTION INTELLIGENCE</text>
   <rect x="0" y="0" width="3" height="630" fill="#534AB7" opacity="0.6"/>
   <text x="48" y="50" font-family="-apple-system,monospace" font-size="14"
     font-weight="300" letter-spacing="8" fill="#2d2b3d">TMM</text>
@@ -549,17 +602,16 @@ const server=http.createServer(async(req,res)=>{
     }
 
     // ── DYNAMIC OG SVG CARD ──────────────────────────────────────────────────
+    // LD-05 + LD-08: OG states: invite(0) / emerging(1-4) / final(5+)
     if(method==='GET'&&pathname.startsWith('/og/')&&pathname.endsWith('.svg')){
       const sid=sanitize(pathname.slice(4,pathname.length-4),20);
       const profile=db.prepare('SELECT * FROM profiles WHERE share_id=?').get(sid);
       if(!profile){res.writeHead(404);return res.end('Not found');}
       const responseRows=db.prepare('SELECT answers FROM responses WHERE profile_id=? AND hidden=0 LIMIT 20').all(profile.id);
       const rCount=responseRows.length;
-      // Get top signal if enough responses
       let sigKey=null,sigLabel=null,sigLabelTr=null;
       if(rCount>=1){
         try{
-          const {computeResult,SIGNALS}=require('./questions.js');
           const result=computeResult(responseRows);
           if(result.primary){
             sigKey=result.primary.signal;
@@ -569,7 +621,8 @@ const server=http.createServer(async(req,res)=>{
         }catch(e){console.error('[OG]',e.message);}
       }
       const svg=generateOgCard({
-        name:profile.name, lang:profile.language||'en', mode:profile.mode,
+        name:profile.name, lang:profile.language||'en',
+        mode:normalizeMode(profile.mode), // v4.2 P1: romance profiles render as dating
         signalKey:sigKey, signalLabel:sigLabel, signalLabelTr:sigLabelTr,
         responseCount:rCount
       });
@@ -587,10 +640,12 @@ const server=http.createServer(async(req,res)=>{
 });
 
 server.listen(PORT,'0.0.0.0',()=>{
-  console.log(`[TMM] Server v3 running on port ${PORT} — ${BASE_URL}`);
+  console.log(`[TMM] Server v4 running on port ${PORT} \u2014 ${BASE_URL}`);
   console.log(`[TMM] DB: ${require('./migrations.js').DB_PATH}`);
-  console.log(`[TMM] Questions: ${require('./questions.js').coverageReport().total} | Coverage: ${require('./questions.js').coverageReport().coverage}`);
-  console.log(`[TMM] Email: ${process.env.RESEND_API_KEY?'RESEND configured':'Alpha mode — magic link in response'}`);
+  console.log(`[TMM] Questions: ${require('./questions.js').coverageReport().total} (LD-06: should be 7) | Coverage: ${require('./questions.js').coverageReport().coverage}`);
+  console.log(`[TMM] Question bank version: ${require('./questions.js').QUESTION_BANK_VERSION}`);
+  console.log(`[TMM] Unlock thresholds: first_signals=${require('./questions.js').UNLOCK_THRESHOLDS.first_signals} / emerging=${require('./questions.js').UNLOCK_THRESHOLDS.emerging} / unlocked=${require('./questions.js').UNLOCK_THRESHOLDS.unlocked}`);
+  console.log(`[TMM] Email: ${process.env.RESEND_API_KEY?'RESEND configured':'Alpha mode \u2014 magic link in response'}`);
   console.log(`[TMM] Admin: ${BASE_URL}/admin`);
 });
 

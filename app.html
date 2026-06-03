@@ -85,7 +85,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .signal-row{margin-bottom:.875rem}
 .signal-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
 .signal-name{font-size:.8rem;font-weight:500}
-.signal-score{font-size:.7rem;color:var(--muted)}
 .signal-track{height:6px;background:var(--s2);border-radius:3px;overflow:hidden}
 .signal-fill{height:100%;border-radius:3px;transition:width .6s ease}
 .signal-fill.pos{background:linear-gradient(90deg,var(--accent),var(--accent2))}
@@ -122,10 +121,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .result-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:.75rem}
 .result-card-head{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:.5rem}
 .result-card-body{font-size:.875rem;line-height:1.7;color:var(--text)}
-.result-card.locked{opacity:.45;filter:blur(1px);pointer-events:none;user-select:none}
+
+/* ── LOCKED RESULT CARD ── */
+.result-locked{background:var(--s1);border:1px dashed var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:.75rem;opacity:.4;filter:blur(1px);pointer-events:none;user-select:none}
+
+/* ── SIGNAL TEASER (first_signals state) ── */
+.signal-teaser{text-align:center;padding:2rem 1rem}
+.signal-teaser-name{font-size:2rem;font-weight:200;letter-spacing:.1em;color:var(--accent);opacity:.5;margin-bottom:.75rem}
+.signal-teaser-sub{font-size:.8rem;color:var(--dim);letter-spacing:.05em}
 
 /* ── TOAST ── */
-/* toast: position:fixed is CTA-safe — only used for notifications, not interactive CTAs */
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:.65rem 1.25rem;font-size:.8rem;color:var(--text);white-space:nowrap;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
 
@@ -141,11 +146,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 /* ── BACK BTN ── */
 .back-btn{display:flex;align-items:center;gap:.375rem;background:none;border:none;color:var(--dim);font-family:var(--font);font-size:.8rem;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 .back-btn:hover{color:var(--muted)}
-
-/* ── WHATSAPP BROWSER COMPAT: avoid fixed positioning ── */
-/* WAB-safe: all CTAs are in normal document flow, not position:fixed.
-   Toast uses position:fixed but is non-interactive so keyboard push is safe. */
-.sticky-bottom{padding:1rem 1.25rem;background:var(--bg);border-top:1px solid var(--border);width:100%;max-width:480px}
 </style>
 </head>
 <body>
@@ -158,9 +158,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 
 <script>
 // ─── STATE ────────────────────────────────────────────────────────────────────
+// LD-04: MVP modes are 'friends' and 'dating' only.
 const S = {
-  screen:       'landing',   // current screen
-  mode:         null,        // 'friends' | 'romance'
+  screen:       'landing',
+  mode:         null,        // 'friends' | 'dating'   (LD-04)
   name:         '',
   email:        '',
   profileId:    null,
@@ -169,16 +170,17 @@ const S = {
   shareUrl:     null,
   respondUrl:   null,
   sessionId:    getOrCreateSessionId(),
-  questions:    [],
+  questions:    [],          // 7 questions from server (LD-06)
   qIndex:       0,
-  answers:      {},          // { questionId: optionId }
-  respondingTo: null,        // { profileId, name, mode, slug }
+  answers:      {},
+  optionalNote: '',          // LD-06: 1 optional short answer
+  respondingTo: null,
   refProfileId: null,
   src:          null,
   result:       null,
   authChecked:  false,
   userId:       null,
-  magicUrl:     null,        // alpha mode: show magic link on screen
+  magicUrl:     null,
   language:     detectLang()
 };
 
@@ -206,26 +208,15 @@ function boot() {
 
   if (path.startsWith('/r/')) {
     const slug = path.slice(3);
-    if (slug === 'results') {
-      // Magic link return
-      checkSessionThenShowResults();
-      return;
-    }
+    if (slug === 'results') { checkSessionThenShowResults(); return; }
     loadProfileForResponder(slug);
     return;
   }
 
   const params = new URLSearchParams(location.search);
-  if (params.get('auth') === 'expired') {
-    S.screen = 'return_expired';
-    render();
-    return;
-  }
+  if (params.get('auth') === 'expired') { S.screen = 'return_expired'; render(); return; }
 
-  checkSessionSilently(() => {
-    S.screen = 'landing';
-    render();
-  });
+  checkSessionSilently(() => { S.screen = 'landing'; render(); });
 }
 
 function checkSessionSilently(cb) {
@@ -241,43 +232,35 @@ function checkSessionSilently(cb) {
         S.shareUrl = `${location.origin}/s/${d.profile.share_id}`;
       }
     }
-    S.authChecked = true;
-    cb();
+    S.authChecked = true; cb();
   }).catch(() => { S.authChecked = true; cb(); });
 }
 
 function checkSessionThenShowResults() {
   apiFetch('/api/me').then(d => {
     if (d && d.userId && d.profileId) {
-      S.userId    = d.userId;
-      S.profileId = d.profileId;
+      S.userId = d.userId; S.profileId = d.profileId;
       if (d.profile) { S.name = d.profile.name; S.mode = d.profile.mode; }
-      S.screen = 'results_loading';
-      render();
-      loadResults();
-    } else {
-      S.screen = 'return_email';
-      render();
-    }
+      S.screen = 'results_loading'; render(); loadResults();
+    } else { S.screen = 'return_email'; render(); }
   }).catch(() => { S.screen = 'return_email'; render(); });
 }
 
 async function loadProfileForResponder(slug) {
-  S.screen = 'loading';
-  render();
+  S.screen = 'loading'; render();
   const params = new URLSearchParams(location.search);
   S.refProfileId = params.get('ref') || null;
-  S.src          = params.get('src') || detectSrc();
+  S.src = params.get('src') || detectSrc();
 
   const data = await apiFetch(`/api/profile/${encodeURIComponent(slug)}`).catch(() => null);
   if (!data || !data.profile) { S.screen = 'not_found'; render(); return; }
 
   S.respondingTo = data.profile;
-  S.questions    = data.questions || [];
-  S.qIndex       = 0;
-  S.answers      = {};
-  S.screen       = 'respond_intro';
-  render();
+  S.questions = data.questions || [];
+  S.qIndex = 0;
+  S.answers = {};
+  S.optionalNote = '';
+  S.screen = 'respond_intro'; render();
   trackEvent('responder_started', { profileId: data.profile.id });
 }
 
@@ -293,8 +276,7 @@ function detectSrc() {
 async function apiFetch(path, opts = {}) {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json', ...opts.headers },
-    credentials: 'same-origin',
-    ...opts
+    credentials: 'same-origin', ...opts
   });
   if (!res.ok) {
     const e = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -318,81 +300,71 @@ async function trackEvent(event, extra = {}) {
   }).catch(() => {});
 }
 
-// ─── CLIPBOARD / SHARE COMPAT (WhatsApp / in-app browsers) ───────────────────
+// ─── CLIPBOARD / SHARE ───────────────────────────────────────────────────────
 async function copyText(text) {
-  // Try navigator.clipboard first (may fail in some in-app browsers)
   if (navigator.clipboard && navigator.clipboard.writeText) {
     try { await navigator.clipboard.writeText(text); return true; } catch {}
   }
-  // Fallback: execCommand (deprecated but works in WAB)
   try {
     const ta = document.createElement('textarea');
     ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.focus(); ta.select();
     const ok = document.execCommand('copy');
-    document.body.removeChild(ta);
-    return ok;
+    document.body.removeChild(ta); return ok;
   } catch { return false; }
 }
 
-// WAB fallback: if navigator.share fails or is absent, falls back to clipboard copy
-async function shareOrCopy(url, title = 'TellMeMore') {
-  trackEvent('share_clicked');
+async function shareOrCopy(url) {
   if (navigator.share) {
     try {
-      await navigator.share({ title, text: 'How do you see me? Answer anonymously →', url });
+      await navigator.share({ title:'TellMeMore', text:'How do you see me? Answer anonymously →', url });
       return 'shared';
-    } catch (e) {
-      if (e.name === 'AbortError') return 'cancelled';
-    }
+    } catch (e) { if (e.name === 'AbortError') return 'cancelled'; }
   }
-  const ok = await copyText(url);
-  return ok ? 'copied' : 'failed';
+  return (await copyText(url)) ? 'copied' : 'failed';
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
-function toast(msg, duration = 2500) {
+function toast(msg, dur = 2500) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), duration);
+  setTimeout(() => el.classList.remove('show'), dur);
 }
 
-// ─── SANITIZE FOR DOM OUTPUT ─────────────────────────────────────────────────
-// Never use innerHTML with user content without this.
+// ─── SANITIZE ────────────────────────────────────────────────────────────────
 function esc(s) {
   return String(s || '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
 }
 
-function setText(el, text) {
-  if (typeof el === 'string') el = document.getElementById(el);
-  if (el) el.textContent = text;
-}
-
 // ─── RENDER ──────────────────────────────────────────────────────────────────
+// v4.1 BUG1 FIX: track whether delegated handleClick is already attached to #app.
+// Without this, each render() stacks a new listener → N taps fires handleClick N times.
+let _clickBound = false;
+
 function render() {
   const app = document.getElementById('app');
   const screens = {
-    landing:          renderLanding,
-    create_mode:      renderCreateMode,
-    create_name:      renderCreateName,
-    create_email:     renderCreateEmail,
-    create_link:      renderCreateLink,
-    return_email:     renderReturnEmail,
-    return_sent:      renderReturnSent,
-    return_expired:   renderReturnExpired,
-    respond_intro:    renderRespondIntro,
-    respond_questions:renderRespondQuestions,
-    respond_done:     renderRespondDone,
-    results_loading:  renderResultsLoading,
-    results:          renderResults,
-    loading:          renderLoading,
-    not_found:        renderNotFound
+    landing:           renderLanding,
+    create_mode:       renderCreateMode,
+    create_name:       renderCreateName,
+    create_email:      renderCreateEmail,
+    create_link:       renderCreateLink,
+    return_email:      renderReturnEmail,
+    return_sent:       renderReturnSent,
+    return_expired:    renderReturnExpired,
+    respond_intro:     renderRespondIntro,
+    respond_questions: renderRespondQuestions,
+    respond_optional:  renderRespondOptional,
+    respond_done:      renderRespondDone,
+    results_loading:   renderResultsLoading,
+    results:           renderResults,
+    loading:           renderLoading,
+    not_found:         renderNotFound
   };
   const fn = screens[S.screen];
-  if (fn) app.innerHTML = fn();
-  else     app.innerHTML = '<div class="screen center"><p class="body">Unknown screen.</p></div>';
+  app.innerHTML = fn ? fn() : '<div class="screen center"><p class="body">Unknown screen.</p></div>';
   bindEvents();
 }
 
@@ -424,6 +396,7 @@ function renderLanding() {
 }
 
 // ── CREATE FLOW ───────────────────────────────────────────────────────────────
+// LD-04: Mode options are 'friends' and 'dating' only.
 function renderCreateMode() {
   return `
 <div class="screen">
@@ -439,14 +412,14 @@ function renderCreateMode() {
   <p class="body">Choose the type of perception you want to explore.</p>
   <div class="mode-cards">
     <div class="mode-card ${S.mode==='friends'?'selected':''}" data-mode="friends">
-      <div class="mode-card-icon">◈</div>
-      <div class="mode-card-name">Friends</div>
+      <div class="mode-card-icon">&#x25C8;</div>
+      <div class="mode-card-name">Social</div>
       <div class="mode-card-desc">How people in your life see you</div>
     </div>
-    <div class="mode-card ${S.mode==='romance'?'selected':''}" data-mode="romance">
-      <div class="mode-card-icon">◇</div>
-      <div class="mode-card-name">Romantic</div>
-      <div class="mode-card-desc">How you appear in intimate contexts</div>
+    <div class="mode-card ${S.mode==='dating'?'selected':''}" data-mode="dating">
+      <div class="mode-card-icon">&#x25C7;</div>
+      <div class="mode-card-name">Dating</div>
+      <div class="mode-card-desc">How you come across in intimate contexts</div>
     </div>
   </div>
   <button class="btn btn-primary" id="btn-mode-next" ${!S.mode?'disabled':''} data-action="mode-next">Continue</button>
@@ -470,7 +443,7 @@ function renderCreateName() {
     <label class="input-label" for="inp-name">First name</label>
     <input id="inp-name" class="input" type="text" placeholder="e.g. Alex" maxlength="60" autocomplete="given-name" value="${esc(S.name)}">
   </div>
-  <button class="btn btn-primary" id="btn-name-next" data-action="name-next">Continue</button>
+  <button class="btn btn-primary" data-action="name-next">Continue</button>
 </div>`;
 }
 
@@ -492,7 +465,7 @@ function renderCreateEmail() {
     <input id="inp-email" class="input" type="email" placeholder="you@example.com" maxlength="200" autocomplete="email" value="${esc(S.email)}">
   </div>
   <div class="anon-notice">
-    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-icon">&#x2713;</div>
     <div class="anon-notice-text">Your responders never see your email. We only use it for account recovery.</div>
   </div>
   <p class="small">You must be at least 16 years old to create a profile.</p>
@@ -506,12 +479,12 @@ function renderCreateLink() {
 <div class="screen">
   <div class="badge badge-green" style="align-self:flex-start">&#x2714; Profile created</div>
   <p class="h1">Share your link,<br>get honest answers.</p>
-  <p class="body">Send this link to friends, colleagues, or anyone you want perception from. They answer anonymously.</p>
+  <p class="body">Send this to friends or anyone you want perception from. They answer in 90 seconds, anonymously.</p>
 
   <div class="card" style="gap:.75rem;display:flex;flex-direction:column">
     <div class="label">Your share link</div>
     <div class="link-box">
-      <div class="link-text" id="share-link-text">${esc(url)}</div>
+      <div class="link-text">${esc(url)}</div>
       <button class="link-copy" id="btn-copy-link" data-action="copy-link">Copy</button>
     </div>
     <button class="btn btn-primary" data-action="share-link" style="margin-top:.25rem">&#x2197; Share link</button>
@@ -533,7 +506,7 @@ function renderReturnEmail() {
   <button class="back-btn" data-action="back-landing">&#8592; Back</button>
   <div style="height:1rem"></div>
   <p class="h2">Return to your results</p>
-  <p class="body">Enter the email you used when creating your profile. We will send you a link to get back in.</p>
+  <p class="body">Enter the email you used when creating your profile.</p>
   <div class="input-group" style="margin-top:.5rem">
     <label class="input-label" for="inp-return-email">Email address</label>
     <input id="inp-return-email" class="input" type="email" placeholder="you@example.com" autocomplete="email">
@@ -551,7 +524,7 @@ function renderReturnSent() {
   <p class="body">We sent a login link to <strong>${esc(S.email)}</strong>. Click it to return to your results.</p>
   ${S.magicUrl ? `
   <div class="card" style="gap:.5rem;display:flex;flex-direction:column">
-    <div class="label">Alpha mode — copy this link manually</div>
+    <div class="label">Alpha mode &#x2014; copy this link manually</div>
     <div class="magic-box">${esc(S.magicUrl)}</div>
     <button class="btn btn-secondary" data-action="copy-magic">Copy link</button>
   </div>` : ''}
@@ -573,20 +546,22 @@ function renderReturnExpired() {
 function renderRespondIntro() {
   if (!S.respondingTo) return renderNotFound();
   const name = esc(S.respondingTo.name);
-  const mode = S.respondingTo.mode === 'romance' ? 'romantic' : 'friendship';
+  // LD-04: mode labels — 'dating' shows as 'dating perception', 'friends' shows as 'social perception'
+  const modeLabel = S.respondingTo.mode === 'dating' ? 'dating perception' : 'social perception';
+  const qCount = S.questions.length || 7;
   return `
 <div class="screen center" style="gap:1.5rem">
   <div style="text-align:center">
     <div style="width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:500;color:#fff;margin:0 auto 1rem">${esc(S.respondingTo.name.charAt(0).toUpperCase())}</div>
-    <p class="label" style="margin-bottom:.5rem">${mode} perception</p>
+    <p class="label" style="margin-bottom:.5rem">${esc(modeLabel)}</p>
     <p class="h1">${name} wants to know<br>how you see them</p>
   </div>
   <div class="anon-notice">
-    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-icon">&#x2713;</div>
     <div class="anon-notice-text">Your answers are shown without your name. We do not reveal who submitted them.</div>
   </div>
   <p class="body" style="text-align:center">
-    ${S.questions.length} questions &middot; about 2 minutes.<br>Be honest — they only see the patterns, not your individual answers.
+    ${qCount} questions &middot; about 90 seconds.<br>Be honest &#x2014; they only see patterns, not your individual answers.
   </p>
   <button class="btn btn-primary" data-action="start-questions">Start answering</button>
   <a href="/" style="font-size:.78rem;color:var(--dim);text-decoration:none">Create your own profile &#x2192;</a>
@@ -594,8 +569,8 @@ function renderRespondIntro() {
 }
 
 function renderRespondQuestions() {
-  const q   = S.questions[S.qIndex];
-  if (!q) return renderRespondDone(); // all answered
+  const q = S.questions[S.qIndex];
+  if (!q) { showOptionalStep(); return '<div class="screen center"><div class="spinner"></div></div>'; }
   const pct = ((S.qIndex) / S.questions.length * 100).toFixed(0);
   const sel = S.answers[q.id];
 
@@ -608,20 +583,44 @@ function renderRespondQuestions() {
     </div>
     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
   </div>
-
   <p class="h2" style="margin-top:.5rem">${esc(q.text)}</p>
-
   <div id="options-list">
     ${q.options.map(o => `
     <button class="option ${sel === o.id ? 'selected' : ''}" data-option="${esc(o.id)}" data-qid="${esc(q.id)}">
       ${esc(o.text)}
     </button>`).join('')}
   </div>
-
   <div class="anon-notice" style="margin-top:auto">
-    <div class="anon-notice-icon">✓</div>
+    <div class="anon-notice-icon">&#x2713;</div>
     <div class="anon-notice-text">Your identity is never revealed. ${esc(S.respondingTo.name)} only sees patterns across all responses.</div>
   </div>
+</div>`;
+}
+
+// LD-06: Optional short-answer field after 7 structured questions
+// v4.2 P3: client-side guard — require 6/7 answered before allowing submission.
+// Server enforces the same rule independently.
+function renderRespondOptional() {
+  const answeredCount = Object.keys(S.answers).length;
+  const meetsThreshold = answeredCount >= 6;
+  const missing = 6 - answeredCount;
+  return `
+<div class="screen" style="padding-bottom:1.5rem">
+  <div>
+    <div class="progress-row" style="margin-bottom:.5rem">
+      <span class="small">Optional</span>
+      <span class="small">100%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+  </div>
+  <p class="h2">One more thing</p>
+  <p class="body">Is there anything you would want ${esc(S.respondingTo ? S.respondingTo.name : 'them')} to know? This is optional and anonymous.</p>
+  <textarea id="inp-optional" class="input" style="resize:none;height:120px;line-height:1.6" maxlength="300" placeholder="Optional — leave blank to skip...">${esc(S.optionalNote)}</textarea>
+  <p class="small" style="text-align:right" id="char-count">0 / 300</p>
+  ${!meetsThreshold ? `<p class="small" style="color:var(--red);text-align:center">Please go back and answer ${missing} more question${missing!==1?'s':''}.</p>
+  <button class="btn btn-secondary" data-action="go-back-questions">&#8592; Back to questions</button>` : `
+  <button class="btn btn-primary" data-action="submit-response">Submit answers</button>
+  <button class="btn btn-ghost" data-action="submit-response">Skip and submit</button>`}
 </div>`;
 }
 
@@ -630,10 +629,10 @@ function renderRespondDone() {
 <div class="screen center" style="gap:1.5rem">
   <div class="badge badge-green">&#x2714; Done</div>
   <p class="h1">Thank you for<br>answering honestly.</p>
-  <p class="body">${S.respondingTo ? `${esc(S.respondingTo.name)} will see` : 'They will see'} your answers as part of their perception profile — never linked to you.</p>
+  <p class="body">${S.respondingTo ? `${esc(S.respondingTo.name)} will see` : 'They will see'} your answers as part of their perception profile &#x2014; never linked to you.</p>
   <div class="card" style="text-align:center">
     <p class="body" style="margin-bottom:1rem">Curious how people see you?</p>
-    <a href="/" class="btn btn-primary" style="text-decoration:none;display:block;padding:.875rem;border-radius:10px;text-align:center" onclick="trackEvent('own_profile_created_after_response',{sessionId:S.sessionId})">Create my own profile &#x2192;</a>
+    <a href="/" class="btn btn-primary" style="text-decoration:none;display:block;padding:.875rem;border-radius:10px;text-align:center">Create my own profile &#x2192;</a>
   </div>
   <p class="small" style="text-align:center;color:var(--dim)">
     <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy policy</a>
@@ -642,48 +641,30 @@ function renderRespondDone() {
 }
 
 // ── RESULTS ───────────────────────────────────────────────────────────────────
+// LD-05: 4 states: locked (0) / first_signals (1-2) / emerging (3-4) / unlocked (5+)
 function renderResultsLoading() {
   return `<div class="screen center"><div class="spinner"></div><p class="small" style="text-align:center;margin-top:.5rem">Loading your results...</p></div>`;
 }
 
-const TIER_NAMES = {
-  first_glimpse:    'Basic Profile',
-  basic_profile:    'Strength Insight',
-  strength_insight: 'Hidden Signal',
-  hidden_signal:    'Full Result',
-  full_result:      null
-};
-function getNextTierKey(tier) {
-  return ({
-    locked:           'first_glimpse',
-    first_glimpse:    'basic_profile',
-    basic_profile:    'strength_insight',
-    strength_insight: 'hidden_signal',
-    hidden_signal:    'full_result',
-    full_result:      null
-  })[tier];
-}
 function renderResults() {
   if (!S.result) return renderResultsLoading();
   const r = S.result;
   const n = r.responseCount;
-  const tier = r.tier;
+  const tier = r.tier; // locked | first_signals | emerging | unlocked
   const name = esc(S.name || 'Your');
   const url  = S.shareUrl || '';
 
   const tierLabels = {
-    locked:           'Waiting for responses',
-    first_glimpse:    'First glimpse',
-    basic_profile:    'Basic profile',
-    strength_insight: 'Strength insight',
-    hidden_signal:    'Hidden signal revealed',
-    full_result:      'Full result'
+    locked:        'Waiting for responses',
+    first_signals: 'Something is forming',
+    emerging:      'Emerging signal',
+    unlocked:      'Full result unlocked'
   };
 
-  const isUnlocked = (t) => {
-    const order = ['locked','first_glimpse','basic_profile','strength_insight','hidden_signal','full_result'];
-    return order.indexOf(tier) >= order.indexOf(t);
-  };
+  const nextUnlock = r.nextUnlock;
+  const nextMessage = nextUnlock
+    ? `${nextUnlock - n} more response${nextUnlock - n !== 1 ? 's' : ''} to unlock the next layer`
+    : null;
 
   return `
 <div class="screen">
@@ -694,21 +675,25 @@ function renderResults() {
 
   <div>
     <p class="label" style="margin-bottom:.375rem">${name}'s perception profile</p>
-    <p class="h2">${tierLabels[tier] || 'Results'}</p>
+    <p class="h2">${esc(tierLabels[tier] || 'Results')}</p>
     <p class="small" style="margin-top:.25rem">${n} response${n !== 1 ? 's' : ''} received</p>
   </div>
 
-  <!-- Unlock progress -->
+  <!-- Unlock progress (LD-05) -->
   <div class="card">
     <div class="label" style="margin-bottom:.75rem">Unlock progress</div>
     ${renderUnlockTiers(n)}
-    ${r.nextUnlock ? `<p class="small" style="margin-top:.75rem;text-align:center">${r.nextUnlock - n} more response${r.nextUnlock - n !== 1 ? 's' : ''} to unlock the next tier</p>` : '<p class="small" style="margin-top:.75rem;text-align:center;color:var(--green)">Full result unlocked.</p>'}
+    ${nextMessage
+      ? `<p class="small" style="margin-top:.75rem;text-align:center">${esc(nextMessage)}</p>`
+      : '<p class="small" style="margin-top:.75rem;text-align:center;color:var(--green)">&#x2714; Full result unlocked.</p>'}
   </div>
 
-  <!-- Share again — re-share CTA -->
-  <div class="card" style="border-color:${tier==='locked'?'var(--border)':'#7c6af530'}">
-    <div class="label" style="margin-bottom:.375rem">Share your link</div>
-    ${r.nextUnlock ? `<p class="small" style="margin-bottom:.75rem;color:var(--muted)">Share again to unlock <strong>${TIER_NAMES[getNextTierKey(tier)]||'the next layer'}</strong> — ${r.nextUnlock - n} more response${r.nextUnlock-n!==1?'s':''} away.</p>` : '<p class="small" style="margin-bottom:.75rem;color:var(--green)">All layers unlocked. Share to build your long-term perception profile.</p>'}
+  <!-- Share / re-share CTA -->
+  <div class="card">
+    <div class="label" style="margin-bottom:.375rem">Share to unlock more</div>
+    ${nextMessage
+      ? `<p class="small" style="margin-bottom:.75rem;color:var(--muted)">${esc(nextMessage)}.</p>`
+      : '<p class="small" style="margin-bottom:.75rem;color:var(--green)">All layers unlocked. Share to keep your profile growing.</p>'}
     <div class="link-box">
       <div class="link-text">${esc(url)}</div>
       <button class="link-copy" id="btn-copy-results" data-action="copy-link">Copy</button>
@@ -716,58 +701,67 @@ function renderResults() {
     <button class="btn btn-primary" data-action="share-link" style="margin-top:.75rem">&#x2197; Share for more responses</button>
   </div>
 
-  <!-- Results content -->
+  <!-- Tier: locked — no responses yet -->
   ${tier === 'locked' ? `
   <div class="card" style="text-align:center;gap:.75rem;display:flex;flex-direction:column">
     <p class="body">No responses yet.</p>
     <p class="small">Share your link above to get your first result.</p>
   </div>` : ''}
 
-  ${isUnlocked('first_glimpse') && r.primary ? `
+  <!-- Tier: first_signals — 1-2 responses — show primary signal name as teaser -->
+  ${tier === 'first_signals' && r.primary ? `
+  <div class="result-card">
+    <div class="result-card-head">Something keeps showing up.</div>
+    <div class="signal-teaser">
+      <div class="signal-teaser-name">${esc(r.primary.label)}</div>
+      <div class="signal-teaser-sub">Get ${r.nextUnlock - n} more response${r.nextUnlock - n !== 1 ? 's' : ''} to reveal what this means.</div>
+    </div>
+  </div>` : ''}
+
+  <!-- Tier: emerging — 3-4 responses — show primary signal fully -->
+  ${tier === 'emerging' && r.primary ? `
   <div class="result-card">
     <div class="result-card-head">Primary signal</div>
     <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.primary.label)}</div>
     <div class="result-card-body">${esc(r.primary.text)}</div>
-    ${renderSignalBar(r.primary.signal, r.primary.score)}
+    ${renderSignalBar(r.primary.score)}
+  </div>
+  <div class="result-locked">
+    <div class="result-card-head">Locked</div>
+    <div class="result-card-body" style="filter:blur(3px)">&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;</div>
   </div>` : ''}
 
-  ${isUnlocked('basic_profile') && r.secondary ? `
+  <!-- Tier: unlocked — 5+ responses — full result -->
+  ${tier === 'unlocked' ? `
+  ${r.primary ? `
+  <div class="result-card">
+    <div class="result-card-head">Primary signal</div>
+    <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.primary.label)}</div>
+    <div class="result-card-body">${esc(r.primary.text)}</div>
+    ${renderSignalBar(r.primary.score)}
+  </div>` : ''}
+  ${r.secondary ? `
   <div class="result-card">
     <div class="result-card-head">Secondary signal</div>
     <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.secondary.label)}</div>
     <div class="result-card-body">${esc(r.secondary.text)}</div>
-    ${renderSignalBar(r.secondary.signal, r.secondary.score)}
+    ${renderSignalBar(r.secondary.score)}
   </div>` : ''}
-
-  ${isUnlocked('strength_insight') && r.tertiary ? `
+  ${r.tertiary ? `
   <div class="result-card">
-    <div class="result-card-head">Strength signal</div>
+    <div class="result-card-head">Third signal</div>
     <div class="label" style="color:var(--accent);margin-bottom:.375rem">${esc(r.tertiary.label)}</div>
     <div class="result-card-body">${esc(r.tertiary.text)}</div>
-    ${renderSignalBar(r.tertiary.signal, r.tertiary.score)}
+    ${renderSignalBar(r.tertiary.score)}
   </div>` : ''}
-
-  ${isUnlocked('hidden_signal') && r.hidden ? `
-  <div class="result-card">
-    <div class="result-card-head">Hidden signal &#x2014; something you may not know about yourself</div>
-    <div class="label" style="color:var(--gold);margin-bottom:.375rem">${esc(r.hidden.label)}</div>
-    <div class="result-card-body">${esc(r.hidden.text)}</div>
-    ${renderSignalBar(r.hidden.signal, r.hidden.score)}
-  </div>` : ''}
-
-  ${isUnlocked('full_result') && r.blindSpot ? `
+  ${r.blindSpot ? `
   <div class="result-card" style="border-color:#f8717130">
     <div class="result-card-head">Blind spot &#x2014; what you likely underestimate about your own impact</div>
     <div class="label" style="color:var(--red);margin-bottom:.375rem">${esc(r.blindSpot.label)}</div>
     <div class="result-card-body">${esc(r.blindSpot.text)}</div>
-    ${renderSignalBar(r.blindSpot.signal, r.blindSpot.score)}
+    ${renderSignalBar(r.blindSpot.score)}
   </div>` : ''}
-
-  ${!isUnlocked('first_glimpse') ? '' : `
-  <div class="result-card locked">
-    <div class="result-card-head">Locked</div>
-    <div class="result-card-body">&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;&#x25A0;</div>
-  </div>`}
+  ` : ''}
 
   <p class="small" style="text-align:center;color:var(--dim)">
     <a href="/privacy" style="color:var(--dim);text-decoration:none">Privacy</a>
@@ -777,9 +771,9 @@ function renderResults() {
 </div>`;
 }
 
-function renderSignalBar(signal, score) {
-  const pct  = Math.round(Math.abs(score) * 100);
-  const pos  = score >= 0;
+function renderSignalBar(score) {
+  const pct = Math.round(Math.abs(score || 0) * 100);
+  const pos = (score || 0) >= 0;
   return `
 <div class="signal-row" style="margin-top:.75rem">
   <div class="signal-header">
@@ -791,23 +785,22 @@ function renderSignalBar(signal, score) {
 </div>`;
 }
 
+// LD-05: 3 unlock tiers (first_signals / emerging / unlocked)
 function renderUnlockTiers(responseCount) {
   const tiers = [
-    { key:'first_glimpse',    n: 1,  label:'First glimpse',     sub:'Primary signal revealed' },
-    { key:'basic_profile',    n: 3,  label:'Basic profile',     sub:'Top 2 signals + context' },
-    { key:'strength_insight', n: 5,  label:'Strength insight',  sub:'3 signals + depth' },
-    { key:'hidden_signal',    n: 7,  label:'Hidden signal',     sub:'4th signal you may not know' },
-    { key:'full_result',      n: 10, label:'Full result',       sub:'All signals + blind spot' }
+    { n: 1, label: '1–2 responses — First Signals',   sub: 'Primary signal name revealed' },
+    { n: 3, label: '3–4 responses — Emerging Signal', sub: 'Primary signal fully revealed' },
+    { n: 5, label: '5+ responses — Unlocked',              sub: 'All signals + blind spot' }
   ];
-  return tiers.map(t => {
+  return tiers.map((t, i) => {
     const done = responseCount >= t.n;
-    const next = !done && tiers.find(x => responseCount < x.n) === t;
+    const next = !done && (i === 0 || responseCount >= tiers[i-1].n);
     const cls  = done ? 'unlocked' : next ? 'next' : 'locked';
     const icon = done ? '&#x2714;' : next ? '&#x25CF;' : '&#x25A1;';
     return `<div class="tier-row">
       <div class="tier-icon ${cls}">${icon}</div>
       <div class="tier-text">
-        <div class="tier-name">${t.n} response${t.n !== 1 ? 's' : ''} — ${t.label}</div>
+        <div class="tier-name">${t.label}</div>
         <div class="tier-sub">${t.sub}</div>
       </div>
     </div>`;
@@ -824,16 +817,32 @@ function renderNotFound() {
 
 // ─── EVENT BINDING ────────────────────────────────────────────────────────────
 function bindEvents() {
-  // Delegated click handler — single listener, no memory leaks
-  document.getElementById('app').addEventListener('click', handleClick);
-  // Input handler for mode cards
+  // v4.1 BUG1 FIX: Only attach delegated handleClick once.
+  // render() is called on every state change — without this guard, listeners stack
+  // and a single click fires handleClick N times (N = number of renders so far).
+  // This is especially critical in the responder flow (7 renders for 7 questions).
+  if (!_clickBound) {
+    document.getElementById('app').addEventListener('click', handleClick);
+    _clickBound = true;
+  }
+
   document.querySelectorAll('[data-mode]').forEach(el => {
     el.addEventListener('click', () => { S.mode = el.dataset.mode; render(); });
   });
-  // Option selection in questions
+
   document.querySelectorAll('[data-option]').forEach(el => {
     el.addEventListener('click', () => selectOption(el.dataset.qid, el.dataset.option));
   });
+
+  // Optional textarea char count
+  const optInp = document.getElementById('inp-optional');
+  const charCount = document.getElementById('char-count');
+  if (optInp && charCount) {
+    optInp.addEventListener('input', () => {
+      S.optionalNote = optInp.value;
+      charCount.textContent = `${optInp.value.length} / 300`;
+    });
+  }
 }
 
 function handleClick(e) {
@@ -841,13 +850,13 @@ function handleClick(e) {
   if (!el) return;
   const action = el.dataset.action;
 
-  switch(action) {
-    case 'start-create':   S.screen = 'create_mode'; render(); break;
-    case 'back-landing':   S.screen = 'landing';     render(); break;
-    case 'back-mode':      S.screen = 'create_mode'; render(); break;
-    case 'back-name':      S.screen = 'create_name'; render(); break;
-    case 'back-return':    S.screen = 'return_email';render(); break;
-    case 'go-return':      S.screen = 'return_email';render(); break;
+  switch (action) {
+    case 'start-create':  S.screen = 'create_mode'; render(); break;
+    case 'back-landing':  S.screen = 'landing';      render(); break;
+    case 'back-mode':     S.screen = 'create_mode';  render(); break;
+    case 'back-name':     S.screen = 'create_name';  render(); break;
+    case 'back-return':   S.screen = 'return_email'; render(); break;
+    case 'go-return':     S.screen = 'return_email'; render(); break;
 
     case 'mode-next':
       if (S.mode) { S.screen = 'create_name'; render(); }
@@ -877,9 +886,19 @@ function handleClick(e) {
       S.screen = 'respond_questions'; render();
       break;
 
+    // v4.2 P3: back from optional screen if <6 questions answered
+    case 'go-back-questions':
+      S.qIndex = Math.max(0, S.questions.length - 1);
+      S.screen = 'respond_questions'; render();
+      break;
+
+    case 'submit-response':
+      submitResponse();
+      break;
+
     case 'go-results':
       if (S.profileId) { S.screen = 'results_loading'; render(); loadResults(); }
-      else              { S.screen = 'return_email';    render(); }
+      else             { S.screen = 'return_email';    render(); }
       break;
 
     case 'copy-link': {
@@ -896,10 +915,8 @@ function handleClick(e) {
 
     case 'share-link': {
       const url = S.shareUrl || '';
-      // Track share_after_result if fired from results screen; share_clicked otherwise
       const onResults = S.screen === 'results';
-      const shareEvent = onResults ? 'share_after_result' : 'share_clicked';
-      trackEvent(shareEvent);
+      trackEvent(onResults ? 'share_after_result' : 'share_clicked');
       shareOrCopy(url).then(result => {
         if (result === 'copied') toast('Link copied!');
         else if (result === 'failed') toast('Could not share — copy the link instead.');
@@ -916,19 +933,31 @@ function handleClick(e) {
   }
 }
 
+// v4.1 BUG3 FIX: guard against double-trigger during the 280ms advance delay.
+// Without this, rapid taps or compounded listener stacking can call selectOption
+// twice for the same question, incrementing qIndex by 2 and skipping a question.
+let _selectLocked = false;
+
 function selectOption(qid, optId) {
+  if (_selectLocked) return;
+  _selectLocked = true;
+
   S.answers[qid] = optId;
   trackEvent('question_answered', { metadata: { q: qid, a: optId } });
 
-  // Auto-advance after short delay
   setTimeout(() => {
+    _selectLocked = false;
     S.qIndex++;
     if (S.qIndex >= S.questions.length) {
-      submitResponse();
+      S.screen = 'respond_optional'; render();
     } else {
       render();
     }
   }, 280);
+}
+
+function showOptionalStep() {
+  S.screen = 'respond_optional'; render();
 }
 
 // ─── API ACTIONS ──────────────────────────────────────────────────────────────
@@ -951,15 +980,13 @@ async function handleCreateProfile() {
     S.shareId    = data.shareId;
     S.shareUrl   = data.shareUrl;
     S.respondUrl = data.respondUrl;
-    // If this owner created their profile after responding to someone else
     if (S.refProfileId) {
       apiFetch('/api/referral/convert', {
         method: 'POST',
         body: JSON.stringify({ sessionId: S.sessionId, invitedProfileId: data.profileId })
       }).catch(() => {});
     }
-    S.screen     = 'create_link';
-    render();
+    S.screen = 'create_link'; render();
   } catch (e) {
     toast(e.message || 'Could not create profile. Try again.');
     if (btn) { btn.disabled = false; btn.textContent = 'Create my profile'; }
@@ -985,9 +1012,8 @@ async function handleSendMagic() {
       method: 'POST',
       body: JSON.stringify({ email })
     });
-    S.magicUrl = data.magicUrl || null; // alpha mode only
-    S.screen = 'return_sent';
-    render();
+    S.magicUrl = data.magicUrl || null;
+    S.screen = 'return_sent'; render();
   } catch (e) {
     if (errEl) errEl.textContent = e.message || 'Could not send link. Try again.';
     if (btn) { btn.disabled = false; btn.textContent = 'Send my link'; }
@@ -996,6 +1022,11 @@ async function handleSendMagic() {
 
 async function submitResponse() {
   S.screen = 'loading'; render();
+
+  // LD-06: include optional note if provided
+  const metadata = S.optionalNote && S.optionalNote.trim()
+    ? { optional_note: S.optionalNote.trim().slice(0, 300) }
+    : null;
 
   try {
     await apiFetch('/api/responses', {
@@ -1006,23 +1037,14 @@ async function submitResponse() {
         answers:      S.answers,
         refProfileId: S.refProfileId,
         src:          S.src,
-        language:     S.language
+        language:     S.language,
+        metadata
       })
     });
-
-    // If responder came via referral, mark potential conversion
-    if (S.refProfileId) {
-      apiFetch('/api/track', {
-        method: 'POST',
-        body: JSON.stringify({ event: 'responder_started', profileId: S.respondingTo.id, sessionId: S.sessionId })
-      }).catch(() => {});
-    }
-
     S.screen = 'respond_done'; render();
   } catch (e) {
     toast(e.message || 'Could not submit. Please try again.');
-    S.qIndex = S.questions.length - 1;
-    S.screen = 'respond_questions'; render();
+    S.screen = 'respond_optional'; render();
   }
 }
 
