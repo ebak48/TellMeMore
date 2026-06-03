@@ -48,7 +48,7 @@ function repairExistingSchema(db) {
   if (tables.has('referrals')) {
     if (addColumn(db,'referrals','invited_profile_id','TEXT')) n++;
   }
-  if (n > 0) console.log(`[DB] Schema repair complete — ${n} column(s) added`);
+  if (n > 0) console.log(`[DB] Schema repair complete â€” ${n} column(s) added`);
 }
 const MIGRATIONS = [
   { version:1, name:'core_schema', up(db) {
@@ -89,7 +89,7 @@ function runMigrations(db) {
     applied++;
   }
   const latest = MIGRATIONS[MIGRATIONS.length-1].version;
-  if (applied) console.log(`[DB] Applied ${applied} migration(s) — now at v${latest}`);
+  if (applied) console.log(`[DB] Applied ${applied} migration(s) â€” now at v${latest}`);
   else console.log(`[DB] Schema up to date (v${latest})`);
 }
 function initDb() {
