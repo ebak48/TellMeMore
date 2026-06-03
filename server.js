@@ -25,7 +25,13 @@ const ADMIN_PASS = process.env.ADMIN_PASS || 'tmm-alpha-change-me';
 const APP_HTML   = path.join(__dirname, 'app.html');
 const IP_SALT    = process.env.IP_SALT || crypto.randomBytes(16).toString('hex');
 
-const db = initDb();
+let db;
+try {
+  db = initDb();
+} catch (e) {
+  console.error('[FATAL] Database initialization failed:', e);
+  console.error('[FATAL] If the database file is corrupted, delete /app/data/tellmemore.db and redeploy.');
+}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function esc(s) {
@@ -334,6 +340,12 @@ const server=http.createServer(async(req,res)=>{
 
     if(method==='GET'&&pathname==='/privacy')return html(res,renderPrivacyPage());
     if(method==='GET'&&pathname==='/terms')  return html(res,renderTermsPage());
+
+    // ── HEALTH CHECK ──────────────────────────────────────────────────────────
+    if(method==='GET'&&pathname==='/health'){
+      if(!db) return json(res,{status:'error',message:'database not initialized'},503);
+      return json(res,{status:'ok'});
+    }
 
     // ── ADMIN ─────────────────────────────────────────────────────────────────
     if(method==='GET'&&pathname==='/admin'){
